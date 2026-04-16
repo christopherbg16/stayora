@@ -1,0 +1,649 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - Hotel Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0" style="margin-top: 30px;">
+    <div class="row g-0">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2" style="background-color: var(--bg-panel); min-height: calc(100vh - 120px); margin-top: 20px;">
+            <div class="d-flex flex-column p-3">
+                <!-- User Info най-отгоре в sidebar-а -->
+                <div class="text-center p-3 mb-4" style="background-color: var(--bg-input); border-radius: 10px;">
+                    <div class="mb-2">
+                        {% if current_user.profile_image %}
+                            <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}"
+                                 class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover; border: 3px solid var(--primary);">
+                        {% else %}
+                            <div style="font-size: 4rem; color: var(--primary);">👤</div>
+                        {% endif %}
+                    </div>
+                    <h5 class="mb-1" style="color: var(--text-light);">{{ current_user.username }}</h5>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Guest</p>
+                </div>
+
+                <!-- Навигация -->
+                <div class="nav flex-column nav-pills">
+                    <a href="{{ url_for('user.dashboard') }}" class="nav-link active mb-2" style="background-color: var(--primary); color: white;">
+                        <i class="fas fa-home me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('user.browse_hotels') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-search me-2"></i>Browse Hotels
+                    </a>
+                    <a href="{{ url_for('user.my_reservations') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-calendar-check me-2"></i>My Bookings
+                    </a>
+                    <a href="{{ url_for('user.profile') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link mb-2" style="color: var(--danger);">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10" style="background-color: var(--bg-dark); min-height: calc(100vh - 120px); margin-top: 20px;">
+            <div class="p-5">
+                <h2 class="mb-5" style="color: var(--text-light); font-size: 2.2rem; font-weight: 500;">
+                    <i class="fas fa-home me-2" style="color: var(--primary);"></i>Welcome, {{ current_user.username }}!
+                </h2>
+
+                <!-- Stats Cards -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-2" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Total Bookings</h6>
+                                        <h2 class="mb-0" style="color: var(--text-light); font-size: 2.5rem; font-weight: bold;">{{ total_bookings }}</h2>
+                                    </div>
+                                    <div style="font-size: 3rem; color: var(--primary);">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-2" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Upcoming Stays</h6>
+                                        <h2 class="mb-0" style="color: var(--text-light); font-size: 2.5rem; font-weight: bold;">{{ upcoming|length }}</h2>
+                                    </div>
+                                    <div style="font-size: 3rem; color: var(--secondary);">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Bookings -->
+                <div class="card mt-4" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
+                    <div class="card-header" style="background-color: var(--bg-input); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;">
+                        <h5 class="mb-0" style="color: var(--text-light);">
+                            <i class="fas fa-calendar-alt me-2" style="color: var(--primary);"></i>Upcoming Bookings
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if upcoming %}
+                            {% for booking in upcoming %}
+                                <div class="mb-3 p-3" style="background-color: var(--bg-input); border-radius: 8px;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1" style="color: var(--text-light);">Room #{{ booking.room.number }}</h6>
+                                            <small style="color: var(--text-muted);">
+                                                <i class="fas fa-calendar-day me-1"></i>{{ booking.start_date }}
+                                                <i class="fas fa-arrow-right mx-2"></i>
+                                                {{ booking.end_date }}
+                                                <span class="badge bg-primary ms-2">{{ booking.nights }} nights</span>
+                                            </small>
+                                        </div>
+                                        <span class="badge" style="background-color: var(--secondary); color: white; padding: 0.5rem 1rem;">Confirmed</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times fa-4x mb-3" style="color: var(--text-muted);"></i>
+                                <p style="color: var(--text-muted); font-size: 1.1rem;">No upcoming bookings</p>
+                                <a href="{{ url_for('user.browse_hotels') }}" class="btn btn-primary mt-3 px-4 py-2">
+                                    <i class="fas fa-search me-2"></i>Browse Hotels
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Browse by property type - със снимки -->
+<div class="mt-5 mb-4">
+    <h5 class="mb-3" style="color: var(--text-light); font-weight: 600;">
+        <i class="fas fa-building me-2" style="color: var(--primary);"></i>Browse by property type
+    </h5>
+
+    <div class="row g-3">
+        <!-- Хотели -->
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('user.browse_hotels') }}" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 16px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 1/1;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Hotels">
+                        <div class="position-absolute bottom-0 start-0 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-hotel me-2" style="color: white; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);"></i>
+                                <span style="color: white; font-weight: 600; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">Hotels</span>
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 2px;">2,547 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Апартаменти -->
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('user.browse_hotels') }}?type=apartment" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 16px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 1/1;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Apartments">
+                        <div class="position-absolute bottom-0 start-0 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-building me-2" style="color: white; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);"></i>
+                                <span style="color: white; font-weight: 600; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">Apartments</span>
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 2px;">1,892 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Резорти -->
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('user.browse_hotels') }}?type=resort" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 16px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 1/1;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Resorts">
+                        <div class="position-absolute bottom-0 start-0 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-umbrella-beach me-2" style="color: white; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);"></i>
+                                <span style="color: white; font-weight: 600; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">Resorts</span>
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 2px;">843 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Вили -->
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('user.browse_hotels') }}?type=villa" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 16px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 1/1;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/2587054/pexels-photo-2587054.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Villas">
+                        <div class="position-absolute bottom-0 start-0 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-home me-2" style="color: white; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);"></i>
+                                <span style="color: white; font-weight: 600; font-size: 1.2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">Villas</span>
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 2px;">521 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+                <!-- Trending destinations - модерен дизайн като Booking.com -->
+<div class="mt-5 mb-4">
+    <h5 class="mb-3" style="color: var(--text-light); font-weight: 600;">
+        <i class="fas fa-fire me-2" style="color: var(--primary);"></i>Trending destinations
+    </h5>
+    <p class="text-muted mb-4" style="font-size: 0.95rem;">Most popular choices for travellers worldwide</p>
+
+    <!-- ПЪРВИ РЕД - 2 ГОЛЕМИ БАЛОНА (Париж и Рим) -->
+    <div class="row g-4 mb-4">
+        <!-- Париж (ГОЛЯМ) -->
+        <div class="col-md-6">
+            <a href="{{ url_for('user.browse_hotels') }}?destination=Paris" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 20px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 16/9;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/2363/france-landmark-lights-night.jpg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Paris">
+                        <div class="position-absolute bottom-0 start-0 p-3" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <span style="color: white; font-weight: 700; font-size: 1.8rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-right: 10px;">Paris</span>
+                                <img src="https://flagpedia.net/data/flags/icon/72x54/fr.png"
+                                     alt="FR"
+                                     style="width: 40px; height: 27px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 4px;">843 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Рим (ГОЛЯМ) -->
+        <div class="col-md-6">
+            <a href="{{ url_for('user.browse_hotels') }}?destination=Rome" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 20px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 16/9;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/1797161/pexels-photo-1797161.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Rome">
+                        <div class="position-absolute bottom-0 start-0 p-3" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <span style="color: white; font-weight: 700; font-size: 1.8rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-right: 10px;">Rome</span>
+                                <img src="https://flagpedia.net/data/flags/icon/72x54/it.png"
+                                     alt="IT"
+                                     style="width: 40px; height: 27px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 4px;">1,245 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- ВТОРИ РЕД - 4 ПО-МАЛКИ БАЛОНА -->
+    <div class="row g-4">
+        <!-- Барселона -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ url_for('user.browse_hotels') }}?destination=Barcelona" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 16px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 4/3;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/1388030/pexels-photo-1388030.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Barcelona">
+                        <div class="position-absolute bottom-0 start-0 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <span style="color: white; font-weight: 600; font-size: 1.3rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-right: 8px;">Barcelona</span>
+                                <img src="https://flagpedia.net/data/flags/icon/72x54/es.png"
+                                     alt="ES"
+                                     style="width: 30px; height: 20px; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 2px;">967 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Истанбул -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ url_for('user.browse_hotels') }}?destination=Istanbul" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 16px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 4/3;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/1603650/pexels-photo-1603650.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Istanbul">
+                        <div class="position-absolute bottom-0 start-0 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <span style="color: white; font-weight: 600; font-size: 1.3rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-right: 8px;">Istanbul</span>
+                                <img src="https://flagpedia.net/data/flags/icon/72x54/tr.png"
+                                     alt="TR"
+                                     style="width: 30px; height: 20px; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 2px;">2,156 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Лондон -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ url_for('user.browse_hotels') }}?destination=London" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 16px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 4/3;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/460672/pexels-photo-460672.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="London">
+                        <div class="position-absolute bottom-0 start-0 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <span style="color: white; font-weight: 600; font-size: 1.3rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-right: 8px;">London</span>
+                                <img src="https://flagpedia.net/data/flags/icon/72x54/gb.png"
+                                     alt="GB"
+                                     style="width: 30px; height: 20px; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 2px;">3,421 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Дубай -->
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ url_for('user.browse_hotels') }}?destination=Dubai" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 16px; overflow: hidden; transition: box-shadow 0.3s ease; aspect-ratio: 4/3;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="position-relative h-100 w-100">
+                        <img src="https://images.pexels.com/photos/2868242/pexels-photo-2868242.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             alt="Dubai">
+                        <div class="position-absolute bottom-0 start-0 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); width: 100%;">
+                            <div class="d-flex align-items-center">
+                                <span style="color: white; font-weight: 600; font-size: 1.3rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-right: 8px;">Dubai</span>
+                                <img src="https://flagpedia.net/data/flags/icon/72x54/ae.png"
+                                     alt="AE"
+                                     style="width: 30px; height: 20px; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                            </div>
+                            <small style="color: rgba(255,255,255,0.9); font-weight: 500; display: block; margin-top: 2px;">1,892 properties</small>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+                <!-- Stay at our top unique properties -->
+<div class="mt-5 mb-4">
+    <h5 class="mb-3" style="color: var(--text-light); font-weight: 600;">
+        <i class="fas fa-star me-2" style="color: var(--primary);"></i>Stay at our top unique properties
+    </h5>
+
+    <div class="row g-4">
+        <!-- Хотел 1: Планински курорт -->
+        <div class="col-md-6">
+            <a href="{{ url_for('user.hotel_detail', hotel_id=1) }}" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 20px; overflow: hidden; transition: box-shadow 0.3s ease;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="row g-0">
+                        <!-- Лява половина - СНИМКА -->
+                        <div class="col-6">
+                            <div style="height: 180px; overflow: hidden;">
+                                <img src="https://images.pexels.com/photos/1285625/pexels-photo-1285625.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     alt="Mountain Resort">
+                            </div>
+                        </div>
+                        <!-- Дясна половина - БЯЛО ПОЛЕ с информация -->
+                        <div class="col-6" style="background-color: white;">
+                            <div class="p-3 d-flex flex-column" style="height: 180px;">
+                                <!-- Горен ред: тип и рейтинг -->
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span style="color: #666; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">HOTEL</span>
+                                    <span style="background-color: #003580; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">8.9</span>
+                                </div>
+                                <!-- Име на хотела -->
+                                <h6 style="color: #1a1a1a; font-weight: 700; font-size: 1rem; margin-bottom: 2px; line-height: 1.2;">Mountain Escape</h6>
+                                <!-- Локация -->
+                                <div style="color: #666; font-size: 0.7rem; margin-bottom: 8px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--primary); font-size: 0.6rem;"></i> Bansko, Bulgaria
+                                </div>
+                                <!-- Цена долу дясно -->
+                                <div class="mt-auto text-end">
+                                    <span style="color: #666; font-size: 0.65rem; display: block;">Starting from</span>
+                                    <span style="color: #1a1a1a; font-weight: 700; font-size: 1.1rem;">€89</span>
+                                    <span style="color: #666; font-size: 0.6rem;">/night</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Хотел 2: Луксозен хотел -->
+        <div class="col-md-6">
+            <a href="{{ url_for('user.hotel_detail', hotel_id=2) }}" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 20px; overflow: hidden; transition: box-shadow 0.3s ease;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="row g-0">
+                        <!-- Лява половина - СНИМКА -->
+                        <div class="col-6">
+                            <div style="height: 180px; overflow: hidden;">
+                                <img src="https://images.pexels.com/photos/2034335/pexels-photo-2034335.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     alt="Luxury Hotel">
+                            </div>
+                        </div>
+                        <!-- Дясна половина - БЯЛО ПОЛЕ с информация -->
+                        <div class="col-6" style="background-color: white;">
+                            <div class="p-3 d-flex flex-column" style="height: 180px;">
+                                <!-- Горен ред: тип и рейтинг -->
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span style="color: #666; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">RESORT</span>
+                                    <span style="background-color: #003580; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">9.4</span>
+                                </div>
+                                <!-- Име на хотела -->
+                                <h6 style="color: #1a1a1a; font-weight: 700; font-size: 1rem; margin-bottom: 2px; line-height: 1.2;">Royal Palm</h6>
+                                <!-- Локация -->
+                                <div style="color: #666; font-size: 0.7rem; margin-bottom: 8px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--primary); font-size: 0.6rem;"></i> Sunny Beach, Bulgaria
+                                </div>
+                                <!-- Цена долу дясно -->
+                                <div class="mt-auto text-end">
+                                    <span style="color: #666; font-size: 0.65rem; display: block;">Starting from</span>
+                                    <span style="color: #1a1a1a; font-weight: 700; font-size: 1.1rem;">€145</span>
+                                    <span style="color: #666; font-size: 0.6rem;">/night</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Хотел 3: СПА хотел -->
+        <div class="col-md-6">
+            <a href="{{ url_for('user.hotel_detail', hotel_id=3) }}" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 20px; overflow: hidden; transition: box-shadow 0.3s ease;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="row g-0">
+                        <!-- Лява половина - СНИМКА -->
+                        <div class="col-6">
+                            <div style="height: 180px; overflow: hidden;">
+                                <img src="https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     alt="SPA Hotel">
+                            </div>
+                        </div>
+                        <!-- Дясна половина - БЯЛО ПОЛЕ с информация -->
+                        <div class="col-6" style="background-color: white;">
+                            <div class="p-3 d-flex flex-column" style="height: 180px;">
+                                <!-- Горен ред: тип и рейтинг -->
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span style="color: #666; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">SPA HOTEL</span>
+                                    <span style="background-color: #003580; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">9.1</span>
+                                </div>
+                                <!-- Име на хотела -->
+                                <h6 style="color: #1a1a1a; font-weight: 700; font-size: 1rem; margin-bottom: 2px; line-height: 1.2;">Aqua Relax</h6>
+                                <!-- Локация -->
+                                <div style="color: #666; font-size: 0.7rem; margin-bottom: 8px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--primary); font-size: 0.6rem;"></i> Hisarya, Bulgaria
+                                </div>
+                                <!-- Цена долу дясно -->
+                                <div class="mt-auto text-end">
+                                    <span style="color: #666; font-size: 0.65rem; display: block;">Starting from</span>
+                                    <span style="color: #1a1a1a; font-weight: 700; font-size: 1.1rem;">€76</span>
+                                    <span style="color: #666; font-size: 0.6rem;">/night</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Хотел 4: Планинска вила -->
+        <div class="col-md-6">
+            <a href="{{ url_for('user.hotel_detail', hotel_id=4) }}" style="text-decoration: none;">
+                <div class="card border-0" style="background-color: var(--bg-panel); border-radius: 20px; overflow: hidden; transition: box-shadow 0.3s ease;"
+                     onmouseover="this.style.boxShadow='0 20px 40px rgba(0,0,0,0.5)';"
+                     onmouseout="this.style.boxShadow='none';">
+                    <div class="row g-0">
+                        <!-- Лява половина - СНИМКА -->
+                        <div class="col-6">
+                            <div style="height: 180px; overflow: hidden;">
+                                <img src="https://images.pexels.com/photos/2251247/pexels-photo-2251247.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     alt="Mountain Villa">
+                            </div>
+                        </div>
+                        <!-- Дясна половина - БЯЛО ПОЛЕ с информация -->
+                        <div class="col-6" style="background-color: white;">
+                            <div class="p-3 d-flex flex-column" style="height: 180px;">
+                                <!-- Горен ред: тип и рейтинг -->
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span style="color: #666; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">VILLA</span>
+                                    <span style="background-color: #003580; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">9.7</span>
+                                </div>
+                                <!-- Име на хотела -->
+                                <h6 style="color: #1a1a1a; font-weight: 700; font-size: 1rem; margin-bottom: 2px; line-height: 1.2;">Pine Forest</h6>
+                                <!-- Локация -->
+                                <div style="color: #666; font-size: 0.7rem; margin-bottom: 8px;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--primary); font-size: 0.6rem;"></i> Bansko, Bulgaria
+                                </div>
+                                <!-- Цена долу дясно -->
+                                <div class="mt-auto text-end">
+                                    <span style="color: #666; font-size: 0.65rem; display: block;">Starting from</span>
+                                    <span style="color: #1a1a1a; font-weight: 700; font-size: 1.1rem;">€112</span>
+                                    <span style="color: #666; font-size: 0.6rem;">/night</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+                <!-- Past Bookings -->
+                <div class="card mt-4" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
+                    <div class="card-header" style="background-color: var(--bg-input); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;">
+                        <h5 class="mb-0" style="color: var(--text-light);">
+                            <i class="fas fa-history me-2" style="color: var(--text-muted);"></i>Past Bookings
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if past %}
+                            {% for booking in past %}
+                                <div class="mb-3 p-3" style="background-color: var(--bg-input); border-radius: 8px; opacity: 0.8;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1" style="color: var(--text-light);">Room #{{ booking.room.number }}</h6>
+                                            <small style="color: var(--text-muted);">
+                                                <i class="fas fa-calendar-day me-1"></i>{{ booking.start_date }}
+                                                <i class="fas fa-arrow-right mx-2"></i>
+                                                {{ booking.end_date }}
+                                            </small>
+                                        </div>
+                                        <span class="badge" style="background-color: var(--text-muted); color: white; padding: 0.5rem 1rem;">Completed</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center py-4" style="color: var(--text-muted);">
+                                <i class="fas fa-history me-2"></i>No past bookings
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Увери се, че няма бели фонове */
+body {
+    background-color: var(--bg-dark) !important;
+}
+
+.nav-link:hover {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-light) !important;
+}
+
+.nav-link.active {
+    background-color: var(--primary) !important;
+    color: white !important;
+}
+
+.nav-link.text-danger:hover {
+    background-color: var(--danger) !important;
+    color: white !important;
+}
+
+/* Премахни всички бели фонове от Bootstrap */
+.bg-white, .bg-light {
+    background-color: transparent !important;
+}
+
+/* Стилове за trending destinations */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+/* Стилове за снимките */
+.position-relative {
+    border-radius: 16px 16px 0 0;
+}
+
+.emoji-flag {
+    font-size: 1.2rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+</style>
+{% endblock %}

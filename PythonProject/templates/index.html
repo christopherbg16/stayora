@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stayora — Discover Extraordinary Places to Stay</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #0a0e1a;
+            --bg-panel: #111827;
+            --bg-card: #161d2e;
+            --bg-input: #1e2a3a;
+            --primary: #c9a96e;
+            --primary-hover: #b8904f;
+            --primary-light: rgba(201,169,110,0.12);
+            --accent: #4f8ef7;
+            --secondary: #2dd4bf;
+            --text-light: #f1f5f9;
+            --text-muted: #64748b;
+            --text-subtle: #94a3b8;
+            --border: rgba(255,255,255,0.07);
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-light);
+            font-family: var(--font-body);
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── NAV ─────────────────────────────────── */
+        .top-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s ease;
+        }
+
+        .top-nav.scrolled {
+            background: rgba(10,14,26,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 2rem;
+        }
+
+        .brand {
+            font-family: var(--font-display);
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand .brand-dot { color: var(--primary); }
+
+        .brand-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; color: #0a0e1a;
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover { color: white; background: rgba(255,255,255,0.1); }
+
+        .btn-nav-cta {
+            background: var(--primary) !important;
+            color: #0a0e1a !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 1.3rem !important;
+        }
+        .btn-nav-cta:hover { background: var(--primary-hover) !important; transform: translateY(-1px); }
+
+        /* ── HERO ────────────────────────────────── */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1600');
+            background-size: cover;
+            background-position: center;
+            transform: scale(1.05);
+            transition: transform 8s ease;
+        }
+
+        .hero-bg.loaded { transform: scale(1); }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(10,14,26,0.88) 0%,
+                rgba(10,14,26,0.65) 50%,
+                rgba(10,14,26,0.5) 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 0 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary-light);
+            border: 1px solid rgba(201,169,110,0.3);
+            border-radius: 100px;
+            padding: 0.4rem 1rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.8rem, 6vw, 5.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            color: white;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s 0.15s ease both;
+        }
+
+        .hero-title .highlight {
+            color: var(--primary);
+            display: block;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.75);
+            max-width: 520px;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.6s 0.3s ease both;
+        }
+
+        /* ── SEARCH BOX ──────────────────────────── */
+        .hero-search {
+            background: rgba(255,255,255,0.97);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            max-width: 820px;
+            animation: fadeInUp 0.6s 0.45s ease both;
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.8rem;
+        }
+
+        .search-tab {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            border: none;
+            background: none;
+            transition: all 0.2s;
+        }
+        .search-tab.active { background: #0a0e1a; color: white; }
+
+        .search-fields { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.8rem; align-items: end; }
+
+        .search-field label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .search-field input, .search-field select {
+            width: 100%;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            font-size: 0.9rem;
+            font-family: var(--font-body);
+            color: #111827;
+            background: white;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .search-field input:focus, .search-field select:focus { border-color: #c9a96e; }
+
+        .btn-search {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: #0a0e1a;
+            font-weight: 700;
+            font-size: 0.92rem;
+            border: none;
+            border-radius: 10px;
+            padding: 0.7rem 1.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,169,110,0.4); }
+
+        /* ── TRUST BADGES ────────────────────────── */
+        .trust-row {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            animation: fadeInUp 0.6s 0.6s ease both;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .trust-item i { color: var(--primary); font-size: 0.9rem; }
+
+        /* ── STATS STRIP ─────────────────────────── */
+        .stats-strip {
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 2.5rem 0;
+        }
+
+        .stat-item { text-align: center; }
+        .stat-num {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            font-weight: 500;
+        }
+
+        /* ── SECTIONS ────────────────────────────── */
+        section { padding: 5rem 0; }
+
+        .section-tag {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            font-weight: 700;
+            color: var(--text-light);
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--text-subtle);
+            max-width: 540px;
+            line-height: 1.7;
+        }
+
+        /* ── PROPERTY TYPE CARDS ─────────────────── */
+        .type-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+        }
+        .type-card:hover { transform: translateY(-6px); }
+
+        .type-card img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .type-card:hover img { transform: scale(1.06); }
+
+        .type-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 40%);
+            }
+
+        .type-card-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 1.2rem 1rem;
+    /* Removed the harsh gradient background */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.type-card-label strong {
+    display: block;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.type-card-label small {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.8rem;
+}
+
+        /* ── DESTINATION CARDS ───────────────────── */
+        .dest-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        .dest-card:hover { transform: translateY(-5px); }
+
+        .dest-card img {
+            width: 100%; height: 220px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .dest-card:hover img { transform: scale(1.05); }
+
+        .dest-card-large img { height: 340px; }
+
+        .dest-card-info {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%);
+            padding: 2rem 1.2rem 1.2rem;
+        }
+
+        .dest-name {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .dest-count { font-size: 0.8rem; color: rgba(255,255,255,0.8); }
+
+        /* ── FEATURE CARDS ───────────────────────── */
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .feature-icon {
+            width: 52px; height: 52px;
+            background: var(--primary-light);
+            border: 1px solid rgba(201,169,110,0.2);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+        }
+
+        .feature-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ── HOW IT WORKS ────────────────────────── */
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .step-num {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: #0a0e1a;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 8px 24px rgba(201,169,110,0.3);
+        }
+
+        .step-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc { font-size: 0.87rem; color: var(--text-muted); line-height: 1.6; }
+
+        /* ── CTA SECTION ─────────────────────────── */
+        .cta-section {
+            background: linear-gradient(135deg, var(--bg-panel) 0%, #192235 100%);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            padding: 5rem 1.5rem;
+        }
+
+        /* ── ANIMATIONS ──────────────────────────── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── RESPONSIVE ──────────────────────────── */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .search-fields { grid-template-columns: 1fr; }
+            .trust-row { flex-wrap: wrap; gap: 1rem; }
+            .top-nav { padding: 1rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ TOP NAV ═══════════════════════════════════════════════════════ -->
+<nav class="top-nav" id="topNav">
+    <a href="/" class="brand">
+        <div class="brand-icon"><i class="fas fa-gem"></i></div>
+        Stay<span class="brand-dot">Ora</span>
+    </a>
+    <div class="nav-links">
+        <a href="{{ url_for('auth.login') }}">Sign in</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-nav-cta">Get Started</a>
+    </div>
+</nav>
+
+<!-- ══ HERO ═══════════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <i class="fas fa-star fa-sm"></i>
+            Trusted by 2M+ travelers worldwide
+        </div>
+
+        <h1 class="hero-title">
+            Find Your Perfect
+            <span class="highlight">Place to Stay</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            Discover hotels, apartments, villas and resorts across the globe. Book with confidence, travel with joy.
+        </p>
+
+        <!-- SEARCH BOX -->
+        <div class="hero-search">
+            <div class="search-tabs">
+                <button class="search-tab active">🏨 Hotels</button>
+                <button class="search-tab">🏠 Apartments</button>
+                <button class="search-tab">🌴 Villas</button>
+                <button class="search-tab">🏖️ Resorts</button>
+            </div>
+
+            <form action="{{ url_for('user.search_stays') }}" method="GET">
+                <div class="search-fields">
+                    <div class="search-field">
+                        <label><i class="fas fa-map-marker-alt me-1"></i> Destination</label>
+                        <input type="text" name="destination" placeholder="Where are you going?">
+                    </div>
+                    <div class="search-field">
+                        <label><i class="fas fa-calendar me-1"></i> Check-in</label>
+                        <input type="date" name="check_in">
+                    </div>
+                    <div class="search-field">
+                        <label><i class="fas fa-calendar-check me-1"></i> Check-out</label>
+                        <input type="date" name="check_out">
+                    </div>
+                    <div>
+                        <button type="submit" class="btn-search">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="trust-row">
+            <div class="trust-item"><i class="fas fa-shield-alt"></i> Free cancellation</div>
+            <div class="trust-item"><i class="fas fa-tag"></i> Best price guarantee</div>
+            <div class="trust-item"><i class="fas fa-headset"></i> 24/7 support</div>
+            <div class="trust-item"><i class="fas fa-lock"></i> Secure booking</div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ STATS STRIP ════════════════════════════════════════════════════ -->
+<div class="stats-strip">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-num">0,00+</div>
+                    <div class="stat-label">Properties worldwide</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-num">0M+</div>
+                    <div class="stat-label">Happy travelers</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-num">0%</div>
+                    <div class="stat-label">Guest satisfaction</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-num">0+</div>
+                    <div class="stat-label">Countries covered</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ PROPERTY TYPES ═════════════════════════════════════════════════ -->
+<section style="background: var(--bg-dark);">
+    <div class="container">
+        <div class="row align-items-end mb-4">
+            <div class="col">
+                <div class="section-tag">Accommodations</div>
+                <h2 class="section-title">Browse by property type</h2>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('auth.login') }}" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: 500;">
+                    View all <i class="fas fa-arrow-right ms-1 fa-sm"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('auth.login') }}" class="type-card">
+                    <img src="https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop" alt="Hotels">
+                    <div class="type-card-overlay"></div>
+                    <div class="type-card-label">
+                        <strong>Hotels</strong>
+                        <small>0,00 properties</small>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('auth.login') }}" class="type-card">
+                    <img src="https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop" alt="Apartments">
+                    <div class="type-card-overlay"></div>
+                    <div class="type-card-label">
+                        <strong>Apartments</strong>
+                        <small>0,00 properties</small>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('auth.login') }}" class="type-card">
+                    <img src="https://images.pexels.com/photos/2587054/pexels-photo-2587054.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop" alt="Villas">
+                    <div class="type-card-overlay"></div>
+                    <div class="type-card-label">
+                        <strong>Villas</strong>
+                        <small>521 properties</small>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('auth.login') }}" class="type-card">
+                    <img src="https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop" alt="Resorts">
+                    <div class="type-card-overlay"></div>
+                    <div class="type-card-label">
+                        <strong>Resorts</strong>
+                        <small>843 properties</small>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ TRENDING DESTINATIONS ══════════════════════════════════════════ -->
+<section style="background: var(--bg-panel); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="container">
+        <div class="row align-items-end mb-4">
+            <div class="col">
+                <div class="section-tag">Popular right now</div>
+                <h2 class="section-title">Trending destinations</h2>
+                <p class="section-subtitle">Top picks from our community of travelers</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <a href="{{ url_for('auth.login') }}" class="dest-card dest-card-large">
+                    <img src="https://images.pexels.com/photos/2363/france-landmark-lights-night.jpg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop" alt="Paris">
+                    <div class="dest-card-info">
+                        <div class="dest-name">Paris</div>
+                        <div class="dest-count">843 properties · France</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="{{ url_for('auth.login') }}" class="dest-card">
+                            <img src="https://images.pexels.com/photos/1388030/pexels-photo-1388030.jpeg?auto=compress&cs=tinysrgb&w=500&h=350&fit=crop" alt="Barcelona">
+                            <div class="dest-card-info">
+                                <div class="dest-name" style="font-size: 1.1rem;">Barcelona</div>
+                                <div class="dest-count">967 properties</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('auth.login') }}" class="dest-card">
+                            <img src="https://images.pexels.com/photos/1797161/pexels-photo-1797161.jpeg?auto=compress&cs=tinysrgb&w=500&h=350&fit=crop" alt="Rome">
+                            <div class="dest-card-info">
+                                <div class="dest-name" style="font-size: 1.1rem;">Rome</div>
+                                <div class="dest-count">1,245 properties</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('auth.login') }}" class="dest-card">
+                            <img src="https://images.pexels.com/photos/460672/pexels-photo-460672.jpeg?auto=compress&cs=tinysrgb&w=500&h=350&fit=crop" alt="London">
+                            <div class="dest-card-info">
+                                <div class="dest-name" style="font-size: 1.1rem;">London</div>
+                                <div class="dest-count">3,421 properties</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('auth.login') }}" class="dest-card">
+                            <img src="https://images.pexels.com/photos/2868242/pexels-photo-2868242.jpeg?auto=compress&cs=tinysrgb&w=500&h=350&fit=crop" alt="Dubai">
+                            <div class="dest-card-info">
+                                <div class="dest-name" style="font-size: 1.1rem;">Dubai</div>
+                                <div class="dest-count">1,892 properties</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ FEATURES ═══════════════════════════════════════════════════════ -->
+<section style="background: var(--bg-dark);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-tag">Why Stayora</div>
+            <h2 class="section-title">Everything you need for a perfect stay</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="feature-title">Free cancellation</div>
+                    <p class="feature-desc">Flexible bookings on most properties. Plans change — we've got you covered.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-tag"></i></div>
+                    <div class="feature-title">Best price guarantee</div>
+                    <p class="feature-desc">Find a lower price elsewhere? We'll match it. Simple as that.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="feature-title">Secure booking</div>
+                    <p class="feature-desc">Your data and payments are protected with industry-leading encryption.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                    <div class="feature-title">24/7 support</div>
+                    <p class="feature-desc">Our team is always on hand to help, wherever you are in the world.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ HOW IT WORKS ════════════════════════════════════════════════════ -->
+<section style="background: var(--bg-panel); border-top: 1px solid var(--border);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-tag">Simple process</div>
+            <h2 class="section-title">Book in 3 easy steps</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-title">Search your destination</div>
+                    <p class="step-desc">Enter your destination, travel dates and number of guests to find available properties.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-title">Choose your stay</div>
+                    <p class="step-desc">Browse results, compare amenities, read reviews and pick the perfect property for you.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-title">Confirm & enjoy</div>
+                    <p class="step-desc">Book securely in seconds. Get instant confirmation and relax — your stay is sorted.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ CTA ════════════════════════════════════════════════════════════ -->
+<div class="cta-section">
+    <div class="section-tag">Join 2M+ travelers</div>
+    <h2 class="section-title mb-3">Ready to find your perfect stay?</h2>
+    <p style="color: var(--text-subtle); max-width: 480px; margin: 0 auto 2rem; font-size: 1rem;">
+        Create a free account and start exploring thousands of properties today.
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="{{ url_for('auth.register') }}"
+           style="background: var(--primary); color: #0a0e1a; font-weight: 700; padding: 0.8rem 2rem; border-radius: 10px; text-decoration: none; font-size: 0.95rem; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;"
+           onmouseover="this.style.background='var(--primary-hover)'; this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.background='var(--primary)'; this.style.transform='translateY(0)'">
+            <i class="fas fa-user-plus"></i> Create free account
+        </a>
+        <a href="{{ url_for('auth.login') }}"
+           style="background: var(--bg-input); color: var(--text-light); font-weight: 600; padding: 0.8rem 2rem; border-radius: 10px; text-decoration: none; font-size: 0.95rem; border: 1px solid var(--border); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;"
+           onmouseover="this.style.borderColor='var(--primary-light)'; this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+            Sign in
+        </a>
+    </div>
+</div>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer style="background: var(--bg-panel); border-top: 1px solid var(--border); padding: 3rem 0 1.5rem;">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text-light);">Stay<span style="color: var(--primary);">Ora</span></div>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.5rem; line-height: 1.7;">Discover extraordinary places to stay — from boutique hotels to private villas worldwide.</p>
+            </div>
+            <div class="col-6 col-lg-2">
+                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-subtle); margin-bottom: 0.8rem;">Explore</div>
+                <a href="{{ url_for('auth.login') }}" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">Hotels</a>
+                <a href="{{ url_for('auth.login') }}" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">Apartments</a>
+                <a href="{{ url_for('auth.login') }}" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">Villas</a>
+            </div>
+            <div class="col-6 col-lg-2">
+                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-subtle); margin-bottom: 0.8rem;">Company</div>
+                <a href="#" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">About</a>
+                <a href="#" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">Careers</a>
+                <a href="#" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">Press</a>
+            </div>
+            <div class="col-6 col-lg-2">
+                <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-subtle); margin-bottom: 0.8rem;">Support</div>
+                <a href="#" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">Help Center</a>
+                <a href="#" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">Contact</a>
+                <a href="#" style="display: block; color: var(--text-muted); text-decoration: none; font-size: 0.87rem; margin-bottom: 0.4rem;">Safety</a>
+            </div>
+        </div>
+        <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 2rem; font-size: 0.82rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <span>© 2025 Stayora. All rights reserved.</span>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="#" style="color: var(--text-muted); text-decoration: none;">Privacy</a>
+                <a href="#" style="color: var(--text-muted); text-decoration: none;">Terms</a>
+                <a href="#" style="color: var(--text-muted); text-decoration: none;">Cookies</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Navbar scroll
+const nav = document.getElementById('topNav');
+window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// Hero bg parallax
+const heroBg = document.getElementById('heroBg');
+heroBg.style.backgroundImage = "url('https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1600')";
+setTimeout(() => heroBg.classList.add('loaded'), 100);
+
+window.addEventListener('scroll', () => {
+    heroBg.style.transform = `scale(1) translateY(${window.scrollY * 0.3}px)`;
+});
+
+// Search tab switching
+document.querySelectorAll('.search-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+    });
+});
+</script>
+</body>
+</html>
