@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout — Stayora{% endblock %}
+
+{% block extra_css %}
+<style>
+.checkout-container {
+    max-width: 900px;
+    margin: 100px auto 3rem;
+    padding: 0 1.5rem;
+}
+
+.checkout-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.checkout-header {
+    background: var(--bg-input);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.checkout-body {
+    padding: 2rem;
+}
+
+.booking-summary {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+.summary-row.total {
+    border-top: 2px solid var(--primary);
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Payment method selector */
+.payment-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.payment-method-option {
+    position: relative;
+    background: var(--bg-input);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.payment-method-option:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-hover);
+}
+
+.payment-method-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.payment-method-option.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.payment-method-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.payment-method-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.payment-method-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: block;
+}
+
+.payment-method-option.selected .payment-method-title {
+    color: var(--primary);
+}
+
+/* Card form */
+.card-form {
+    display: none;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-form.active {
+    display: block;
+}
+
+.card-form .form-control {
+    background: var(--bg-dark) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-light) !important;
+    border-radius: 8px !important;
+    padding: 0.7rem 0.9rem !important;
+}
+
+.card-form .form-control:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px var(--primary-light) !important;
+}
+
+.card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.btn-pay {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: #0a0e1a;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(201, 169, 110, 0.3);
+}
+
+.btn-pay-cash {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    background: var(--bg-input);
+    color: var(--text-light);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-pay-cash:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+}
+
+.secure-badges {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+.secure-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.secure-badge i { color: var(--success); }
+
+/* Stripe Element container */
+#card-element {
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+#card-errors {
+    color: var(--danger);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .checkout-header { padding: 1rem 1.5rem; }
+    .checkout-body { padding: 1.5rem; }
+    .payment-methods { grid-template-columns: 1fr; }
+    .card-row { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="checkout-card">
+        <!-- Header -->
+        <div class="checkout-header">
+            <i class="fas fa-lock" style="color: var(--success); font-size: 1.2rem;"></i>
+            <div>
+                <h2 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--text-light); margin: 0;">
+                    Complete Your Booking
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Choose your preferred payment method</p>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="checkout-body">
+            <!-- Booking Summary -->
+            <div class="booking-summary">
+                <h5 style="color: var(--text-light); font-weight: 600; margin-bottom: 1rem;">
+                    <i class="fas fa-receipt me-2" style="color: var(--primary);"></i>Booking Summary
+                </h5>
+
+                {% if room %}
+                <div class="summary-row">
+                    <span style="color: var(--text-muted);">Property</span>
+                    <span style="color: var(--text-light); font-weight: 500;">{{ hotel.name }}</span>
+                </div>
+                <div class="summary-row">
+                    <span style="color: var(--text-muted);">Room</span>
+                    <span style="color: var(--text-light);">Room #{{ room.number }} - {{ room.type }}</span>
+                </div>
+                {% else %}
+                <div class="summary-row">
+                    <span style="color: var(--text-muted);">Property</span>
+                    <span style="color: var(--text-light); font-weight: 500;">{{ hotel.name }} ({{ hotel.property_type|title }})</span>
+                </div>
+                {% endif %}
+
+                <div class="summary-row">
+                    <span style="color: var(--text-muted);">Location</span>
+                    <span style="color: var(--text-light);">{{ hotel.city }}, {{ hotel.country }}</span>
+                </div>
+                <div class="summary-row">
+                    <span style="color: var(--text-muted);">Check-in</span>
+                    <span style="color: var(--text-light);">{{ check_in }}</span>
+                </div>
+                <div class="summary-row">
+                    <span style="color: var(--text-muted);">Check-out</span>
+                    <span style="color: var(--text-light);">{{ check_out }}</span>
+                </div>
+                <div class="summary-row">
+                    <span style="color: var(--text-muted);">Duration</span>
+                    <span style="color: var(--text-light);">{{ nights }} night{{ 's' if nights != 1 }}</span>
+                </div>
+                <div class="summary-row total">
+                    <span style="color: var(--text-light);">Total</span>
+                    <span style="color: var(--primary);">€{{ "%.2f"|format(total_price) }}</span>
+                </div>
+                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    €{{ "%.2f"|format(total_price / nights) }} per night × {{ nights }} nights
+                </div>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <form method="POST" action="{{ url_for('payments.process_payment') }}" id="paymentForm">
+                <input type="hidden" name="booking_type" value="{{ 'room' if room else 'property' }}">
+                <input type="hidden" name="booking_id" value="{{ room.id if room else hotel.id }}">
+                <input type="hidden" name="check_in" value="{{ check_in }}">
+                <input type="hidden" name="nights" value="{{ nights }}">
+                <input type="hidden" name="total_price" value="{{ total_price }}">
+
+                <div class="payment-methods">
+                    <!-- Card Payment -->
+                    <label class="payment-method-option" id="optionCard" onclick="selectPayment('card', this)">
+                        <input type="radio" name="payment_method" value="card">
+                        <span class="payment-method-icon">💳</span>
+                        <span class="payment-method-title">Pay with Card</span>
+                        <span class="payment-method-desc">Secure online payment via Stripe</span>
+                    </label>
+
+                    <!-- Cash Payment -->
+                    <label class="payment-method-option selected" id="optionCash" onclick="selectPayment('cash', this)">
+                        <input type="radio" name="payment_method" value="cash" checked>
+                        <span class="payment-method-icon">💵</span>
+                        <span class="payment-method-title">Pay in Cash</span>
+                        <span class="payment-method-desc">Pay at the property upon arrival</span>
+                    </label>
+                </div>
+
+                <!-- Card Payment Form (hidden by default) -->
+                <div class="card-form" id="cardForm">
+                    <h5 style="color: var(--text-light); font-weight: 600; margin-bottom: 1rem;">
+                        <i class="fas fa-credit-card me-2" style="color: var(--primary);"></i>Card Details
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cardholder Name</label>
+                        <input type="text" name="card_name" class="form-control" placeholder="John Doe" id="cardName">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" name="card_number" class="form-control" placeholder="1234 5678 9012 3456" id="cardNumber" maxlength="19" oninput="formatCardNumber(this)">
+                    </div>
+
+                    <div class="card-row">
+                        <div class="mb-3">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="text" name="card_expiry" class="form-control" placeholder="MM/YY" id="cardExpiry" maxlength="5" oninput="formatExpiry(this)">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">CVC</label>
+                            <input type="text" name="card_cvc" class="form-control" placeholder="123" id="cardCvc" maxlength="4">
+                        </div>
+                    </div>
+
+                    <div id="card-errors" role="alert"></div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div id="buttonCard" style="display: none;">
+                    <button type="submit" class="btn-pay">
+                        <i class="fas fa-lock"></i>
+                        Pay €{{ "%.2f"|format(total_price) }} Securely
+                    </button>
+                </div>
+
+                <div id="buttonCash">
+                    <button type="submit" class="btn-pay-cash">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        Confirm Booking (Pay at Property)
+                    </button>
+                </div>
+            </form>
+
+            <!-- Security Badges -->
+            <div class="secure-badges">
+                <div class="secure-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    SSL Encrypted
+                </div>
+                <div class="secure-badge">
+                    <i class="fas fa-lock"></i>
+                    Secure Payment
+                </div>
+                <div class="secure-badge">
+                    <i class="fas fa-undo"></i>
+                    Free Cancellation
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectPayment(type, element) {
+    // Remove selected from all
+    document.querySelectorAll('.payment-method-option').forEach(el => el.classList.remove('selected'));
+    // Add to clicked
+    element.classList.add('selected');
+    // Check the radio
+    element.querySelector('input[type="radio"]').checked = true;
+
+    // Show/hide card form
+    const cardForm = document.getElementById('cardForm');
+    const buttonCard = document.getElementById('buttonCard');
+    const buttonCash = document.getElementById('buttonCash');
+
+    if (type === 'card') {
+        cardForm.classList.add('active');
+        buttonCard.style.display = 'block';
+        buttonCash.style.display = 'none';
+        // Make card fields required
+        document.getElementById('cardName').required = true;
+        document.getElementById('cardNumber').required = true;
+        document.getElementById('cardExpiry').required = true;
+        document.getElementById('cardCvc').required = true;
+    } else {
+        cardForm.classList.remove('active');
+        buttonCard.style.display = 'none';
+        buttonCash.style.display = 'block';
+        // Remove required from card fields
+        document.getElementById('cardName').required = false;
+        document.getElementById('cardNumber').required = false;
+        document.getElementById('cardExpiry').required = false;
+        document.getElementById('cardCvc').required = false;
+    }
+}
+
+function formatCardNumber(input) {
+    let value = input.value.replace(/\D/g, '');
+    value = value.substring(0, 16);
+    let formatted = '';
+    for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) formatted += ' ';
+        formatted += value[i];
+    }
+    input.value = formatted;
+}
+
+function formatExpiry(input) {
+    let value = input.value.replace(/\D/g, '');
+    value = value.substring(0, 4);
+    if (value.length >= 2) {
+        input.value = value.substring(0, 2) + '/' + value.substring(2);
+    } else {
+        input.value = value;
+    }
+}
+
+// Validate card before submit
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+
+    if (paymentMethod === 'card') {
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const cardExpiry = document.getElementById('cardExpiry').value;
+        const cardCvc = document.getElementById('cardCvc').value;
+        const cardName = document.getElementById('cardName').value;
+        const errors = document.getElementById('card-errors');
+
+        errors.textContent = '';
+
+        if (!cardName) {
+            errors.textContent = 'Please enter the cardholder name';
+            e.preventDefault();
+            return;
+        }
+        if (cardNumber.length < 16) {
+            errors.textContent = 'Please enter a valid 16-digit card number';
+            e.preventDefault();
+            return;
+        }
+        if (!cardExpiry.match(/^\d{2}\/\d{2}$/)) {
+            errors.textContent = 'Please enter a valid expiry date (MM/YY)';
+            e.preventDefault();
+            return;
+        }
+        // Check expiry is in the future
+        const [month, year] = cardExpiry.split('/');
+        const now = new Date();
+        const currentYear = now.getFullYear() % 100;
+        const currentMonth = now.getMonth() + 1;
+        if (parseInt(year) < currentYear || (parseInt(year) === currentYear && parseInt(month) < currentMonth)) {
+            errors.textContent = 'Card has expired';
+            e.preventDefault();
+            return;
+        }
+        if (cardCvc.length < 3) {
+            errors.textContent = 'Please enter a valid CVC';
+            e.preventDefault();
+            return;
+        }
+    }
+});
+</script>
+{% endblock %}

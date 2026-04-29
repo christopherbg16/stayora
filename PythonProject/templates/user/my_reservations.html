@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}My Reservations - Hotel Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0" style="margin-top: 30px;">
+    <div class="row g-0">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2" style="background-color: var(--bg-panel); min-height: calc(100vh - 120px); margin-top: 20px;">
+            <div class="d-flex flex-column p-3">
+                <!-- User Info -->
+                <div class="text-center p-3 mb-4" style="background-color: var(--bg-input); border-radius: 10px;">
+                    <div class="mb-2">
+                        {% if current_user.profile_image %}
+                            <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}"
+                                 class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover; border: 3px solid var(--primary);">
+                        {% else %}
+                            <div style="font-size: 4rem; color: var(--primary);">👤</div>
+                        {% endif %}
+                    </div>
+                    <h5 class="mb-1" style="color: var(--text-light);">{{ current_user.username }}</h5>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Guest</p>
+                </div>
+
+                <!-- Навигация -->
+                <div class="nav flex-column nav-pills">
+                    <a href="{{ url_for('user.dashboard') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-home me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('user.browse_stays') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-search me-2"></i>Browse Stays
+                    </a>
+                    <a href="{{ url_for('user.my_reservations') }}" class="nav-link active mb-2" style="background-color: var(--primary); color: white;">
+                        <i class="fas fa-calendar-check me-2"></i>My Bookings
+                    </a>
+                    <a href="{{ url_for('user.profile') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link mb-2" style="color: var(--danger);">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10" style="background-color: var(--bg-dark); min-height: calc(100vh - 120px); margin-top: 20px;">
+            <div class="p-5">
+                <h2 class="mb-5" style="color: var(--text-light); font-size: 2.2rem; font-weight: 500;">
+                    <i class="fas fa-calendar-check me-2" style="color: var(--primary);"></i>My Reservations
+                </h2>
+
+                <!-- Upcoming Reservations -->
+                <div class="card mb-4" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
+                    <div class="card-header" style="background-color: var(--bg-input); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;">
+                        <h5 class="mb-0" style="color: var(--text-light);">
+                            <i class="fas fa-calendar-alt me-2" style="color: var(--primary);"></i>Upcoming Stays
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if upcoming %}
+                            <div class="row">
+                                {% for reservation in upcoming %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card" style="background-color: var(--bg-input); border: none;">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                                    <div>
+                                                        <!-- Проверка дали е стая или имот -->
+                                                        {% if reservation.room is defined and reservation.room %}
+                                                            <!-- Резервация за стая (хотел) -->
+                                                            <span class="badge mb-2" style="background-color: #667eea; color: white;">Hotel Room</span>
+                                                            <h5 class="card-title mb-1" style="color: var(--text-light);">
+                                                                Room #{{ reservation.room.number }} - {{ reservation.room.hotel.name }}
+                                                            </h5>
+                                                        {% elif reservation.property is defined and reservation.property %}
+                                                            <!-- Резервация за цял имот (апартамент/вила/резорт) -->
+                                                            <span class="badge mb-2" style="background-color: {% if reservation.property.property_type == 'apartment' %}#48c6ef{% elif reservation.property.property_type == 'villa' %}#5f2c82{% else %}#f093fb{% endif %}; color: white;">
+                                                                Entire {{ reservation.property.property_type|title }}
+                                                            </span>
+                                                            <h5 class="card-title mb-1" style="color: var(--text-light);">
+                                                                {{ reservation.property.name }}
+                                                            </h5>
+                                                        {% endif %}
+                                                    </div>
+                                                    <span class="badge" style="background-color: var(--secondary); color: white; padding: 0.5rem 1rem;">Confirmed</span>
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <i class="fas fa-calendar-day me-2" style="color: var(--primary);"></i>
+                                                    <strong style="color: var(--text-light);">Check-in:</strong>
+                                                    <span style="color: var(--text-muted);">{{ reservation.start_date }}</span>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <i class="fas fa-calendar-check me-2" style="color: var(--primary);"></i>
+                                                    <strong style="color: var(--text-light);">Check-out:</strong>
+                                                    <span style="color: var(--text-muted);">{{ reservation.end_date }}</span>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <i class="fas fa-moon me-2" style="color: var(--primary);"></i>
+                                                    <strong style="color: var(--text-light);">Nights:</strong>
+                                                    <span style="color: var(--text-muted);">{{ reservation.nights }}</span>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <i class="fas fa-tag me-2" style="color: var(--primary);"></i>
+                                                    <strong style="color: var(--text-light);">Total:</strong>
+                                                    <span style="color: var(--text-muted);">
+                                                        €{% if reservation.room is defined and reservation.room %}
+                                                            {{ reservation.room.price * reservation.nights }}
+                                                        {% else %}
+                                                            {{ reservation.total_price }}
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+
+                                                <form action="{% if reservation.room is defined and reservation.room %}
+                                                                {{ url_for('user.cancel_reservation', reservation_id=reservation.id) }}
+                                                              {% else %}
+                                                                {{ url_for('user.cancel_property_reservation', reservation_id=reservation.id) }}
+                                                              {% endif %}"
+                                                      method="POST" class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to cancel this reservation?')">
+                                                    <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.5rem 1rem;">
+                                                        <i class="fas fa-times-circle me-1"></i>Cancel Reservation
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times fa-4x mb-3" style="color: var(--text-muted);"></i>
+                                <p style="color: var(--text-muted); font-size: 1.1rem;">No upcoming reservations</p>
+                                <a href="{{ url_for('user.browse_stays') }}" class="btn btn-primary mt-3 px-4 py-2">
+                                    <i class="fas fa-search me-2"></i>Browse Stays
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Past Reservations -->
+                <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
+                    <div class="card-header" style="background-color: var(--bg-input); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;">
+                        <h5 class="mb-0" style="color: var(--text-light);">
+                            <i class="fas fa-history me-2" style="color: var(--text-muted);"></i>Past Stays
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if past %}
+                            <div class="row">
+                                {% for reservation in past %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card" style="background-color: var(--bg-input); border: none; opacity: 0.8;">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                                    <div>
+                                                        <!-- Проверка дали е стая или имот -->
+                                                        {% if reservation.room is defined and reservation.room %}
+                                                            <!-- Резервация за стая (хотел) -->
+                                                            <span class="badge mb-2" style="background-color: #667eea; color: white;">Hotel Room</span>
+                                                            <h5 class="card-title mb-1" style="color: var(--text-light);">
+                                                                Room #{{ reservation.room.number }} - {{ reservation.room.hotel.name }}
+                                                            </h5>
+                                                        {% elif reservation.property is defined and reservation.property %}
+                                                            <!-- Резервация за цял имот (апартамент/вила/резорт) -->
+                                                            <span class="badge mb-2" style="background-color: {% if reservation.property.property_type == 'apartment' %}#48c6ef{% elif reservation.property.property_type == 'villa' %}#5f2c82{% else %}#f093fb{% endif %}; color: white;">
+                                                                Entire {{ reservation.property.property_type|title }}
+                                                            </span>
+                                                            <h5 class="card-title mb-1" style="color: var(--text-light);">
+                                                                {{ reservation.property.name }}
+                                                            </h5>
+                                                        {% endif %}
+                                                    </div>
+                                                    <span class="badge" style="background-color: var(--text-muted); color: white; padding: 0.5rem 1rem;">Completed</span>
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <i class="fas fa-calendar-day me-2" style="color: var(--primary);"></i>
+                                                    <strong style="color: var(--text-light);">Check-in:</strong>
+                                                    <span style="color: var(--text-muted);">{{ reservation.start_date }}</span>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <i class="fas fa-calendar-check me-2" style="color: var(--primary);"></i>
+                                                    <strong style="color: var(--text-light);">Check-out:</strong>
+                                                    <span style="color: var(--text-muted);">{{ reservation.end_date }}</span>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <i class="fas fa-moon me-2" style="color: var(--primary);"></i>
+                                                    <strong style="color: var(--text-light);">Nights:</strong>
+                                                    <span style="color: var(--text-muted);">{{ reservation.nights }}</span>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <i class="fas fa-tag me-2" style="color: var(--primary);"></i>
+                                                    <strong style="color: var(--text-light);">Total:</strong>
+                                                    <span style="color: var(--text-muted);">
+                                                        €{% if reservation.room is defined and reservation.room %}
+                                                            {{ reservation.room.price * reservation.nights }}
+                                                        {% else %}
+                                                            {{ reservation.total_price }}
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-center py-4" style="color: var(--text-muted);">
+                                <i class="fas fa-history me-2"></i>No past reservations
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Увери се, че няма бели фонове */
+body {
+    background-color: var(--bg-dark) !important;
+}
+
+.nav-link:hover {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-light) !important;
+}
+
+.nav-link.active {
+    background-color: var(--primary) !important;
+    color: white !important;
+}
+
+.nav-link.text-danger:hover {
+    background-color: var(--danger) !important;
+    color: white !important;
+}
+</style>
+{% endblock %}

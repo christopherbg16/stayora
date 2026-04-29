@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Hotels - Hotel Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0" style="margin-top: 30px;">
+    <div class="row g-0">
+        <!-- Sidebar - същият като в dashboard -->
+        <div class="col-md-3 col-lg-2" style="background-color: var(--bg-panel); min-height: calc(100vh - 120px); margin-top: 20px;">
+            <div class="d-flex flex-column p-3">
+                <!-- User Info най-отгоре в sidebar-а -->
+                <div class="text-center p-3 mb-4" style="background-color: var(--bg-input); border-radius: 10px;">
+                    <div class="mb-2">
+                        {% if current_user.profile_image %}
+                            <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}"
+                                 class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover; border: 3px solid var(--primary);">
+                        {% else %}
+                            <div style="font-size: 4rem; color: var(--primary);">👤</div>
+                        {% endif %}
+                    </div>
+                    <h5 class="mb-1" style="color: var(--text-light);">{{ current_user.username }}</h5>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Guest</p>
+                </div>
+
+                <!-- Навигация - активният елемент е Browse Hotels -->
+                <div class="nav flex-column nav-pills">
+                    <a href="{{ url_for('user.dashboard') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-home me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('user.browse_hotels') }}" class="nav-link active mb-2" style="background-color: var(--primary); color: white;">
+                        <i class="fas fa-search me-2"></i>Browse Hotels
+                    </a>
+                    <a href="{{ url_for('user.my_reservations') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-calendar-check me-2"></i>My Bookings
+                    </a>
+                    <a href="{{ url_for('user.profile') }}" class="nav-link mb-2" style="color: var(--text-muted);">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link mb-2" style="color: var(--danger);">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10" style="background-color: var(--bg-dark); min-height: calc(100vh - 120px); margin-top: 20px;">
+            <div class="p-5">
+                <h2 class="mb-5" style="color: var(--text-light); font-size: 2.2rem; font-weight: 500;">
+                    <i class="fas fa-search me-2" style="color: var(--primary);"></i>Browse Hotels
+                </h2>
+
+                <!-- Filter Section (вграден в main content) -->
+                <div class="card mb-4" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
+                    <div class="card-header" style="background-color: var(--bg-input); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;">
+                        <h5 class="mb-0" style="color: var(--text-light);">
+                            <i class="fas fa-filter me-2" style="color: var(--primary);"></i>Filter Hotels
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="GET" action="{{ url_for('user.browse_hotels') }}" class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label" style="color: var(--text-muted);">Destination</label>
+                                <input type="text" name="destination" class="form-control"
+                                       placeholder="City or hotel name"
+                                       value="{{ request.args.get('destination', '') }}"
+                                       style="background-color: var(--bg-input); color: var(--text-light); border: 1px solid var(--border);">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label" style="color: var(--text-muted);">Check-in</label>
+                                <input type="date" name="check_in" class="form-control"
+                                       value="{{ request.args.get('check_in', '') }}"
+                                       style="background-color: var(--bg-input); color: var(--text-light); border: 1px solid var(--border);">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label" style="color: var(--text-muted);">Check-out</label>
+                                <input type="date" name="check_out" class="form-control"
+                                       value="{{ request.args.get('check_out', '') }}"
+                                       style="background-color: var(--bg-input); color: var(--text-light); border: 1px solid var(--border);">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label" style="color: var(--text-muted);">Guests</label>
+                                <input type="number" name="guests" class="form-control" min="1" max="10"
+                                       value="{{ request.args.get('guests', '2') }}"
+                                       style="background-color: var(--bg-input); color: var(--text-light); border: 1px solid var(--border);">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label" style="color: var(--text-muted);">Star Rating</label>
+                                <select name="stars" class="form-select"
+                                        style="background-color: var(--bg-input); color: var(--text-light); border: 1px solid var(--border);">
+                                    <option value="">Any</option>
+                                    <option value="5" {% if request.args.get('stars') == '5' %}selected{% endif %}>5 Stars</option>
+                                    <option value="4" {% if request.args.get('stars') == '4' %}selected{% endif %}>4+ Stars</option>
+                                    <option value="3" {% if request.args.get('stars') == '3' %}selected{% endif %}>3+ Stars</option>
+                                    <option value="2" {% if request.args.get('stars') == '2' %}selected{% endif %}>2+ Stars</option>
+                                    <option value="1" {% if request.args.get('stars') == '1' %}selected{% endif %}>1+ Star</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <button type="submit" class="btn btn-primary px-4 py-2" style="background-color: var(--primary); border: none;">
+                                    <i class="fas fa-search me-2"></i>Search Hotels
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Results count -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 style="color: var(--text-light);">{{ hotels|length }} hotels found</h4>
+                    <div class="d-flex align-items-center">
+                        <label class="me-2 text-muted">Sort by:</label>
+                        <select class="form-select" style="width: auto; background-color: var(--bg-input); color: var(--text-light); border: 1px solid var(--border);" onchange="changeSort(this.value)">
+                            <option value="recommended" {% if request.args.get('sort_by') == 'recommended' or not request.args.get('sort_by') %}selected{% endif %}>Our top picks</option>
+                            <option value="price_asc" {% if request.args.get('sort_by') == 'price_asc' %}selected{% endif %}>Price (low to high)</option>
+                            <option value="price_desc" {% if request.args.get('sort_by') == 'price_desc' %}selected{% endif %}>Price (high to low)</option>
+                            <option value="rating_desc" {% if request.args.get('sort_by') == 'rating_desc' %}selected{% endif %}>Guest rating</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Hotel listings -->
+                <div class="row">
+                    {% for hotel in hotels %}
+                    <div class="col-12 mb-4">
+                        <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s;"
+                             onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'"
+                             onclick="window.location='{{ url_for('user.hotel_detail', hotel_id=hotel.id) }}?{{ request.query_string.decode() }}'">
+                            <div class="row g-0">
+                                <div class="col-md-3">
+                                    <div style="height: 200px; overflow: hidden; border-radius: 10px 0 0 10px;">
+                                        {% if hotel.main_image %}
+                                            <img src="data:image/jpeg;base64,{{ hotel.main_image|b64encode }}"
+                                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                                 alt="{{ hotel.name }}">
+                                        {% else %}
+                                            <div class="d-flex align-items-center justify-content-center h-100"
+                                                 style="background-color: var(--bg-input);">
+                                                <i class="fas fa-hotel fa-4x" style="color: var(--text-muted);"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card-body">
+                                        <h4 class="card-title mb-2" style="color: var(--text-light);">{{ hotel.name }}</h4>
+                                        <div class="mb-2">
+                                            {% for i in range(hotel.stars) %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% endfor %}
+                                            {% for i in range(5 - hotel.stars) %}
+                                                <i class="far fa-star text-muted"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="mb-2" style="color: var(--text-muted);">
+                                            <i class="fas fa-map-marker-alt me-1" style="color: var(--primary);"></i>
+                                            {{ hotel.city }}, {{ hotel.country }}
+                                        </p>
+                                        <p class="card-text" style="color: var(--text-muted);">
+                                            {{ hotel.description[:200] }}...
+                                        </p>
+                                        <div class="mt-2">
+                                            <span class="badge me-2" style="background-color: var(--bg-input); color: var(--text-light); padding: 0.5rem 1rem;">
+                                                <i class="fas fa-wifi me-1"></i>Free WiFi
+                                            </span>
+                                            <span class="badge me-2" style="background-color: var(--bg-input); color: var(--text-light); padding: 0.5rem 1rem;">
+                                                <i class="fas fa-utensils me-1"></i>Restaurant
+                                            </span>
+                                            <span class="badge" style="background-color: var(--bg-input); color: var(--text-light); padding: 0.5rem 1rem;">
+                                                <i class="fas fa-parking me-1"></i>Parking
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card-body text-end">
+                                        <div class="mb-3">
+                                            {% if hotel.review_count > 0 %}
+                                                <span class="badge p-2" style="background-color: var(--primary); color: white; font-size: 1rem;">
+                                                    {{ hotel.rating_category }}
+                                                </span>
+                                                <div class="mt-2">
+                                                    <span class="fw-bold" style="color: var(--text-light);">{{ hotel.avg_rating }}</span>
+                                                    <small class="text-muted"> ({{ hotel.review_count }} reviews)</small>
+                                                </div>
+                                            {% else %}
+                                                <span class="badge p-2" style="background-color: var(--bg-input); color: var(--text-muted); font-size: 1rem;">
+                                                    New
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">Starting from</small>
+                                            <h3 class="mb-1" style="color: var(--secondary);">€{{ hotel.min_price }}</h3>
+                                            <small class="text-muted">per night</small>
+                                        </div>
+                                        <button class="btn btn-primary w-100" style="background-color: var(--primary); border: none;"
+                                                onclick="event.stopPropagation(); window.location='{{ url_for('user.hotel_detail', hotel_id=hotel.id) }}?{{ request.query_string.decode() }}'">
+                                            View Deals <i class="fas fa-arrow-right ms-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-hotel fa-4x mb-3" style="color: var(--text-muted);"></i>
+                        <h4 style="color: var(--text-light);">No hotels found</h4>
+                        <p style="color: var(--text-muted);">Try adjusting your search filters</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function changeSort(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort_by', value);
+    window.location.href = url.toString();
+}
+</script>
+
+<style>
+/* Увери се, че няма бели фонове */
+body {
+    background-color: var(--bg-dark) !important;
+}
+
+.nav-link:hover {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-light) !important;
+}
+
+.nav-link.active {
+    background-color: var(--primary) !important;
+    color: white !important;
+}
+
+.nav-link.text-danger:hover {
+    background-color: var(--danger) !important;
+    color: white !important;
+}
+
+/* Стилове за формите */
+.form-control, .form-select {
+    background-color: var(--bg-input);
+    color: var(--text-light);
+    border: 1px solid var(--border);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-input);
+    color: var(--text-light);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+.form-label {
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+/* Карти с хотели */
+.card {
+    transition: transform 0.2s;
+    border-color: var(--border);
+}
+
+.card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .col-md-3, .col-md-9 {
+        padding: 0;
+    }
+}
+</style>
+{% endblock %}
