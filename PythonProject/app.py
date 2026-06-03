@@ -1,42 +1,32 @@
-from flask import Flask, render_template, request, jsonify, url_for, redirect
+from flask import Flask, render_template, request, jsonify, url_for, redirect, make_response
 from flask_login import LoginManager
-from models import db, User, Hotel
+from models import User, Hotel, log_activity
+from supabase_client import supabase
 from auth import auth_bp
 from admin import admin_bp
 from user import user_bp
 from payments import payments_bp
 from config import Config
 from oauth_config import init_oauth
-from werkzeug.security import generate_password_hash
 import os
 import base64
 from datetime import datetime
+import json
 
-# Create Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# Initialize extensions
-db.init_app(app)
-
-# ✅ Създаване на таблиците, ако не съществуват
-with app.app_context():
-    db.create_all()
-    print("✓ Таблиците са синхронизирани с моделите!")
-
-# Initialize Login Manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Please log in to access this page.'
 
-# Initialize OAuth
 init_oauth(app)
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.get(int(user_id))
 
 
 @login_manager.unauthorized_handler
@@ -46,41 +36,70 @@ def unauthorized():
     return redirect(url_for('auth.login', next=request.url))
 
 
-# Register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(payments_bp)
 
 
-# Custom template filters
 @app.template_filter('b64encode')
 def b64encode_filter(data):
-    if data:
+    if not data:
+        return ''
+    # If the value is already a string (e.g. base64 text stored in DB), return it unchanged
+    if isinstance(data, str):
+        return data
+    # If it's bytes-like, encode to base64 text
+    try:
         return base64.b64encode(data).decode('utf-8')
-    return ''
+    except TypeError:
+        # Fallback: convert to string and encode
+        return base64.b64encode(str(data).encode('utf-8')).decode('utf-8')
 
 
-# Create upload folder if it doesn't exist
+# Simple translation loader
+_translation_cache = {}
+
+def load_translations(lang):
+    if lang in _translation_cache:
+        return _translation_cache[lang]
+    path = os.path.join(os.path.dirname(__file__), 'translations', f'{lang}.json')
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception:
+        data = {}
+    _translation_cache[lang] = data
+    return data
+
+
+@app.template_filter('t')
+def translate_filter(text):
+    lang = request.cookies.get('site_lang', 'en')
+    trans = load_translations(lang)
+    return trans.get(text, text)
+
+
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
-# Root route — public, shows featured properties
 @app.route('/')
 def index():
-    hotels = Hotel.query.order_by(Hotel.avg_rating.desc()).limit(6).all()
+    data = supabase.table('hotels').select('*').order('avg_rating', desc=True).limit(6).execute()
+    hotels_data = data.data or []
 
-    # Real-time stats
-    total_properties = Hotel.query.count()
-    total_users = User.query.count()
-    total_hotels = Hotel.query.filter_by(property_type='hotel').count()
-    total_apartments = Hotel.query.filter_by(property_type='apartment').count()
-    total_villas = Hotel.query.filter_by(property_type='villa').count()
-    total_resorts = Hotel.query.filter_by(property_type='resort').count()
+    total_properties = Hotel.count()
+    total_users = User.count()
+    total_hotels = Hotel.count_by_type('hotel')
+    total_apartments = Hotel.count_by_type('apartment')
+    total_villas = Hotel.count_by_type('villa')
+    total_resorts = Hotel.count_by_type('resort')
+    total_countries = Hotel.count_distinct_countries()
 
-    # Count unique countries
-    from sqlalchemy import distinct
-    total_countries = db.session.query(Hotel.country).distinct().count()
+    hotels = []
+    for h in hotels_data:
+        hotel = Hotel(h)
+        hotels.append(hotel)
 
     return render_template('index.html',
                            hotels=hotels,
@@ -93,27 +112,20 @@ def index():
                            total_countries=total_countries)
 
 
-# ✅ ТЕСТОВ МАРШРУТ - за проверка на връзката с базата данни
 @app.route('/test-db')
 def test_db():
     try:
-        # Опитай да преброиш потребителите
-        user_count = User.query.count()
-
-        # Опитай да създадеш тестов потребител
+        user_count = User.count()
         test_username = f"test_user_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        test_user = User(
+        import secrets
+        from werkzeug.security import generate_password_hash
+        test_user = User.create(
             username=test_username,
             password_hash=generate_password_hash('test123'),
             role='user',
-            created_at=datetime.now()
+            created_at=datetime.now().isoformat()
         )
-
-        db.session.add(test_user)
-        db.session.commit()
-
-        new_count = User.query.count()
-
+        new_count = User.count()
         return f"""
         <html>
         <head>
@@ -151,16 +163,13 @@ def test_db():
         <body>
             <div class="card">
                 <div class="success">✓ УСПЕХ!</div>
-                <h2>Връзката с базата данни работи!</h2>
+                <h2>Supabase връзката работи!</h2>
                 <div class="info">
                     <p>Преди теста: <strong>{user_count}</strong> потребители</p>
                     <p>След теста: <strong>{new_count}</strong> потребители</p>
                 </div>
                 <div class="details">
                     <p><strong>Създаден тестов потребител:</strong> {test_username}</p>
-                    <p><strong>Можеш да го видиш в phpMyAdmin:</strong> http://localhost/phpmyadmin</p>
-                    <p><strong>База данни:</strong> register_user</p>
-                    <p><strong>Таблица:</strong> users</p>
                 </div>
                 <p>✅ Сега новите потребители ще се записват успешно!</p>
             </div>
@@ -205,15 +214,14 @@ def test_db():
         <body>
             <div class="card">
                 <div class="error">✗ ГРЕШКА</div>
-                <h2>Проблем с връзката с базата данни</h2>
+                <h2>Проблем с връзката със Supabase</h2>
                 <div class="details">
                     <pre>{str(e)}</pre>
                 </div>
                 <p>Моля, провери:</p>
                 <ul style="color: #94a3b8; text-align: left;">
-                    <li>Дали MySQL сървърът работи (XAMPP/WAMP)</li>
-                    <li>Дали базата 'register_user' съществува в phpMyAdmin</li>
-                    <li>Дали няма парола за MySQL (в config.py)</li>
+                    <li>Дали .env файлът съдържа правилните Supabase URL и Key</li>
+                    <li>Дали таблиците са създадени в Supabase (SQL Editor)</li>
                 </ul>
             </div>
         </body>
@@ -221,7 +229,6 @@ def test_db():
         """
 
 
-# Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('404.html'), 404
@@ -229,11 +236,9 @@ def not_found_error(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    db.session.rollback()
     return render_template('500.html'), 500
 
 
-# Context processor to make 'now' available in all templates
 @app.context_processor
 def inject_now():
     return {'now': datetime.now()}
@@ -241,10 +246,31 @@ def inject_now():
 
 @app.template_filter('to_date')
 def to_date_filter(date_string):
-    """Конвертира стринг в date обект"""
     if date_string:
         return datetime.strptime(date_string, '%Y-%m-%d').date()
     return None
+
+
+# Supported languages
+LANGUAGES = {'en': 'English', 'bg': 'Български', 'es': 'Español', 'de': 'Deutsch'}
+
+@app.context_processor
+def inject_language():
+    # Provide current language and available languages to all templates
+    lang = request.cookies.get('site_lang', 'en')
+    if lang not in LANGUAGES:
+        lang = 'en'
+    return {'current_language': lang, 'languages': LANGUAGES}
+
+
+@app.route('/set-language/<lang>')
+def set_language(lang):
+    if lang not in LANGUAGES:
+        lang = 'en'
+    next_url = request.referrer or url_for('index')
+    resp = make_response(redirect(next_url))
+    resp.set_cookie('site_lang', lang, max_age=30*24*3600, samesite='Lax')
+    return resp
 
 
 if __name__ == '__main__':

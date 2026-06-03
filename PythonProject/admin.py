@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from werkzeug.security import generate_password_hash
-from models import db, User, Room, Reservation, Activity, Hotel, HotelImage
+from werkzeug.security import generate_password_hash, check_password_hash
+from models import User, Room, Reservation, Activity, Hotel, HotelImage, log_activity
 from forms import RoomForm, ReservationForm, HotelForm
 from datetime import datetime, timedelta
+from supabase_client import supabase
 import base64
 from functools import wraps
 
@@ -17,21 +18,7 @@ def admin_required(f):
             flash('Access denied. Admin only area.', 'danger')
             return redirect(url_for('user.dashboard'))
         return f(*args, **kwargs)
-
     return decorated_function
-
-
-def log_activity(activity_text):
-    """Log activity to database"""
-    try:
-        activity = Activity(
-            activity=f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {activity_text}",
-            timestamp=datetime.now()
-        )
-        db.session.add(activity)
-        db.session.commit()
-    except:
-        db.session.rollback()
 
 
 @admin_bp.route('/')
@@ -39,38 +26,30 @@ def log_activity(activity_text):
 @login_required
 @admin_required
 def dashboard():
-    # Вземи само имотите на текущия admin
-    my_hotels = Hotel.query.filter_by(owner_id=current_user.id).all()
+    my_hotels = Hotel.find_by_owner(current_user.id)
     my_hotel_ids = [h.id for h in my_hotels]
 
-    # Статистики само за неговите имоти
     total_my_hotels = len(my_hotels)
-    total_my_rooms = Room.query.filter(Room.hotel_id.in_(my_hotel_ids)).count() if my_hotel_ids else 0
+    total_my_rooms = Room.count_by_hotel_ids(my_hotel_ids)
 
-    # Резервации за неговите имоти
     total_my_reservations = 0
     revenue = 0
 
     if my_hotel_ids:
-        # Намери всички стаи в неговите хотели
-        my_rooms = Room.query.filter(Room.hotel_id.in_(my_hotel_ids)).all()
+        my_rooms = Room.find_by_hotel_ids(my_hotel_ids)
         my_room_ids = [r.id for r in my_rooms]
 
         if my_room_ids:
-            # Резервации за неговите стаи
-            reservations = Reservation.query.filter(Reservation.room_id.in_(my_room_ids)).all()
-            total_my_reservations = len(reservations)
+            data = supabase.table('reservations').select('*').in_('room_id', my_room_ids).execute()
+            reservations_list = data.data or []
+            total_my_reservations = len(reservations_list)
+            for res in reservations_list:
+                room_data = supabase.table('rooms').select('price').eq('id', res['room_id']).execute()
+                if room_data.data:
+                    revenue += (room_data.data[0].get('price', 0) or 0) * (res.get('nights', 0) or 0)
 
-            # Приходи
-            for res in reservations:
-                if res.room:
-                    revenue += res.room.price * res.nights
-
-    # Общи статистики (за информация)
-    total_users = User.query.count()
-
-    # Последни активности
-    recent_activities = Activity.query.order_by(Activity.timestamp.desc()).limit(10).all()
+    total_users = User.count()
+    recent_activities = Activity.get_recent(10)
 
     return render_template('admin/dashboard.html',
                            total_my_hotels=total_my_hotels,
@@ -86,8 +65,7 @@ def dashboard():
 @login_required
 @admin_required
 def my_properties():
-    """Преглед на всички имоти на текущия admin"""
-    hotels = Hotel.query.filter_by(owner_id=current_user.id).all()
+    hotels = Hotel.find_by_owner(current_user.id)
     return render_template('admin/my_properties.html', hotels=hotels, now=datetime.now())
 
 
@@ -95,11 +73,9 @@ def my_properties():
 @login_required
 @admin_required
 def add_property():
-    """Добавяне на нов имот"""
     if request.method == 'GET':
         return render_template('admin/add_property.html', now=datetime.now())
 
-    # POST заявка
     name = request.form.get('name')
     property_type = request.form.get('property_type')
     description = request.form.get('description')
@@ -107,8 +83,6 @@ def add_property():
     city = request.form.get('city')
     country = request.form.get('country')
     stars = request.form.get('stars', 3)
-
-    # Нови полета
     total_rooms = request.form.get('total_rooms', 1)
     max_guests = request.form.get('max_guests', 2)
     price_per_night = request.form.get('price_per_night')
@@ -117,49 +91,42 @@ def add_property():
         flash('Property name is required!', 'danger')
         return redirect(url_for('admin.add_property'))
 
-    # Създаване на нов имот
-    hotel = Hotel(
-        name=name,
-        property_type=property_type,
-        description=description,
-        address=address,
-        city=city,
-        country=country,
-        stars=int(stars),
-        owner_id=current_user.id,
-        total_rooms=int(total_rooms) if total_rooms else 1,
-        max_guests=int(max_guests) if max_guests else 2,
-        price_per_night=float(price_per_night) if price_per_night and property_type != 'hotel' else None
-    )
+    hotel_data = {
+        'name': name,
+        'property_type': property_type,
+        'description': description,
+        'address': address,
+        'city': city,
+        'country': country,
+        'stars': int(stars),
+        'owner_id': current_user.id,
+        'total_rooms': int(total_rooms) if total_rooms else 1,
+        'max_guests': int(max_guests) if max_guests else 2,
+        'price_per_night': float(price_per_night) if price_per_night and property_type != 'hotel' else None
+    }
 
-    # Обработка на снимки
     if 'main_image' in request.files:
         image = request.files['main_image']
         if image and image.filename:
-            hotel.main_image = image.read()
+            hotel_data['main_image'] = base64.b64encode(image.read()).decode('utf-8')
 
     try:
-        db.session.add(hotel)
-        db.session.commit()
+        hotel = Hotel.create(**hotel_data)
 
-        # Обработка на галерия
         if 'gallery_images' in request.files:
             images = request.files.getlist('gallery_images')
             for img in images:
                 if img and img.filename:
-                    hotel_img = HotelImage(
+                    HotelImage.create(
                         hotel_id=hotel.id,
-                        image_data=img.read()
+                        image_data=base64.b64encode(img.read()).decode('utf-8')
                     )
-                    db.session.add(hotel_img)
-            db.session.commit()
 
         log_activity(f"Admin '{current_user.username}' added property '{name}'")
         flash(f'Property "{name}" added successfully!', 'success')
         return redirect(url_for('admin.my_properties'))
 
     except Exception as e:
-        db.session.rollback()
         flash(f'Error adding property: {str(e)}', 'danger')
         return redirect(url_for('admin.add_property'))
 
@@ -168,32 +135,31 @@ def add_property():
 @login_required
 @admin_required
 def edit_property(property_id):
-    """Редактиране на имот (само ако е на текущия admin)"""
-    hotel = Hotel.query.filter_by(id=property_id, owner_id=current_user.id).first_or_404()
+    hotel = Hotel.find_by_id_and_owner(property_id, current_user.id)
+    if not hotel:
+        flash('Property not found or access denied', 'danger')
+        return redirect(url_for('admin.my_properties'))
 
     if request.method == 'GET':
         return render_template('admin/edit_property.html', hotel=hotel, now=datetime.now())
 
-    # POST заявка
-    hotel.name = request.form.get('name', hotel.name)
-    hotel.property_type = request.form.get('property_type', hotel.property_type)
-    hotel.description = request.form.get('description', hotel.description)
-    hotel.address = request.form.get('address', hotel.address)
-    hotel.city = request.form.get('city', hotel.city)
-    hotel.country = request.form.get('country', hotel.country)
-    hotel.stars = int(request.form.get('stars', hotel.stars))
+    update_data = {}
+    for field in ['name', 'property_type', 'description', 'address', 'city', 'country']:
+        val = request.form.get(field)
+        if val is not None:
+            update_data[field] = val
+    update_data['stars'] = int(request.form.get('stars', hotel.stars))
 
     if 'main_image' in request.files:
         image = request.files['main_image']
         if image and image.filename:
-            hotel.main_image = image.read()
+            update_data['main_image'] = base64.b64encode(image.read()).decode('utf-8')
 
     try:
-        db.session.commit()
+        hotel.update(**update_data)
         log_activity(f"Admin '{current_user.username}' edited property '{hotel.name}'")
         flash(f'Property "{hotel.name}" updated successfully!', 'success')
     except Exception as e:
-        db.session.rollback()
         flash(f'Error updating property: {str(e)}', 'danger')
 
     return redirect(url_for('admin.my_properties'))
@@ -203,38 +169,34 @@ def edit_property(property_id):
 @login_required
 @admin_required
 def delete_property(property_id):
-    """Изтриване на имот (само ако е на текущия admin)"""
-    hotel = Hotel.query.filter_by(id=property_id, owner_id=current_user.id).first_or_404()
+    hotel = Hotel.find_by_id_and_owner(property_id, current_user.id)
+    if not hotel:
+        flash('Property not found or access denied', 'danger')
+        return redirect(url_for('admin.my_properties'))
 
-    # Проверка за стаи
-    if hotel.rooms:
+    hotel_rooms = Room.find_by_hotel(property_id)
+    if hotel_rooms:
         flash(f'Cannot delete "{hotel.name}" because it has rooms!', 'danger')
         return redirect(url_for('admin.my_properties'))
 
     try:
         hotel_name = hotel.name
-        db.session.delete(hotel)
-        db.session.commit()
+        hotel.delete()
         log_activity(f"Admin '{current_user.username}' deleted property '{hotel_name}'")
         flash(f'Property "{hotel_name}" deleted successfully!', 'success')
     except Exception as e:
-        db.session.rollback()
         flash(f'Error deleting property: {str(e)}', 'danger')
 
     return redirect(url_for('admin.my_properties'))
 
 
-# СТАИ (само за имотите на текущия admin)
 @admin_bp.route('/my-rooms')
 @login_required
 @admin_required
 def my_rooms():
-    """Преглед на всички стаи в имотите на текущия admin"""
-    my_hotels = Hotel.query.filter_by(owner_id=current_user.id).all()
+    my_hotels = Hotel.find_by_owner(current_user.id)
     my_hotel_ids = [h.id for h in my_hotels]
-
-    rooms = Room.query.filter(Room.hotel_id.in_(my_hotel_ids)).all() if my_hotel_ids else []
-
+    rooms = Room.find_by_hotel_ids(my_hotel_ids)
     return render_template('admin/my_rooms.html', rooms=rooms, hotels=my_hotels, now=datetime.now())
 
 
@@ -242,7 +204,6 @@ def my_rooms():
 @login_required
 @admin_required
 def add_room():
-    """Добавяне на стая към имот на текущия admin"""
     hotel_id = request.form.get('hotel_id')
     number = request.form.get('number')
     price = request.form.get('price')
@@ -250,29 +211,23 @@ def add_room():
     beds = request.form.get('beds')
     jacuzzi = request.form.get('jacuzzi')
 
-    # Проверка дали хотелът принадлежи на текущия admin
-    hotel = Hotel.query.filter_by(id=hotel_id, owner_id=current_user.id).first()
+    hotel = Hotel.find_by_id_and_owner(hotel_id, current_user.id)
     if not hotel:
         flash('Hotel not found or you do not have permission!', 'danger')
         return redirect(url_for('admin.my_rooms'))
 
     try:
-        room = Room(
-            hotel_id=hotel_id,
+        Room.create(
+            hotel_id=int(hotel_id),
             number=int(number),
             price=float(price),
             type=room_type,
             beds=int(beds) if beds else None,
             jacuzzi=(jacuzzi == 'y')
         )
-
-        db.session.add(room)
-        db.session.commit()
-
         log_activity(f"Admin '{current_user.username}' added Room #{number} to {hotel.name}")
         flash(f'Room #{number} added successfully!', 'success')
     except Exception as e:
-        db.session.rollback()
         flash(f'Error adding room: {str(e)}', 'danger')
 
     return redirect(url_for('admin.my_rooms'))
@@ -282,11 +237,13 @@ def add_room():
 @login_required
 @admin_required
 def delete_room(room_id):
-    """Изтриване на стая (само ако е в имот на текущия admin)"""
-    room = Room.query.get_or_404(room_id)
+    room = Room.get(room_id)
+    if not room:
+        flash('Room not found', 'danger')
+        return redirect(url_for('admin.my_rooms'))
 
-    # Проверка дали хотелът е на текущия admin
-    if room.hotel.owner_id != current_user.id:
+    room_hotel = room.hotel
+    if not room_hotel or room_hotel.owner_id != current_user.id:
         flash('You do not have permission to delete this room!', 'danger')
         return redirect(url_for('admin.my_rooms'))
 
@@ -296,13 +253,11 @@ def delete_room(room_id):
 
     try:
         room_number = room.number
-        hotel_name = room.hotel.name
-        db.session.delete(room)
-        db.session.commit()
+        hotel_name = room_hotel.name
+        room.delete()
         log_activity(f"Admin '{current_user.username}' deleted Room #{room_number} from {hotel_name}")
         flash(f'Room #{room_number} deleted successfully!', 'success')
     except Exception as e:
-        db.session.rollback()
         flash(f'Error deleting room: {str(e)}', 'danger')
 
     return redirect(url_for('admin.my_rooms'))
@@ -312,7 +267,6 @@ def delete_room(room_id):
 @login_required
 @admin_required
 def profile():
-    """Admin profile page"""
     from forms import ProfileForm
     form = ProfileForm()
 
@@ -323,45 +277,36 @@ def profile():
 
     if form.validate_on_submit():
         changes_made = False
+        update_data = {}
 
-        # Проверка на текущата парола
         if form.current_password.data:
             if not check_password_hash(current_user.password_hash, form.current_password.data):
                 flash('Current password is incorrect', 'danger')
                 return render_template('admin/profile.html', form=form)
 
-            # Смяна на паролата ако е зададена нова
             if form.new_password.data:
-                current_user.password_hash = generate_password_hash(form.new_password.data)
+                update_data['password_hash'] = generate_password_hash(form.new_password.data)
                 changes_made = True
 
-        # Обновяване на email
         if form.email.data != current_user.email:
-            current_user.email = form.email.data or None
+            update_data['email'] = form.email.data or None
             changes_made = True
-
-        # Обновяване на телефон
         if form.phone.data != current_user.phone:
-            current_user.phone = form.phone.data or None
+            update_data['phone'] = form.phone.data or None
             changes_made = True
-
-        # Обновяване на адрес
         if form.address.data != current_user.address:
-            current_user.address = form.address.data or None
+            update_data['address'] = form.address.data or None
             changes_made = True
-
-        # Обновяване на профилна снимка
         if form.profile_image.data:
-            current_user.profile_image = form.profile_image.data.read()
+            update_data['profile_image'] = base64.b64encode(form.profile_image.data.read()).decode('utf-8')
             changes_made = True
 
         if changes_made:
             try:
-                db.session.commit()
+                current_user.update(**update_data)
                 log_activity(f"Admin '{current_user.username}' updated their profile")
                 flash('Profile updated successfully!', 'success')
             except Exception as e:
-                db.session.rollback()
                 flash(f'Error updating profile: {str(e)}', 'danger')
         else:
             flash('No changes were made', 'info')
@@ -375,38 +320,32 @@ def profile():
 @login_required
 @admin_required
 def remove_profile_image():
-    """Remove admin profile image"""
-    current_user.profile_image = None
     try:
-        db.session.commit()
+        current_user.update(profile_image=None)
         log_activity(f"Admin '{current_user.username}' removed their profile image")
         flash('Profile photo removed!', 'success')
     except Exception as e:
-        db.session.rollback()
         flash(f'Error: {str(e)}', 'danger')
     return redirect(url_for('admin.profile'))
 
-# РЕЗЕРВАЦИИ (само за имотите на текущия admin)
+
 @admin_bp.route('/my-reservations')
 @login_required
 @admin_required
 def my_reservations():
-    """Преглед на резервации за имотите на текущия admin"""
-    my_hotels = Hotel.query.filter_by(owner_id=current_user.id).all()
+    my_hotels = Hotel.find_by_owner(current_user.id)
     my_hotel_ids = [h.id for h in my_hotels]
 
     if not my_hotel_ids:
         return render_template('admin/my_reservations.html', reservations=[], now=datetime.now())
 
-    # Намери всички стаи в неговите хотели
-    my_rooms = Room.query.filter(Room.hotel_id.in_(my_hotel_ids)).all()
+    my_rooms = Room.find_by_hotel_ids(my_hotel_ids)
     my_room_ids = [r.id for r in my_rooms]
 
     if not my_room_ids:
         return render_template('admin/my_reservations.html', reservations=[], now=datetime.now())
 
-    # Резервации за неговите стаи
-    reservations = Reservation.query.filter(Reservation.room_id.in_(my_room_ids)).order_by(
-        Reservation.start_date.desc()).all()
+    data = supabase.table('reservations').select('*').in_('room_id', my_room_ids).order('start_date', desc=True).execute()
+    reservations = [Reservation(r) for r in (data.data or [])]
 
     return render_template('admin/my_reservations.html', reservations=reservations, now=datetime.now())

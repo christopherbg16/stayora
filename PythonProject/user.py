@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Room, Reservation, PropertyReservation, Activity, Hotel, HotelImage, TrendingDestination, \
-    Promotion, HotelReview
+from models import User, Room, Reservation, PropertyReservation, Hotel, HotelImage, TrendingDestination, \
+    Promotion, HotelReview, log_activity, check_room_conflict, check_property_conflict, get_conflicting_room_ids, \
+    BaseModel
 from forms import ProfileForm, SearchRoomsForm, HotelSearchForm
 from datetime import datetime, timedelta
-from sqlalchemy import text
+from supabase_client import supabase
 import base64
 from functools import wraps
 import math
@@ -19,58 +20,9 @@ def user_required(f):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
-
     return decorated_function
 
 
-def log_activity(activity_text):
-    try:
-        activity = Activity(
-            activity=f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {activity_text}",
-            timestamp=datetime.now()
-        )
-        db.session.add(activity)
-        db.session.commit()
-    except:
-        db.session.rollback()
-
-
-def _check_room_conflict_sql(room_id, start_date, end_date):
-    """Fixed: uses DATE_ADD in SQL to avoid timedelta(days=Column) bug."""
-    result = db.session.execute(
-        text("""SELECT id FROM reservations
-                WHERE room_id = :room_id
-                  AND start_date < :end_date
-                  AND DATE_ADD(start_date, INTERVAL nights DAY) > :start_date
-                LIMIT 1"""),
-        {'room_id': room_id, 'start_date': start_date, 'end_date': end_date}
-    ).fetchone()
-    return result is not None
-
-
-def _check_property_conflict_sql(property_id, start_date, end_date):
-    result = db.session.execute(
-        text("""SELECT id FROM property_reservations
-                WHERE property_id = :property_id
-                  AND start_date < :end_date
-                  AND DATE_ADD(start_date, INTERVAL nights DAY) > :start_date
-                LIMIT 1"""),
-        {'property_id': property_id, 'start_date': start_date, 'end_date': end_date}
-    ).fetchone()
-    return result is not None
-
-
-def _get_conflicting_room_ids_sql(start_date, end_date):
-    rows = db.session.execute(
-        text("""SELECT DISTINCT room_id FROM reservations
-                WHERE start_date < :end_date
-                  AND DATE_ADD(start_date, INTERVAL nights DAY) > :start_date"""),
-        {'start_date': start_date, 'end_date': end_date}
-    ).fetchall()
-    return [r[0] for r in rows]
-
-
-# ── DASHBOARD ─────────────────────────────────────────────
 @user_bp.route('/')
 @user_bp.route('/dashboard')
 @login_required
@@ -81,92 +33,64 @@ def dashboard():
 
     today = datetime.now().date()
 
-    # Резервации за стаи
-    room_reservations = Reservation.query.filter(
-        Reservation.guest == current_user.username
-    ).all()
+    room_reservations = Reservation.find_by_guest(current_user.username)
+    property_reservations = PropertyReservation.find_by_guest(current_user.username)
 
-    room_upcoming = Reservation.query.filter(
-        Reservation.guest == current_user.username,
-        Reservation.start_date >= today
-    ).order_by(Reservation.start_date).limit(5).all()
+    room_upcoming = [r for r in room_reservations if _parse_date(r.start_date) >= today][:5]
+    room_past = [r for r in room_reservations if _parse_date(r.start_date) < today][:5]
+    property_upcoming = [r for r in property_reservations if _parse_date(r.start_date) >= today][:5]
+    property_past = [r for r in property_reservations if _parse_date(r.start_date) < today][:5]
 
-    room_past = Reservation.query.filter(
-        Reservation.guest == current_user.username,
-        Reservation.start_date < today
-    ).order_by(Reservation.start_date.desc()).limit(5).all()
-
-    # Резервации за цели имоти
-    property_reservations = PropertyReservation.query.filter(
-        PropertyReservation.guest == current_user.username
-    ).all()
-
-    property_upcoming = PropertyReservation.query.filter(
-        PropertyReservation.guest == current_user.username,
-        PropertyReservation.start_date >= today
-    ).order_by(PropertyReservation.start_date).limit(5).all()
-
-    property_past = PropertyReservation.query.filter(
-        PropertyReservation.guest == current_user.username,
-        PropertyReservation.start_date < today
-    ).order_by(PropertyReservation.start_date.desc()).limit(5).all()
-
-    # Общо резервации
     total_bookings = len(room_reservations) + len(property_reservations)
 
-    # Изчисляване на общо похарчени пари
     total_spent = 0
     for res in room_reservations:
         if res.total_price:
             total_spent += res.total_price
         elif res.room:
-            total_spent += res.room.price * res.nights
+            total_spent += (res.room.price or 0) * (res.nights or 0)
     for res in property_reservations:
         total_spent += res.total_price or 0
 
-    # Изчисляване на общо нощувки
-    total_nights = sum(res.nights for res in room_reservations) + sum(res.nights for res in property_reservations)
+    total_nights = sum((r.nights or 0) for r in room_reservations) + sum((r.nights or 0) for r in property_reservations)
 
-    # Брой посетени дестинации
     cities_visited = set()
     for res in room_reservations:
-        if res.room and res.room.hotel:
-            cities_visited.add(res.room.hotel.city)
+        r = res.room
+        if r and r.hotel and r.hotel.city:
+            cities_visited.add(r.hotel.city)
     for res in property_reservations:
-        if res.hotel:
-            cities_visited.add(res.hotel.city)
+        h = res.hotel
+        if h and h.city:
+            cities_visited.add(h.city)
 
-    # Брой хотели/имоти в системата
-    total_properties = Hotel.query.count()
-    total_hotels = Hotel.query.filter_by(property_type='hotel').count()
-    total_apartments = Hotel.query.filter_by(property_type='apartment').count()
-    total_villas = Hotel.query.filter_by(property_type='villa').count()
-    total_resorts = Hotel.query.filter_by(property_type='resort').count()
+    total_properties = Hotel.count()
+    total_hotels = Hotel.count_by_type('hotel')
+    total_apartments = Hotel.count_by_type('apartment')
+    total_villas = Hotel.count_by_type('villa')
+    total_resorts = Hotel.count_by_type('resort')
 
-    # Комбинирани upcoming и past
     all_upcoming = sorted(
-        list(room_upcoming) + list(property_upcoming),
-        key=lambda x: x.start_date
+        room_upcoming + property_upcoming,
+        key=lambda x: _parse_date(x.start_date) or datetime.min.date()
     )[:5]
 
     all_past = sorted(
-        list(room_past) + list(property_past),
-        key=lambda x: x.start_date,
+        room_past + property_past,
+        key=lambda x: _parse_date(x.start_date) or datetime.min.date(),
         reverse=True
     )[:5]
 
-    # Последна резервация
     last_booking = None
     if all_upcoming:
         last_booking = all_upcoming[0]
     elif all_past:
         last_booking = all_past[0]
 
-    # Топ имоти
-    top_properties = Hotel.query.order_by(Hotel.avg_rating.desc()).limit(4).all()
+    data = supabase.table('hotels').select('*').order('avg_rating', desc=True).limit(4).execute()
+    top_properties = [Hotel(r) for r in (data.data or [])]
 
-    trending = TrendingDestination.query.filter_by(is_active=True).order_by(
-        TrendingDestination.display_order).limit(6).all()
+    trending = TrendingDestination.get_active(6)
 
     return render_template('user/dashboard.html',
                            total_bookings=total_bookings,
@@ -186,17 +110,26 @@ def dashboard():
                            now=datetime.now())
 
 
-# ── BROWSE STAYS — PUBLIC ─────────────────────────────────
+def _parse_date(val):
+    if isinstance(val, str):
+        try:
+            return datetime.fromisoformat(val.replace('Z', '+00:00')).date()
+        except (ValueError, TypeError):
+            try:
+                return datetime.strptime(val, '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                return None
+    return val
+
+
 @user_bp.route('/stays', methods=['GET'])
 def browse_stays():
-    trending = TrendingDestination.query.filter_by(is_active=True).order_by(
-        TrendingDestination.display_order).limit(6).all()
-    promotions = Promotion.query.filter_by(is_active=True).all()
+    trending = TrendingDestination.get_active(6)
+    promotions = Promotion.get_active()
     return render_template('user/browse_stays.html',
                            trending=trending, promotions=promotions, now=datetime.now())
 
 
-# ── SEARCH STAYS — PUBLIC ─────────────────────────────────
 @user_bp.route('/stays/search', methods=['GET'])
 def search_stays():
     destination = request.args.get('destination', '')
@@ -208,43 +141,21 @@ def search_stays():
     sort_by = request.args.get('sort_by', 'recommended')
     property_type = request.args.get('property_type', 'all')
 
-    query = Hotel.query
-    if destination:
-        query = query.filter(
-            (Hotel.city.ilike(f'%{destination}%')) |
-            (Hotel.name.ilike(f'%{destination}%')) |
-            (Hotel.country.ilike(f'%{destination}%'))
-        )
-    if property_type != 'all':
-        query = query.filter(Hotel.property_type == property_type)
-
     min_price = request.args.get('min_price', type=int)
     max_price = request.args.get('max_price', type=int)
-    if min_price:
-        query = query.filter(Hotel.price_per_night >= min_price)
-    if max_price:
-        query = query.filter(Hotel.price_per_night <= max_price)
-
     stars = request.args.getlist('stars')
-    if stars:
-        query = query.filter(Hotel.stars.in_([int(s) for s in stars]))
-
     min_rating = request.args.get('min_rating', type=float)
-    if min_rating:
-        query = query.filter(Hotel.avg_rating >= min_rating)
 
-    if sort_by == 'price_asc':
-        query = query.order_by(Hotel.price_per_night.asc())
-    elif sort_by == 'price_desc':
-        query = query.order_by(Hotel.price_per_night.desc())
-    elif sort_by == 'rating_desc':
-        query = query.order_by(Hotel.avg_rating.desc())
-    elif sort_by == 'popularity':
-        query = query.order_by(Hotel.review_count.desc())
-    else:
-        query = query.order_by(Hotel.avg_rating.desc(), Hotel.review_count.desc())
+    hotels = Hotel.search(
+        destination=destination,
+        property_type=property_type,
+        sort_by=sort_by,
+        min_price=min_price,
+        max_price=max_price,
+        stars=stars,
+        min_rating=min_rating
+    )
 
-    hotels = query.all()
     return render_template('user/search_results.html',
                            hotels=hotels, total_hotels=len(hotels),
                            destination=destination, check_in=check_in,
@@ -254,7 +165,6 @@ def search_stays():
                            now=datetime.now())
 
 
-# ── COMPATIBILITY REDIRECTS ───────────────────────────────
 @user_bp.route('/hotels', methods=['GET'])
 def browse_hotels():
     return redirect(url_for('user.browse_stays'))
@@ -270,10 +180,13 @@ def destination_hotels(city):
     return redirect(url_for('user.search_stays', destination=city))
 
 
-# ── HOTEL DETAIL — PUBLIC ─────────────────────────────────
 @user_bp.route('/hotel/<int:hotel_id>')
 def hotel_detail(hotel_id):
-    hotel = Hotel.query.get_or_404(hotel_id)
+    hotel = Hotel.get(hotel_id)
+    if not hotel:
+        flash('Property not found', 'danger')
+        return redirect(url_for('user.browse_stays'))
+
     check_in = request.args.get('check_in')
     check_out = request.args.get('check_out')
     adults = request.args.get('adults', 2, type=int)
@@ -293,11 +206,11 @@ def hotel_detail(hotel_id):
 
     available_rooms = []
     if hotel.property_type == 'hotel':
-        rooms = Room.query.filter_by(hotel_id=hotel_id).all()
+        rooms = Room.find_by_hotel(hotel_id)
         for room in rooms:
             conflict = False
             if check_in_date and check_out_date and nights > 0:
-                conflict = _check_room_conflict_sql(room.id, check_in_date, check_out_date)
+                conflict = check_room_conflict(room.id, check_in_date, check_out_date)
             if not conflict:
                 available_rooms.append({
                     'room': room,
@@ -323,31 +236,22 @@ def hotel_detail(hotel_id):
                            now=datetime.now())
 
 
-# ── MY RESERVATIONS ───────────────────────────────────────
 @user_bp.route('/my-reservations')
 @login_required
 @user_required
 def my_reservations():
     today = datetime.now().date()
-    room_upcoming = Reservation.query.filter(
-        Reservation.guest == current_user.username,
-        Reservation.start_date >= today
-    ).order_by(Reservation.start_date).all()
-    room_past = Reservation.query.filter(
-        Reservation.guest == current_user.username,
-        Reservation.start_date < today
-    ).order_by(Reservation.start_date.desc()).all()
-    property_upcoming = PropertyReservation.query.filter(
-        PropertyReservation.guest == current_user.username,
-        PropertyReservation.start_date >= today
-    ).order_by(PropertyReservation.start_date).all()
-    property_past = PropertyReservation.query.filter(
-        PropertyReservation.guest == current_user.username,
-        PropertyReservation.start_date < today
-    ).order_by(PropertyReservation.start_date.desc()).all()
 
-    upcoming = sorted(room_upcoming + property_upcoming, key=lambda x: x.start_date)
-    past = sorted(room_past + property_past, key=lambda x: x.start_date, reverse=True)
+    all_room = Reservation.find_by_guest(current_user.username)
+    room_upcoming = [r for r in all_room if _parse_date(r.start_date) >= today]
+    room_past = [r for r in all_room if _parse_date(r.start_date) < today]
+
+    all_property = PropertyReservation.find_by_guest(current_user.username)
+    property_upcoming = [r for r in all_property if _parse_date(r.start_date) >= today]
+    property_past = [r for r in all_property if _parse_date(r.start_date) < today]
+
+    upcoming = sorted(room_upcoming + property_upcoming, key=lambda x: _parse_date(x.start_date) or datetime.min.date())
+    past = sorted(room_past + property_past, key=lambda x: _parse_date(x.start_date) or datetime.min.date(), reverse=True)
     return render_template('user/my_reservations.html',
                            upcoming=upcoming, past=past, now=datetime.now())
 
@@ -356,18 +260,17 @@ def my_reservations():
 @login_required
 @user_required
 def cancel_property_reservation(reservation_id):
-    reservation = PropertyReservation.query.get_or_404(reservation_id)
-    if reservation.guest != current_user.username:
+    reservation = PropertyReservation.get(reservation_id)
+    if not reservation or reservation.guest != current_user.username:
         flash('You do not have permission to cancel this reservation', 'danger')
         return redirect(url_for('user.my_reservations'))
     try:
-        property_name = reservation.hotel.name if hasattr(reservation, 'hotel') and reservation.hotel else 'Unknown'
-        db.session.delete(reservation)
-        db.session.commit()
+        h = reservation.hotel
+        property_name = h.name if h else 'Unknown'
+        reservation.delete()
         log_activity(f"User '{current_user.username}' cancelled reservation for '{property_name}'")
         flash('Reservation cancelled successfully!', 'success')
     except Exception as e:
-        db.session.rollback()
         flash(f'Error cancelling reservation: {str(e)}', 'danger')
     return redirect(url_for('user.my_reservations'))
 
@@ -376,23 +279,21 @@ def cancel_property_reservation(reservation_id):
 @login_required
 @user_required
 def cancel_reservation(reservation_id):
-    reservation = Reservation.query.get_or_404(reservation_id)
-    if reservation.guest != current_user.username:
+    reservation = Reservation.get(reservation_id)
+    if not reservation or reservation.guest != current_user.username:
         flash('You do not have permission to cancel this reservation', 'danger')
         return redirect(url_for('user.my_reservations'))
     try:
-        room_number = reservation.room.number if reservation.room else 'Unknown'
-        db.session.delete(reservation)
-        db.session.commit()
+        r = reservation.room
+        room_number = r.number if r else 'Unknown'
+        reservation.delete()
         log_activity(f"User '{current_user.username}' cancelled reservation for Room #{room_number}")
         flash('Reservation cancelled successfully!', 'success')
     except Exception as e:
-        db.session.rollback()
         flash(f'Error cancelling reservation: {str(e)}', 'danger')
     return redirect(url_for('user.my_reservations'))
 
 
-# ── PROFILE ───────────────────────────────────────────────
 @user_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 @user_required
@@ -405,31 +306,34 @@ def profile():
 
     if form.validate_on_submit():
         changes_made = False
+        update_data = {}
+
         if form.current_password.data:
             if not check_password_hash(current_user.password_hash, form.current_password.data):
                 flash('Current password is incorrect', 'danger')
                 return render_template('user/profile.html', form=form, user=current_user, now=datetime.now())
             if form.new_password.data:
-                current_user.password_hash = generate_password_hash(form.new_password.data)
+                update_data['password_hash'] = generate_password_hash(form.new_password.data)
                 changes_made = True
+
         if form.email.data != current_user.email:
-            current_user.email = form.email.data or None
+            update_data['email'] = form.email.data or None
             changes_made = True
         if form.phone.data != current_user.phone:
-            current_user.phone = form.phone.data or None
+            update_data['phone'] = form.phone.data or None
             changes_made = True
         if form.address.data != current_user.address:
-            current_user.address = form.address.data or None
+            update_data['address'] = form.address.data or None
             changes_made = True
         if form.profile_image.data:
-            current_user.profile_image = form.profile_image.data.read()
+            update_data['profile_image'] = base64.b64encode(form.profile_image.data.read()).decode('utf-8')
             changes_made = True
+
         if changes_made:
             try:
-                db.session.commit()
+                current_user.update(**update_data)
                 flash('Profile updated successfully!', 'success')
             except Exception as e:
-                db.session.rollback()
                 flash(f'Error updating profile: {str(e)}', 'danger')
         else:
             flash('No changes were made', 'info')
@@ -443,7 +347,7 @@ def profile():
 @user_required
 def profile_image():
     if current_user.profile_image:
-        return base64.b64encode(current_user.profile_image).decode('utf-8')
+        return current_user.profile_image
     return ''
 
 
@@ -451,17 +355,14 @@ def profile_image():
 @login_required
 @user_required
 def remove_profile_image():
-    current_user.profile_image = None
     try:
-        db.session.commit()
+        current_user.update(profile_image=None)
         flash('Profile photo removed!', 'success')
     except Exception as e:
-        db.session.rollback()
         flash(f'Error: {str(e)}', 'danger')
     return redirect(url_for('user.profile'))
 
 
-# ── BOOKING API ───────────────────────────────────────────
 @user_bp.route('/api/available-rooms', methods=['POST'])
 @login_required
 @user_required
@@ -471,15 +372,22 @@ def available_rooms_api():
     try:
         start_date = datetime.strptime(data.get('start_date'), '%Y-%m-%d').date()
         end_date = start_date + timedelta(days=nights)
-        all_rooms = Room.query.all()
-        conflicting_ids = _get_conflicting_room_ids_sql(start_date, end_date)
+        all_rooms_data = supabase.table('rooms').select('*').execute()
+        conflicting_ids = get_conflicting_room_ids(start_date, end_date)
         rooms_data = []
-        for room in all_rooms:
-            if room.id not in conflicting_ids:
-                rd = room.to_dict()
-                if room.image_data:
-                    rd['image'] = base64.b64encode(room.image_data).decode('utf-8')
-                rooms_data.append(rd)
+        for rd in (all_rooms_data.data or []):
+            if rd['id'] not in conflicting_ids:
+                r = {
+                    'id': rd['id'],
+                    'number': rd.get('number'),
+                    'price': rd.get('price'),
+                    'type': rd.get('type'),
+                    'beds': rd.get('beds'),
+                    'jacuzzi': rd.get('jacuzzi', False)
+                }
+                if rd.get('image_data'):
+                    r['image'] = rd['image_data']
+                rooms_data.append(r)
         return jsonify({'success': True, 'rooms': rooms_data})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
@@ -489,13 +397,11 @@ def available_rooms_api():
 @login_required
 @user_required
 def book_room():
-    """Redirect to payment for room booking"""
     data = request.get_json()
     nights = int(data.get('nights', 1))
     room_id = int(data.get('room_id'))
     start_date = data.get('start_date')
 
-    # Return redirect URL to payment page
     return jsonify({
         'success': True,
         'redirect': url_for('payments.checkout_room',
@@ -509,7 +415,6 @@ def book_room():
 @login_required
 @user_required
 def book_property(property_id):
-    """Redirect to payment for property booking"""
     data = request.get_json()
     nights = int(data.get('nights', 1))
     start_date = data.get('start_date')

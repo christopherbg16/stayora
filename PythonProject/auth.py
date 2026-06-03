@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Activity
+from models import User, log_activity
 from forms import LoginForm, RegisterForm
-from oauth_config import oauth  # Add this import
+from oauth_config import oauth
 from datetime import datetime
 from urllib.parse import urlparse, urljoin
 
@@ -11,23 +11,9 @@ auth_bp = Blueprint('auth', __name__)
 
 
 def is_safe_url(target):
-    """Check if the redirect URL is safe (same host)."""
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
-
-
-def log_activity(activity_text):
-    """Log activity to database"""
-    try:
-        activity = Activity(
-            activity=f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {activity_text}",
-            timestamp=datetime.now()
-        )
-        db.session.add(activity)
-        db.session.commit()
-    except:
-        db.session.rollback()
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -35,8 +21,7 @@ def login():
     if current_user.is_authenticated:
         if current_user.role == 'admin':
             return redirect(url_for('admin.dashboard'))
-        else:
-            return redirect(url_for('user.dashboard'))
+        return redirect(url_for('user.dashboard'))
 
     form = LoginForm()
     next_page = request.args.get('next')
@@ -46,7 +31,7 @@ def login():
         password = request.form.get('password')
         next_page = request.form.get('next') or next_page
 
-        user = User.query.filter_by(username=username).first()
+        user = User.find_by_username(username)
 
         if user and user.password_hash and check_password_hash(user.password_hash, password):
             login_user(user)
@@ -57,8 +42,7 @@ def login():
 
             if user.role == 'admin':
                 return redirect(url_for('admin.dashboard'))
-            else:
-                return redirect(url_for('user.dashboard'))
+            return redirect(url_for('user.dashboard'))
         else:
             flash('Invalid username or password', 'danger')
             return redirect(url_for('auth.login', next=next_page))
@@ -76,9 +60,8 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
-        account_type = request.form.get('account_type', 'user')  # Default to 'user'
+        account_type = request.form.get('account_type', 'user')
 
-        # Validation
         if not username or len(username) < 3:
             flash('Username must be at least 3 characters', 'danger')
             return render_template('auth/register.html', form=form)
@@ -91,46 +74,40 @@ def register():
             flash('Passwords do not match', 'danger')
             return render_template('auth/register.html', form=form)
 
-        # Check if username exists
-        existing_user = User.query.filter_by(username=username).first()
+        existing_user = User.find_by_username(username)
         if existing_user:
             flash('Username already exists', 'danger')
             return render_template('auth/register.html', form=form)
 
-        # Create new user with the selected role
         role = 'admin' if account_type == 'admin' else 'user'
 
-        user = User(
-            username=username,
-            password_hash=generate_password_hash(password),
-            role=role,
-            created_at=datetime.now()
-        )
-
         try:
-            db.session.add(user)
-            db.session.commit()
+            User.create(
+                username=username,
+                password_hash=generate_password_hash(password),
+                role=role,
+                created_at=datetime.now().isoformat()
+            )
 
             if role == 'admin':
-                log_activity(f"New property owner '{user.username}' registered")
+                log_activity(f"New property owner '{username}' registered")
                 flash('Account created successfully! You can now list your properties.', 'success')
             else:
-                log_activity(f"New user '{user.username}' registered")
+                log_activity(f"New user '{username}' registered")
                 flash('Account created successfully! You can now book your stays.', 'success')
 
             return redirect(url_for('auth.login'))
         except Exception as e:
-            db.session.rollback()
             flash(f'Error creating account: {str(e)}', 'danger')
 
     return render_template('auth/register.html', form=form)
+
 
 @auth_bp.route('/google-login')
 def google_login():
     next_page = request.args.get('next')
     if next_page and is_safe_url(next_page):
         session['next'] = next_page
-
     redirect_uri = url_for('auth.google_callback', _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
 
@@ -142,7 +119,6 @@ def google_callback():
         user_info = oauth.google.parse_id_token(token)
 
         if not user_info:
-            # Try getting user info from API
             resp = oauth.google.get('userinfo')
             user_info = resp.json()
 
@@ -154,56 +130,48 @@ def google_callback():
             flash('Could not get Google account information', 'danger')
             return redirect(url_for('auth.login'))
 
-        # Check if user exists by google_id
-        user = User.query.filter_by(google_id=google_id).first()
+        user = User.find_by_google_id(google_id)
 
         if not user:
-            # Check if user exists by email
             if email:
-                user = User.query.filter_by(email=email).first()
+                user = User.find_by_email(email)
                 if user:
-                    # Link Google account to existing user
-                    user.google_id = google_id
+                    user.update(google_id=google_id)
                 else:
-                    # Create new user
                     username = email.split('@')[0] if email else f"user_{google_id[:8]}"
-                    # Ensure username is unique
                     base_username = username
                     counter = 1
-                    while User.query.filter_by(username=username).first():
+                    while User.find_by_username(username):
                         username = f"{base_username}{counter}"
                         counter += 1
 
-                    user = User(
+                    user = User.create(
                         username=username,
                         email=email,
                         google_id=google_id,
                         role='user',
-                        created_at=datetime.now()
+                        created_at=datetime.now().isoformat()
                     )
-                    db.session.add(user)
             else:
-                # No email, create with google_id
                 username = f"user_{google_id[:8]}"
                 base_username = username
                 counter = 1
-                while User.query.filter_by(username=username).first():
+                while User.find_by_username(username):
                     username = f"{base_username}{counter}"
                     counter += 1
 
-                user = User(
+                user = User.create(
                     username=username,
                     google_id=google_id,
                     role='user',
-                    created_at=datetime.now()
+                    created_at=datetime.now().isoformat()
                 )
-                db.session.add(user)
 
-            db.session.commit()
             log_activity(f"New user '{user.username}' signed up with Google")
+        else:
+            log_activity(f"User '{user.username}' logged in via Google")
 
         login_user(user)
-        log_activity(f"User '{user.username}' logged in via Google")
 
         next_page = session.pop('next', None) or request.args.get('next')
         if next_page and is_safe_url(next_page):

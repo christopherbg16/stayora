@@ -1,252 +1,523 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
 from datetime import datetime, timedelta
-
-db = SQLAlchemy()
-
-
-class User(UserMixin, db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=True)  # Nullable for Google users
-    google_id = db.Column(db.String(255), unique=True, nullable=True)
-    role = db.Column(db.String(20), default='user')
-    account_type_request = db.Column(db.String(20), default='user')  # What type they requested
-    profile_image = db.Column(db.LargeBinary, nullable=True)
-    email = db.Column(db.String(255), nullable=True)
-    phone = db.Column(db.String(20), nullable=True)
-    address = db.Column(db.String(500), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    # Relationships
-    reservations = db.relationship('Reservation', backref='user', lazy=True)
-    owned_hotels = db.relationship('Hotel', backref='owner', lazy=True)
-    reviews = db.relationship('HotelReview', backref='user', lazy=True)
-    property_reservations = db.relationship('PropertyReservation', backref='user', lazy=True)
-
-    def get_id(self):
-        return str(self.id)
+from flask_login import UserMixin
+from supabase_client import supabase
 
 
-class Hotel(db.Model):
-    __tablename__ = 'hotels'
+def _parse_date(val):
+    if isinstance(val, str):
+        return datetime.fromisoformat(val).date() if 'T' in val else datetime.strptime(val, '%Y-%m-%d').date()
+    return val
 
-    id = db.Column(db.Integer, primary_key=True)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    name = db.Column(db.String(255), nullable=False)
-    property_type = db.Column(db.String(50), default='hotel')
-    description = db.Column(db.Text, nullable=True)
-    address = db.Column(db.String(255), nullable=True)
-    city = db.Column(db.String(100), nullable=True)
-    country = db.Column(db.String(100), nullable=True)
-    stars = db.Column(db.Integer, default=3)
-    main_image = db.Column(db.LargeBinary, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    total_rooms = db.Column(db.Integer, default=1)
-    max_guests = db.Column(db.Integer, default=2)
-    price_per_night = db.Column(db.Float, nullable=True)
+def _parse_dt(val):
+    if isinstance(val, str):
+        return datetime.fromisoformat(val.replace('Z', '+00:00'))
+    return val
 
-    avg_rating = db.Column(db.Numeric(2, 1), default=0)
-    review_count = db.Column(db.Integer, default=0)
 
-    # Relationships
-    rooms = db.relationship('Room', backref='hotel', lazy=True, cascade='all, delete-orphan')
-    images = db.relationship('HotelImage', backref='hotel', lazy=True, cascade='all, delete-orphan')
-    reviews = db.relationship('HotelReview', backref='hotel', lazy=True, cascade='all, delete-orphan')
-    property_reservations = db.relationship('PropertyReservation', backref='hotel', lazy=True,
-                                            cascade='all, delete-orphan')
+class BaseModel:
+    def __init__(self, data=None):
+        if data:
+            self.__dict__.update(data)
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__} id={getattr(self, "id", None)}>'
+
+
+class User(UserMixin, BaseModel):
+    def __init__(self, data=None):
+        super().__init__(data)
+        # Parse created_at to datetime for templates that call .strftime()
+        if hasattr(self, 'created_at') and isinstance(self.created_at, str):
+            try:
+                self.created_at = _parse_dt(self.created_at)
+            except Exception:
+                pass
+
+    @classmethod
+    def get(cls, user_id):
+        data = supabase.table('users').select('*').eq('id', user_id).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
+    def find_by_username(cls, username):
+        data = supabase.table('users').select('*').eq('username', username).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
+    def find_by_google_id(cls, google_id):
+        data = supabase.table('users').select('*').eq('google_id', google_id).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
+    def find_by_email(cls, email):
+        data = supabase.table('users').select('*').eq('email', email).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
+    def count(cls):
+        data = supabase.table('users').select('*', count='exact').execute()
+        return data.count if data.count is not None else len(data.data or [])
+
+    @classmethod
+    def create(cls, **kwargs):
+        data = supabase.table('users').insert(kwargs).execute()
+        return cls(data.data[0]) if data.data else None
+
+    def update(self, **kwargs):
+        supabase.table('users').update(kwargs).eq('id', self.id).execute()
+        self.__dict__.update(kwargs)
+
+    def delete(self):
+        supabase.table('users').delete().eq('id', self.id).execute()
+
+
+class Hotel(BaseModel):
+    @classmethod
+    def get(cls, hotel_id):
+        data = supabase.table('hotels').select('*').eq('id', hotel_id).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
+    def find_by_owner(cls, owner_id):
+        data = supabase.table('hotels').select('*').eq('owner_id', owner_id).execute()
+        return [cls(r) for r in (data.data or [])]
+
+    @classmethod
+    def find_by_id_and_owner(cls, hotel_id, owner_id):
+        data = supabase.table('hotels').select('*').eq('id', hotel_id).eq('owner_id', owner_id).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
+    def count(cls):
+        data = supabase.table('hotels').select('*', count='exact').execute()
+        return data.count if data.count is not None else len(data.data or [])
+
+    @classmethod
+    def count_by_type(cls, property_type):
+        data = supabase.table('hotels').select('*', count='exact').eq('property_type', property_type).execute()
+        return data.count if data.count is not None else len(data.data or [])
+
+    @classmethod
+    def count_distinct_countries(cls):
+        data = supabase.table('hotels').select('country').execute()
+        return len(set(r['country'] for r in (data.data or []) if r.get('country')))
+
+    @classmethod
+    def search(cls, destination=None, property_type=None, sort_by='recommended', min_price=None, max_price=None, stars=None, min_rating=None):
+        query = supabase.table('hotels').select('*')
+        if destination:
+            query = query.ilike('city', f'%{destination}%')
+        if property_type and property_type != 'all':
+            query = query.eq('property_type', property_type)
+        if min_price:
+            query = query.gte('price_per_night', min_price)
+        if max_price:
+            query = query.lte('price_per_night', max_price)
+        if min_rating:
+            query = query.gte('avg_rating', min_rating)
+        sort_map = {
+            'price_asc': ('price_per_night', False),
+            'price_desc': ('price_per_night', True),
+            'rating_desc': ('avg_rating', True),
+            'popularity': ('review_count', True),
+        }
+        if sort_by in sort_map:
+            col, desc = sort_map[sort_by]
+            query = query.order(col, desc=desc)
+        data = query.execute()
+        return [cls(r) for r in (data.data or [])]
+
+    @classmethod
+    def create(cls, **kwargs):
+        data = supabase.table('hotels').insert(kwargs).execute()
+        return cls(data.data[0]) if data.data else None
+
+    def update(self, **kwargs):
+        supabase.table('hotels').update(kwargs).eq('id', self.id).execute()
+        self.__dict__.update(kwargs)
+
+    def delete(self):
+        supabase.table('hotels').delete().eq('id', self.id).execute()
+
+    @property
+    def rooms(self):
+        if not hasattr(self, '_rooms'):
+            data = supabase.table('rooms').select('*').eq('hotel_id', self.id).execute()
+            self._rooms = [Room(r) for r in (data.data or [])]
+        return self._rooms
+
+    @rooms.setter
+    def rooms(self, val):
+        self._rooms = val
+
+    @property
+    def images(self):
+        if not hasattr(self, '_images'):
+            data = supabase.table('hotel_images').select('*').eq('hotel_id', self.id).execute()
+            self._images = [HotelImage(r) for r in (data.data or [])]
+        return self._images
+
+    @images.setter
+    def images(self, val):
+        self._images = val
+
+    @property
+    def reviews(self):
+        if not hasattr(self, '_reviews'):
+            data = supabase.table('hotel_reviews').select('*').eq('hotel_id', self.id).execute()
+            self._reviews = [HotelReview(r) for r in (data.data or [])]
+        return self._reviews
+
+    @reviews.setter
+    def reviews(self, val):
+        self._reviews = val
 
     @property
     def display_price(self):
-        if self.property_type == 'hotel':
-            if self.rooms:
-                return min([r.price for r in self.rooms])
-            return 0
-        else:
-            return self.price_per_night or 0
-
-    @property
-    def total_available_rooms(self):
-        if self.property_type == 'hotel':
-            return len(self.rooms)
-        else:
-            return self.total_rooms
+        if getattr(self, 'property_type', None) == 'hotel':
+            rooms_data = supabase.table('rooms').select('price').eq('hotel_id', self.id).execute()
+            prices = [r['price'] for r in (rooms_data.data or []) if r.get('price')]
+            return min(prices) if prices else 0
+        return getattr(self, 'price_per_night', 0) or 0
 
     @property
     def rating_display(self):
-        if self.review_count > 0:
-            return f"{float(self.avg_rating):.1f}"
-        return "New"
+        rc = getattr(self, 'review_count', 0) or 0
+        if rc > 0:
+            ar = getattr(self, 'avg_rating', 0) or 0
+            return f'{float(ar):.1f}'
+        return 'New'
 
     @property
     def rating_category(self):
-        if self.review_count == 0:
-            return "New"
-        rating = float(self.avg_rating)
+        rc = getattr(self, 'review_count', 0) or 0
+        if rc == 0:
+            return 'New'
+        rating = float(getattr(self, 'avg_rating', 0) or 0)
         if rating >= 9.0:
-            return "Superb"
+            return 'Superb'
         elif rating >= 8.0:
-            return "Very good"
+            return 'Very good'
         elif rating >= 7.0:
-            return "Good"
+            return 'Good'
         elif rating >= 6.0:
-            return "Pleasant"
-        else:
-            return "Okay"
+            return 'Pleasant'
+        return 'Okay'
+
+    @property
+    def min_price(self):
+        return self.display_price
+
+
+class Room(BaseModel):
+    @classmethod
+    def get(cls, room_id):
+        data = supabase.table('rooms').select('*').eq('id', room_id).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
+    def find_by_hotel(cls, hotel_id):
+        data = supabase.table('rooms').select('*').eq('hotel_id', hotel_id).execute()
+        return [cls(r) for r in (data.data or [])]
+
+    @classmethod
+    def find_by_hotel_ids(cls, hotel_ids):
+        if not hotel_ids:
+            return []
+        data = supabase.table('rooms').select('*').in_('hotel_id', hotel_ids).execute()
+        return [cls(r) for r in (data.data or [])]
+
+    @classmethod
+    def count_by_hotel_ids(cls, hotel_ids):
+        if not hotel_ids:
+            return 0
+        data = supabase.table('rooms').select('id', count='exact').in_('hotel_id', hotel_ids).execute()
+        return data.count if data.count is not None else len(data.data or [])
+
+    @classmethod
+    def create(cls, **kwargs):
+        data = supabase.table('rooms').insert(kwargs).execute()
+        return cls(data.data[0]) if data.data else None
+
+    def update(self, **kwargs):
+        supabase.table('rooms').update(kwargs).eq('id', self.id).execute()
+        self.__dict__.update(kwargs)
+
+    def delete(self):
+        supabase.table('rooms').delete().eq('id', self.id).execute()
+
+    @property
+    def hotel(self):
+        if not hasattr(self, '_hotel') and getattr(self, 'hotel_id', None):
+            data = supabase.table('hotels').select('*').eq('id', self.hotel_id).execute()
+            self._hotel = Hotel(data.data[0]) if data.data else None
+            return self._hotel
+        return getattr(self, '_hotel', None)
+
+    @hotel.setter
+    def hotel(self, val):
+        self._hotel = val
+
+    @property
+    def reservations(self):
+        if not hasattr(self, '_reservations'):
+            data = supabase.table('reservations').select('*').eq('room_id', self.id).execute()
+            self._reservations = [Reservation(r) for r in (data.data or [])]
+        return self._reservations
+
+    @reservations.setter
+    def reservations(self, val):
+        self._reservations = val
 
     def to_dict(self):
         return {
             'id': self.id,
-            'name': self.name,
-            'description': self.description[:100] + '...' if self.description and len(
-                self.description) > 100 else self.description,
-            'city': self.city,
-            'country': self.country,
-            'stars': self.stars,
-            'property_type': self.property_type,
-            'rooms_count': len(self.rooms) if self.property_type == 'hotel' else self.total_rooms,
-            'min_price': self.display_price,
-            'max_guests': self.max_guests,
-            'avg_rating': float(self.avg_rating) if self.avg_rating else 0,
-            'review_count': self.review_count
-        }
-
-
-class Room(db.Model):
-    __tablename__ = 'rooms'
-
-    id = db.Column(db.Integer, primary_key=True)
-    hotel_id = db.Column(db.Integer, db.ForeignKey('hotels.id'), nullable=True)
-    number = db.Column(db.Integer, unique=True, nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    beds = db.Column(db.Integer, nullable=True)
-    jacuzzi = db.Column(db.Boolean, default=False)
-    image_data = db.Column(db.LargeBinary, nullable=True)
-
-    reservations = db.relationship('Reservation', backref='room', lazy=True)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'number': self.number,
-            'price': self.price,
-            'type': self.type,
-            'beds': self.beds,
-            'jacuzzi': self.jacuzzi
+            'number': getattr(self, 'number', None),
+            'price': getattr(self, 'price', None),
+            'type': getattr(self, 'type', None),
+            'beds': getattr(self, 'beds', None),
+            'jacuzzi': getattr(self, 'jacuzzi', False)
         }
 
     def info(self):
-        if self.type == "Standard":
-            return f"Room #{self.number} (Standard) - {self.beds} beds - {self.price} €"
-        else:
-            jac = "Yes" if self.jacuzzi else "No"
-            return f"Room #{self.number} (Luxury) - Jacuzzi: {jac} - {self.price} €"
+        rt = getattr(self, 'type', 'Standard')
+        price = getattr(self, 'price', 0)
+        beds = getattr(self, 'beds', 0)
+        num = getattr(self, 'number', 0)
+        if rt == 'Standard':
+            return f'Room #{num} (Standard) - {beds} beds - {price} €'
+        jac = 'Yes' if getattr(self, 'jacuzzi', False) else 'No'
+        return f'Room #{num} (Luxury) - Jacuzzi: {jac} - {price} €'
 
 
-class HotelImage(db.Model):
-    __tablename__ = 'hotel_images'
+class HotelImage(BaseModel):
+    @classmethod
+    def find_by_hotel(cls, hotel_id):
+        data = supabase.table('hotel_images').select('*').eq('hotel_id', hotel_id).execute()
+        return [cls(r) for r in (data.data or [])]
 
-    id = db.Column(db.Integer, primary_key=True)
-    hotel_id = db.Column(db.Integer, db.ForeignKey('hotels.id'), nullable=False)
-    image_data = db.Column(db.LargeBinary, nullable=False)
-    caption = db.Column(db.String(255), nullable=True)
-    is_primary = db.Column(db.Boolean, default=False)
+    @classmethod
+    def create(cls, **kwargs):
+        data = supabase.table('hotel_images').insert(kwargs).execute()
+        return cls(data.data[0]) if data.data else None
 
 
-class Reservation(db.Model):
-    __tablename__ = 'reservations'
+class Reservation(BaseModel):
+    def __init__(self, data=None):
+        super().__init__(data)
+        # Ensure start_date is a date object for templates
+        if hasattr(self, 'start_date') and isinstance(self.start_date, str):
+            try:
+                self.start_date = _parse_date(self.start_date)
+            except Exception:
+                pass
 
-    id = db.Column(db.Integer, primary_key=True)
-    room_id = db.Column(db.Integer, db.ForeignKey('rooms.id'), nullable=False)
-    guest = db.Column(db.String(255), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    start_date = db.Column(db.Date, nullable=False)
-    nights = db.Column(db.Integer, nullable=False)
+    @classmethod
+    def get(cls, reservation_id):
+        data = supabase.table('reservations').select('*').eq('id', reservation_id).execute()
+        return cls(data.data[0]) if data.data else None
 
-    # Payment fields
-    payment_status = db.Column(db.String(20), default='pending')  # pending, paid, failed, refunded
-    payment_id = db.Column(db.String(255), nullable=True)  # Stripe payment/session ID
-    total_price = db.Column(db.Float, nullable=True)  # Total price paid
+    @classmethod
+    def find_by_guest(cls, guest):
+        data = supabase.table('reservations').select('*').eq('guest', guest).execute()
+        return [cls(r) for r in (data.data or [])]
+
+    @classmethod
+    def find_by_room_ids(cls, room_ids):
+        if not room_ids:
+            return []
+        data = supabase.table('reservations').select('*').in_('room_id', room_ids).execute()
+        return [cls(r) for r in (data.data or [])]
+
+    @classmethod
+    def count_by_room_ids(cls, room_ids):
+        if not room_ids:
+            return 0
+        data = supabase.table('reservations').select('id', count='exact').in_('room_id', room_ids).execute()
+        return data.count if data.count is not None else len(data.data or [])
+
+    @classmethod
+    def create(cls, **kwargs):
+        data = supabase.table('reservations').insert(kwargs).execute()
+        return cls(data.data[0]) if data.data else None
+
+    def delete(self):
+        supabase.table('reservations').delete().eq('id', self.id).execute()
 
     @property
     def end_date(self):
-        return self.start_date + timedelta(days=self.nights)
+        start = _parse_date(getattr(self, 'start_date', None))
+        if start:
+            return start + timedelta(days=getattr(self, 'nights', 0))
+        return None
+
+    @property
+    def room(self):
+        rid = getattr(self, 'room_id', None)
+        if rid is None:
+            return None
+        if not hasattr(self, '_room'):
+            data = supabase.table('rooms').select('*').eq('id', rid).execute()
+            r = Room(data.data[0]) if data.data else None
+            if r:
+                hotel_data = supabase.table('hotels').select('*').eq('id', r.hotel_id).execute()
+                r.hotel = Hotel(hotel_data.data[0]) if hotel_data.data else None
+            self._room = r
+        return self._room
+
+    @room.setter
+    def room(self, val):
+        self._room = val
 
     def info(self):
-        return f"{self.guest} – Room #{self.room.number} – {self.start_date} to {self.end_date} ({self.nights} nights)"
+        r = self.room
+        room_num = r.number if r else '?'
+        return f'{self.guest} – Room #{room_num} – {self.start_date} to {self.end_date} ({self.nights} nights)'
 
 
-class PropertyReservation(db.Model):
-    __tablename__ = 'property_reservations'
+class PropertyReservation(BaseModel):
+    def __init__(self, data=None):
+        super().__init__(data)
+        # Ensure start_date is a date object for templates
+        if hasattr(self, 'start_date') and isinstance(self.start_date, str):
+            try:
+                self.start_date = _parse_date(self.start_date)
+            except Exception:
+                pass
 
-    id = db.Column(db.Integer, primary_key=True)
-    property_id = db.Column(db.Integer, db.ForeignKey('hotels.id'), nullable=False)
-    guest = db.Column(db.String(255), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    start_date = db.Column(db.Date, nullable=False)
-    nights = db.Column(db.Integer, nullable=False)
-    total_price = db.Column(db.Float, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    @classmethod
+    def get(cls, reservation_id):
+        data = supabase.table('property_reservations').select('*').eq('id', reservation_id).execute()
+        return cls(data.data[0]) if data.data else None
 
-    # Payment fields
-    payment_status = db.Column(db.String(20), default='pending')  # pending, paid, failed, refunded
-    payment_id = db.Column(db.String(255), nullable=True)  # Stripe payment/session ID
+    @classmethod
+    def find_by_guest(cls, guest):
+        data = supabase.table('property_reservations').select('*').eq('guest', guest).execute()
+        return [cls(r) for r in (data.data or [])]
+
+    @classmethod
+    def create(cls, **kwargs):
+        data = supabase.table('property_reservations').insert(kwargs).execute()
+        return cls(data.data[0]) if data.data else None
+
+    def delete(self):
+        supabase.table('property_reservations').delete().eq('id', self.id).execute()
 
     @property
     def end_date(self):
-        return self.start_date + timedelta(days=self.nights)
+        start = _parse_date(getattr(self, 'start_date', None))
+        if start:
+            return start + timedelta(days=getattr(self, 'nights', 0))
+        return None
+
+    @property
+    def hotel(self):
+        pid = getattr(self, 'property_id', None)
+        if pid is None:
+            return None
+        if not hasattr(self, '_hotel'):
+            data = supabase.table('hotels').select('*').eq('id', pid).execute()
+            self._hotel = Hotel(data.data[0]) if data.data else None
+        return self._hotel
+
+    @hotel.setter
+    def hotel(self, val):
+        self._hotel = val
 
 
-class HotelReview(db.Model):
-    __tablename__ = 'hotel_reviews'
-
-    id = db.Column(db.Integer, primary_key=True)
-    hotel_id = db.Column(db.Integer, db.ForeignKey('hotels.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    rating = db.Column(db.Numeric(2, 1), nullable=False)
-    review_text = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+class HotelReview(BaseModel):
+    @classmethod
+    def find_by_hotel(cls, hotel_id):
+        data = supabase.table('hotel_reviews').select('*').eq('hotel_id', hotel_id).execute()
+        return [cls(r) for r in (data.data or [])]
 
 
-class Activity(db.Model):
-    __tablename__ = 'activities'
+class Activity(BaseModel):
+    @classmethod
+    def create(cls, **kwargs):
+        data = supabase.table('activities').insert(kwargs).execute()
+        return cls(data.data[0]) if data.data else None
 
-    id = db.Column(db.Integer, primary_key=True)
-    activity = db.Column(db.Text, nullable=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    @classmethod
+    def get_recent(cls, limit=10):
+        data = supabase.table('activities').select('*').order('timestamp', desc=True).limit(limit).execute()
+        return [cls(r) for r in (data.data or [])]
 
 
-class TrendingDestination(db.Model):
-    __tablename__ = 'trending_destinations'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    country = db.Column(db.String(100), default='Bulgaria')
-    image_data = db.Column(db.LargeBinary, nullable=True)
-    property_count = db.Column(db.Integer, default=0)
-    display_order = db.Column(db.Integer, default=0)
-    is_active = db.Column(db.Boolean, default=True)
+class TrendingDestination(BaseModel):
+    @classmethod
+    def get_active(cls, limit=6):
+        # Some Supabase/PostgREST schemas use SMALLINT for boolean-like columns.
+        # Try filtering by True first, but fall back to 1 if the server rejects the boolean.
+        try:
+            data = supabase.table('trending_destinations').select('*').eq('is_active', True).order('display_order').limit(limit).execute()
+        except Exception:
+            data = supabase.table('trending_destinations').select('*').eq('is_active', 1).order('display_order').limit(limit).execute()
+        return [cls(r) for r in (data.data or [])]
 
     def to_dict(self):
         return {
             'id': self.id,
-            'name': self.name,
-            'country': self.country,
-            'property_count': self.property_count
+            'name': getattr(self, 'name', ''),
+            'country': getattr(self, 'country', ''),
+            'property_count': getattr(self, 'property_count', 0)
         }
 
 
-class Promotion(db.Model):
-    __tablename__ = 'promotions'
+class Promotion(BaseModel):
+    @classmethod
+    def get_active(cls):
+        # Same fallback for promotions.is_active
+        try:
+            data = supabase.table('promotions').select('*').eq('is_active', True).execute()
+        except Exception:
+            data = supabase.table('promotions').select('*').eq('is_active', 1).execute()
+        return [cls(r) for r in (data.data or [])]
 
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    discount_percent = db.Column(db.Integer, default=0)
-    valid_until = db.Column(db.Date, nullable=True)
-    image_data = db.Column(db.LargeBinary, nullable=True)
-    is_active = db.Column(db.Boolean, default=True)
+
+def log_activity(activity_text):
+    try:
+        Activity.create(
+            activity=f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {activity_text}',
+            timestamp=datetime.now().isoformat()
+        )
+    except Exception:
+        pass
+
+
+def check_room_conflict(room_id, start_date, end_date):
+    data = supabase.table('reservations').select('*').eq('room_id', room_id).execute()
+    for r in (data.data or []):
+        r_start = _parse_date(r.get('start_date'))
+        if not r_start:
+            continue
+        r_end = r_start + timedelta(days=r.get('nights', 0))
+        if r_start < end_date and r_end > start_date:
+            return True
+    return False
+
+
+def check_property_conflict(property_id, start_date, end_date):
+    data = supabase.table('property_reservations').select('*').eq('property_id', property_id).execute()
+    for r in (data.data or []):
+        r_start = _parse_date(r.get('start_date'))
+        if not r_start:
+            continue
+        r_end = r_start + timedelta(days=r.get('nights', 0))
+        if r_start < end_date and r_end > start_date:
+            return True
+    return False
+
+
+def get_conflicting_room_ids(start_date, end_date):
+    data = supabase.table('reservations').select('*').execute()
+    conflicting = []
+    for r in (data.data or []):
+        r_start = _parse_date(r.get('start_date'))
+        if not r_start:
+            continue
+        r_end = r_start + timedelta(days=r.get('nights', 0))
+        if r_start < end_date and r_end > start_date:
+            conflicting.append(r['room_id'])
+    return conflicting
