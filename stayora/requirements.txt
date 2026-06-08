@@ -1,0 +1,11 @@
+flask
+flask-login
+flask-wtf
+wtforms
+supabase
+python-dotenv
+stripe
+authlib
+psycopg2-binary
+email-validator
+openai>=1.0.0

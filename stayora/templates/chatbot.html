@@ -1,0 +1,438 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<div id="staya-chatbot">
+  <button id="staya-toggle" class="staya-toggle-btn" aria-label="Open Staya chat">
+    <i class="fas fa-comment-dots"></i>
+    <span class="staya-notif-dot"></span>
+  </button>
+
+  <div id="staya-window" class="staya-window hidden">
+    <div class="staya-header">
+      <div class="staya-avatar">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div class="staya-header-info">
+        <div class="staya-name">Staya</div>
+        <div class="staya-status">Online</div>
+      </div>
+      <button id="staya-close" class="staya-close-btn" aria-label="Close chat">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div id="staya-messages" class="staya-messages">
+      <div class="staya-msg staya-msg-bot">
+        <div class="staya-msg-text">Hi there! I'm Staya, your travel assistant. How can I help you today?</div>
+        <div class="staya-msg-time">Just now</div>
+      </div>
+    </div>
+
+    <div id="staya-quick-replies" class="staya-quick-replies"></div>
+
+    <div class="staya-input-area">
+      <input type="text" id="staya-input" placeholder="Type a message..." autocomplete="off">
+      <button id="staya-send" class="staya-send-btn" aria-label="Send message">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+.staya-toggle-btn {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+  width: 60px; height: 60px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, #c9a96e, #b8904f);
+  color: #07090f; font-size: 1.6rem; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(201,169,110,.4);
+  transition: all .3s ease; display: flex; align-items: center; justify-content: center;
+}
+.staya-toggle-btn:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(201,169,110,.55); }
+.staya-notif-dot {
+  position: absolute; top: 2px; right: 2px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #ef4444; border: 2px solid #07090f;
+}
+.staya-window {
+  position: fixed; bottom: 5.5rem; right: 1.5rem; z-index: 9998;
+  width: 380px; height: 560px; border-radius: 18px;
+  background: #0d1120; border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 25px 60px rgba(0,0,0,.6);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: staya-slide .3s ease;
+}
+@keyframes staya-slide {
+  from { opacity: 0; transform: translateY(20px) scale(.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.staya-window.hidden { display: none; }
+
+.staya-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 20px; background: linear-gradient(135deg, #111826, #16203a);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.staya-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #c9a96e, #b8904f);
+  display: flex; align-items: center; justify-content: center;
+  color: #07090f; font-size: 1.2rem;
+}
+.staya-header-info { flex: 1; }
+.staya-name { font-weight: 600; color: #eef2ff; font-size: .95rem; }
+.staya-status { font-size: .75rem; color: #22c55e; }
+.staya-close-btn {
+  background: none; border: none; color: #566070; font-size: 1.2rem;
+  cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: all .2s;
+}
+.staya-close-btn:hover { background: rgba(255,255,255,.06); color: #eef2ff; }
+
+.staya-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  scroll-behavior: smooth;
+}
+.staya-messages::-webkit-scrollbar { width: 4px; }
+.staya-messages::-webkit-scrollbar-track { background: transparent; }
+.staya-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
+
+.staya-msg {
+  display: flex; flex-direction: column; max-width: 85%;
+  animation: staya-msg-in .3s ease;
+}
+@keyframes staya-msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.staya-msg-bot { align-self: flex-start; }
+.staya-msg-user { align-self: flex-end; }
+.staya-msg-text {
+  padding: 12px 16px; border-radius: 16px; font-size: .875rem; line-height: 1.5;
+}
+.staya-msg-bot .staya-msg-text {
+  background: #111826; color: #eef2ff;
+  border-bottom-left-radius: 4px;
+}
+.staya-msg-user .staya-msg-text {
+  background: linear-gradient(135deg, #c9a96e, #b8904f);
+  color: #07090f; border-bottom-right-radius: 4px;
+}
+.staya-msg-time { font-size: .65rem; color: #566070; margin-top: 4px; padding: 0 4px; }
+
+.staya-msg-actions {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+}
+.staya-action-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 10px; font-size: .8rem;
+  text-decoration: none; font-weight: 500; transition: all .2s;
+  cursor: pointer; border: none;
+}
+.staya-action-btn.primary {
+  background: linear-gradient(135deg, #c9a96e, #b8904f);
+  color: #07090f;
+}
+.staya-action-btn.primary:hover { opacity: .9; transform: translateY(-1px); }
+.staya-action-btn.secondary {
+  background: rgba(255,255,255,.06); color: #eef2ff;
+  border: 1px solid rgba(255,255,255,.1);
+}
+.staya-action-btn.secondary:hover { background: rgba(255,255,255,.1); }
+
+.staya-recommendation {
+  display: flex; gap: 10px; margin-top: 10px; padding: 12px;
+  background: rgba(255,255,255,.03); border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.06); cursor: pointer;
+  transition: all .2s; text-decoration: none; color: inherit;
+}
+.staya-recommendation:hover { background: rgba(255,255,255,.06); border-color: rgba(201,169,110,.3); }
+.staya-rec-info { flex: 1; min-width: 0; }
+.staya-rec-name { font-weight: 600; color: #eef2ff; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.staya-rec-city { color: #566070; font-size: .75rem; }
+.staya-rec-price { color: #c9a96e; font-weight: 600; font-size: .85rem; }
+.staya-rec-rating { color: #fbbf24; font-size: .75rem; }
+
+.staya-destinations {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+}
+.staya-dest-chip {
+  padding: 6px 14px; border-radius: 20px; font-size: .8rem;
+  background: rgba(255,255,255,.06); color: #eef2ff;
+  border: 1px solid rgba(255,255,255,.1); text-decoration: none; transition: all .2s;
+}
+.staya-dest-chip:hover { background: rgba(201,169,110,.15); border-color: rgba(201,169,110,.3); }
+
+.staya-promo {
+  padding: 10px 14px; margin-top: 8px;
+  background: rgba(201,169,110,.1); border-radius: 10px;
+  border: 1px solid rgba(201,169,110,.2); font-size: .8rem; color: #eef2ff;
+}
+.staya-promo strong { color: #c9a96e; }
+
+.staya-quick-replies {
+  display: flex; gap: 6px; padding: 8px 16px; overflow-x: auto;
+  scrollbar-width: none;
+}
+.staya-quick-replies::-webkit-scrollbar { display: none; }
+.staya-quick-reply {
+  flex-shrink: 0; padding: 6px 16px; border-radius: 20px; font-size: .78rem;
+  background: rgba(201,169,110,.12); color: #c9a96e; border: 1px solid rgba(201,169,110,.2);
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.staya-quick-reply:hover { background: rgba(201,169,110,.2); }
+
+.staya-input-area {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.06);
+  background: #0d1120;
+}
+#staya-input {
+  flex: 1; padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1);
+  background: #111826; color: #eef2ff; font-size: .875rem; outline: none;
+  transition: border-color .2s;
+}
+#staya-input:focus { border-color: rgba(201,169,110,.4); }
+#staya-input::placeholder { color: #566070; }
+.staya-send-btn {
+  width: 42px; height: 42px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, #c9a96e, #b8904f);
+  color: #07090f; font-size: 1rem; cursor: pointer;
+  transition: all .2s; display: flex; align-items: center; justify-content: center;
+}
+.staya-send-btn:hover { opacity: .9; }
+.staya-send-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.staya-typing {
+  display: flex; align-items: center; gap: 4px; padding: 4px 0;
+}
+.staya-typing span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #566070; animation: staya-bounce 1.2s infinite;
+}
+.staya-typing span:nth-child(2) { animation-delay: .2s; }
+.staya-typing span:nth-child(3) { animation-delay: .4s; }
+@keyframes staya-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+.staya-booking-summary {
+  margin-top: 8px; padding: 10px 14px;
+  background: rgba(34,197,94,.1); border-radius: 10px;
+  border: 1px solid rgba(34,197,94,.2); font-size: .8rem; color: #eef2ff;
+}
+.staya-booking-summary strong { color: #22c55e; }
+
+@media (max-width: 480px) {
+  .staya-window {
+    width: calc(100vw - 24px); height: calc(100vh - 120px);
+    bottom: 5rem; right: 12px;
+  }
+}
+</style>
+
+<script>
+(function() {
+  const toggleBtn = document.getElementById('staya-toggle');
+  const windowEl = document.getElementById('staya-window');
+  const closeBtn = document.getElementById('staya-close');
+  const messagesEl = document.getElementById('staya-messages');
+  const inputEl = document.getElementById('staya-input');
+  const sendBtn = document.getElementById('staya-send');
+  const quickRepliesEl = document.getElementById('staya-quick-replies');
+  const notifDot = document.querySelector('.staya-notif-dot');
+
+  let isOpen = false;
+  let sessionData = null;
+  let sessionId = localStorage.getItem('staya_session_id') || crypto.randomUUID();
+
+  if (!localStorage.getItem('staya_session_id')) {
+    localStorage.setItem('staya_session_id', sessionId);
+  }
+
+  function init() {
+    fetch('/api/chat/session')
+      .then(r => r.json())
+      .then(data => {
+        sessionData = data;
+        if (data.authenticated) {
+          const greeting = document.querySelector('.staya-msg-bot .staya-msg-text');
+          if (greeting) {
+            greeting.textContent = 'Welcome back! How can I help you today?';
+          }
+          notifDot.style.display = 'none';
+        }
+      })
+      .catch(() => {});
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    isOpen = !isOpen;
+    windowEl.classList.toggle('hidden', !isOpen);
+    if (isOpen) {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      inputEl.focus();
+    }
+  });
+
+  closeBtn.addEventListener('click', () => {
+    isOpen = false;
+    windowEl.classList.add('hidden');
+  });
+
+  function addMessage(text, type, time) {
+    const div = document.createElement('div');
+    div.className = `staya-msg staya-msg-${type}`;
+    const t = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    div.innerHTML = `<div class="staya-msg-text">${text}</div><div class="staya-msg-time">${t}</div>`;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'staya-msg staya-msg-bot';
+    div.id = 'staya-typing-indicator';
+    div.innerHTML = '<div class="staya-msg-text"><div class="staya-typing"><span></span><span></span><span></span></div></div>';
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('staya-typing-indicator');
+    if (el) el.remove();
+  }
+
+  function addBotResponse(response) {
+    const text = response.text || 'How can I help you?';
+    const div = document.createElement('div');
+    div.className = 'staya-msg staya-msg-bot';
+    const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    let html = `<div class="staya-msg-text">${escapeHtml(text)}</div>`;
+
+    if (response.booking_summary) {
+      html += `<div class="staya-booking-summary"><strong>You have ${response.booking_summary.total} active booking${response.booking_summary.total > 1 ? 's' : ''}.</strong> Check your reservations below.</div>`;
+    }
+
+    if (response.destinations) {
+      html += `<div class="staya-destinations">`;
+      response.destinations.forEach(d => {
+        const url = `/user/stays/search?destination=${encodeURIComponent(d.name)}`;
+        html += `<a href="${url}" class="staya-dest-chip">${escapeHtml(d.name)}, ${escapeHtml(d.country)}</a>`;
+      });
+      html += `</div>`;
+    }
+
+    if (response.promotions) {
+      response.promotions.forEach(p => {
+        html += `<div class="staya-promo"><strong>${escapeHtml(p.name)}</strong><br>${escapeHtml(p.description)}</div>`;
+      });
+    }
+
+    if (response.recommendations) {
+      response.recommendations.forEach(r => {
+        const url = `/user/hotel/${r.id}`;
+        const rating = r.rating ? `${r.rating}/10` : 'New';
+        html += `<a href="${url}" class="staya-recommendation">
+          <div class="staya-rec-info">
+            <div class="staya-rec-name">${escapeHtml(r.name)}</div>
+            <div class="staya-rec-city">${escapeHtml(r.city || '')}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="staya-rec-price">€${r.price || 0}</div>
+            <div class="staya-rec-rating">${rating}</div>
+          </div>
+        </a>`;
+      });
+    }
+
+    if (response.actions && response.actions.length > 0) {
+      html += `<div class="staya-msg-actions">`;
+      response.actions.forEach(a => {
+        html += `<a href="${a.url}" class="staya-action-btn ${a.primary ? 'primary' : 'secondary'}">${escapeHtml(a.label)}</a>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `<div class="staya-msg-time">${t}</div>`;
+    div.innerHTML = html;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    if (response.quick_replies && response.quick_replies.length > 0) {
+      showQuickReplies(response.quick_replies);
+    } else {
+      clearQuickReplies();
+    }
+  }
+
+  function showQuickReplies(replies) {
+    quickRepliesEl.innerHTML = '';
+    replies.forEach(r => {
+      const btn = document.createElement('button');
+      btn.className = 'staya-quick-reply';
+      btn.textContent = r;
+      btn.addEventListener('click', () => {
+        inputEl.value = r;
+        sendMessage();
+      });
+      quickRepliesEl.appendChild(btn);
+    });
+  }
+
+  function clearQuickReplies() {
+    quickRepliesEl.innerHTML = '';
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function sendMessage() {
+    const msg = inputEl.value.trim();
+    if (!msg) return;
+
+    addMessage(escapeHtml(msg), 'user');
+    inputEl.value = '';
+    sendBtn.disabled = true;
+    clearQuickReplies();
+
+    const typing = addTyping();
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, session_id: sessionId }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        removeTyping();
+        sendBtn.disabled = false;
+        if (data.error) {
+          addMessage('Sorry, something went wrong. Please try again.', 'bot');
+          return;
+        }
+        if (data.navigate) {
+          window.location.href = data.navigate;
+          return;
+        }
+        addBotResponse(data);
+      })
+      .catch(err => {
+        removeTyping();
+        sendBtn.disabled = false;
+        addMessage('Sorry, I could not reach the server. Please try again.', 'bot');
+      });
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  init();
+})();
+</script>
