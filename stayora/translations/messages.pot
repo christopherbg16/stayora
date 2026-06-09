@@ -1,0 +1,1543 @@
+# Translations for StayOra
+# Copyright (C) 2026
+# This file is distributed under the same license as the StayOra project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: StayOra 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-09 10:18\n"
+"PO-Revision-Date: 2026-06-09 10:18\n"
+"Last-Translator: \n"
+"Language: en\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel\n"
+
+msgid "\"Absolutely seamless from search to check-in. Found a stunning boutique hotel in Sofia in minutes.\""
+msgstr ""
+
+msgid "\"Listed my apartment and had my first booking within 48 hours. The dashboard is incredibly easy.\""
+msgstr ""
+
+msgid "\"The payment flexibility sold me — paying cash on arrival made everything so relaxed.\""
+msgstr ""
+
+msgid "+18% vs last month"
+msgstr ""
+
+msgid "+359 ..."
+msgstr ""
+
+msgid "/booking"
+msgstr ""
+
+msgid "/night"
+msgstr ""
+
+msgid "1 bed"
+msgstr ""
+
+msgid "1+ Star"
+msgstr ""
+
+msgid "2 beds"
+msgstr ""
+
+msgid "2+ Stars"
+msgstr ""
+
+msgid "24/7 Support"
+msgstr ""
+
+msgid "24/7 support"
+msgstr ""
+
+msgid "3 beds"
+msgstr ""
+
+msgid "3+ Stars"
+msgstr ""
+
+msgid "4+ Stars"
+msgstr ""
+
+msgid "5 Stars"
+msgstr ""
+
+msgid "About Us"
+msgstr ""
+
+msgid "About this property"
+msgstr ""
+
+msgid "Accommodations"
+msgstr ""
+
+msgid "Across all bookings"
+msgstr ""
+
+msgid "Across all properties"
+msgstr ""
+
+msgid "Add New Property"
+msgstr ""
+
+msgid "Add New Room"
+msgstr ""
+
+msgid "Add Property"
+msgstr ""
+
+msgid "Add Room"
+msgstr ""
+
+msgid "Add Your First Property"
+msgstr ""
+
+msgid "Add a property first"
+msgstr ""
+
+msgid "Add new property"
+msgstr ""
+
+msgid "Add your first property to start receiving bookings"
+msgstr ""
+
+msgid "Address"
+msgstr ""
+
+msgid "Admin Profile"
+msgstr ""
+
+msgid "Admin Settings"
+msgstr ""
+
+msgid "Admin profile"
+msgstr ""
+
+msgid "Administrator"
+msgstr ""
+
+msgid "After creating the hotel, add individual rooms from \"My Rooms\"."
+msgstr ""
+
+msgid "All bookings"
+msgstr ""
+
+msgid "All reservations organized in one place."
+msgstr ""
+
+msgid "All rooms"
+msgstr ""
+
+msgid "All time earnings"
+msgstr ""
+
+msgid "All time reservations"
+msgstr ""
+
+msgid "All-Inclusive"
+msgstr ""
+
+msgid "Allowed formats: JPG, JPEG, PNG, GIF (Max 16MB)"
+msgstr ""
+
+msgid "Already have an account?"
+msgstr ""
+
+msgid "Always here for you"
+msgstr ""
+
+msgid "Amenities"
+msgstr ""
+
+msgid "An error occurred"
+msgstr ""
+
+msgid "Anonymous"
+msgstr ""
+
+msgid "Any"
+msgstr ""
+
+msgid "Apartments"
+msgstr ""
+
+msgid "Apartments, villas & resorts only"
+msgstr ""
+
+msgid "Are you a property owner? Sign in with an admin account to manage your listings."
+msgstr ""
+
+msgid "Are you sure you want to cancel this reservation?"
+msgstr ""
+
+msgid "At least"
+msgstr ""
+
+msgid "Available"
+msgstr ""
+
+msgid "Available Rooms"
+msgstr ""
+
+msgid "Average Rating"
+msgstr ""
+
+msgid "Avg rating"
+msgstr ""
+
+msgid "Avg."
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "Back to Browse"
+msgstr ""
+
+msgid "Basic information"
+msgstr ""
+
+msgid "Bedrooms / total rooms"
+msgstr ""
+
+msgid "Bedrooms:"
+msgstr ""
+
+msgid "Best price guarantee"
+msgstr ""
+
+msgid "Blog"
+msgstr ""
+
+msgid "Book Stays"
+msgstr ""
+
+msgid "Book entire property"
+msgstr ""
+
+msgid "Book in seconds and receive your confirmation immediately. No waiting."
+msgstr ""
+
+msgid "Book now"
+msgstr ""
+
+msgid "Book your stay in minutes"
+msgstr ""
+
+msgid "Booked"
+msgstr ""
+
+msgid "Booking Manager"
+msgstr ""
+
+msgid "Booking Options"
+msgstr ""
+
+msgid "Booking Summary"
+msgstr ""
+
+msgid "Booking cancelled"
+msgstr ""
+
+msgid "Booking confirmed"
+msgstr ""
+
+msgid "Bookings"
+msgstr ""
+
+msgid "Browse Hotels"
+msgstr ""
+
+msgid "Browse Stays"
+msgstr ""
+
+msgid "Browse by Type"
+msgstr ""
+
+msgid "Browse by property type"
+msgstr ""
+
+msgid "By creating an account you agree to our"
+msgstr ""
+
+msgid "CVC"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Cancel Reservation"
+msgstr ""
+
+msgid "Cancellation"
+msgstr ""
+
+msgid "Cancellations"
+msgstr ""
+
+msgid "Capacity & pricing"
+msgstr ""
+
+msgid "Card Details"
+msgstr ""
+
+msgid "Card Number"
+msgstr ""
+
+msgid "Card has expired"
+msgstr ""
+
+msgid "Cardholder Name"
+msgstr ""
+
+msgid "Careers"
+msgstr ""
+
+msgid "Change Password"
+msgstr ""
+
+msgid "Change Password (Optional)"
+msgstr ""
+
+msgid "Check Availability"
+msgstr ""
+
+msgid "Check availability"
+msgstr ""
+
+msgid "Check in"
+msgstr ""
+
+msgid "Check in and enjoy your handpicked accommodation fully."
+msgstr ""
+
+msgid "Check out"
+msgstr ""
+
+msgid "Check-in"
+msgstr ""
+
+msgid "Check-in:"
+msgstr ""
+
+msgid "Check-out"
+msgstr ""
+
+msgid "Check-out:"
+msgstr ""
+
+msgid "Checkout"
+msgstr ""
+
+msgid "Choose Your Stay"
+msgstr ""
+
+msgid "Choose a username"
+msgstr ""
+
+msgid "Choose your preferred payment method"
+msgstr ""
+
+msgid "Cities Covered"
+msgstr ""
+
+msgid "Cities Visited"
+msgstr ""
+
+msgid "City"
+msgstr ""
+
+msgid "City or hotel name"
+msgstr ""
+
+msgid "City, property name or country…"
+msgstr ""
+
+msgid "City, property or destination"
+msgstr ""
+
+msgid "Clear filters"
+msgstr ""
+
+msgid "Click to"
+msgstr ""
+
+msgid "Click to upload gallery photos"
+msgstr ""
+
+msgid "Click to upload main photo"
+msgstr ""
+
+msgid "Company"
+msgstr ""
+
+msgid "Compare options, read reviews and pick the perfect property."
+msgstr ""
+
+msgid "Complete Your Booking"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "Confirm Booking (Pay at Property)"
+msgstr ""
+
+msgid "Confirm New Password"
+msgstr ""
+
+msgid "Confirm password"
+msgstr ""
+
+msgid "Confirmed"
+msgstr ""
+
+msgid "Contact Information"
+msgstr ""
+
+msgid "Contact Us"
+msgstr ""
+
+msgid "Continue with Google"
+msgstr ""
+
+msgid "Cookie Policy"
+msgstr ""
+
+msgid "Cookies"
+msgstr ""
+
+msgid "Country"
+msgstr ""
+
+msgid "Create Account"
+msgstr ""
+
+msgid "Create Free Account"
+msgstr ""
+
+msgid "Create Property"
+msgstr ""
+
+msgid "Create one — it's free"
+msgstr ""
+
+msgid "Create your account"
+msgstr ""
+
+msgid "Curated Properties Worldwide"
+msgstr ""
+
+msgid "Current Password"
+msgstr ""
+
+msgid "Current password is required to make any changes"
+msgstr ""
+
+msgid "Current photo:"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete Room #"
+msgstr ""
+
+msgid "Describe your property — highlight unique features, atmosphere, and what guests can expect…"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Destination"
+msgstr ""
+
+msgid "Discover Extraordinary Places to Stay"
+msgstr ""
+
+msgid "Discover extraordinary places to stay — from boutique hotels to private villas worldwide."
+msgstr ""
+
+msgid "Don't have an account?"
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Edit Profile"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Email Address"
+msgstr ""
+
+msgid "Enjoy Your Stay"
+msgstr ""
+
+msgid "Enter your current password"
+msgstr ""
+
+msgid "Enter your destination and dates to browse available properties."
+msgstr ""
+
+msgid "Enter your password"
+msgstr ""
+
+msgid "Enter your username"
+msgstr ""
+
+msgid "Entire"
+msgstr ""
+
+msgid "Error:"
+msgstr ""
+
+msgid "Every kind of stay, curated for you"
+msgstr ""
+
+msgid "Every listing is reviewed by our team. You see exactly what you get — no surprises."
+msgstr ""
+
+msgid "Expiry Date"
+msgstr ""
+
+msgid "Explore"
+msgstr ""
+
+msgid "Explore Properties"
+msgstr ""
+
+msgid "Explore deals"
+msgstr ""
+
+msgid "Featured properties"
+msgstr ""
+
+msgid "Features"
+msgstr ""
+
+msgid "Filter Hotels"
+msgstr ""
+
+msgid "Find and book properties"
+msgstr ""
+
+msgid "Find your next stay"
+msgstr ""
+
+msgid "Find your perfect"
+msgstr ""
+
+msgid "Fitness center"
+msgstr ""
+
+msgid "Flexible Payment"
+msgstr ""
+
+msgid "For Property Owners"
+msgstr ""
+
+msgid "For hotels: rooms added separately"
+msgstr ""
+
+msgid "Forgot password?"
+msgstr ""
+
+msgid "France"
+msgstr ""
+
+msgid "France · 843 properties"
+msgstr ""
+
+msgid "Free Cancellation"
+msgstr ""
+
+msgid "Free WiFi"
+msgstr ""
+
+msgid "Free cancel"
+msgstr ""
+
+msgid "Free cancellation"
+msgstr ""
+
+msgid "Free parking"
+msgstr ""
+
+msgid "From boutique city hotels to secluded villas — discover extraordinary spaces crafted for unforgettable experiences."
+msgstr ""
+
+msgid "Gallery image"
+msgstr ""
+
+msgid "Gallery photos"
+msgstr ""
+
+msgid "Get Started"
+msgstr ""
+
+msgid "Go Home"
+msgstr ""
+
+msgid "Guest"
+msgstr ""
+
+msgid "Guest Stories"
+msgstr ""
+
+msgid "Guest rating"
+msgstr ""
+
+msgid "Guest reviews"
+msgstr ""
+
+msgid "Guests"
+msgstr ""
+
+msgid "Hand-picked stays with exceptional guest reviews."
+msgstr ""
+
+msgid "Happy Guests"
+msgstr ""
+
+msgid "Has active reservations"
+msgstr ""
+
+msgid "Help Center"
+msgstr ""
+
+msgid "Home"
+msgstr ""
+
+msgid "Hosting"
+msgstr ""
+
+msgid "Hotel Room"
+msgstr ""
+
+msgid "Hotels"
+msgstr ""
+
+msgid "Hotels · Apartments · Villas · Resorts"
+msgstr ""
+
+msgid "Hotels, apartments, villas and resorts — all in one place"
+msgstr ""
+
+msgid "I want to:"
+msgstr ""
+
+msgid "Instant Confirmation"
+msgstr ""
+
+msgid "Italy · 1,245 properties"
+msgstr ""
+
+msgid "JPG, PNG up to 16MB"
+msgstr ""
+
+msgid "Jacuzzi"
+msgstr ""
+
+msgid "John Doe"
+msgstr ""
+
+msgid "Join millions of travelers and property owners"
+msgstr ""
+
+msgid "Join thousands of travellers who trust Stayora to find exceptional accommodations at every destination."
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Last 10 events"
+msgstr ""
+
+msgid "Legal"
+msgstr ""
+
+msgid "Limited time"
+msgstr ""
+
+msgid "List Properties"
+msgstr ""
+
+msgid "List Property"
+msgstr ""
+
+msgid "List Your Property"
+msgstr ""
+
+msgid "List your hotel, apartment or villa and reach thousands of travellers actively searching."
+msgstr ""
+
+msgid "List your property"
+msgstr ""
+
+msgid "Live Dashboard"
+msgstr ""
+
+msgid "Location"
+msgstr ""
+
+msgid "Logout"
+msgstr ""
+
+msgid "Luxury"
+msgstr ""
+
+msgid "Luxury room with jacuzzi"
+msgstr ""
+
+msgid "Main image"
+msgstr ""
+
+msgid "Main photo"
+msgstr ""
+
+msgid "Manage"
+msgstr ""
+
+msgid "Manage my own properties"
+msgstr ""
+
+msgid "Manage properties"
+msgstr ""
+
+msgid "Manage rooms"
+msgstr ""
+
+msgid "Max guests"
+msgstr ""
+
+msgid "Max guests:"
+msgstr ""
+
+msgid "Member since"
+msgstr ""
+
+msgid "Mention nearby attractions, unique amenities and the atmosphere."
+msgstr ""
+
+msgid "Min. 6 characters"
+msgstr ""
+
+msgid "Most Popular"
+msgstr ""
+
+msgid "Most loved destinations by our travelers worldwide"
+msgstr ""
+
+msgid "My Account"
+msgstr ""
+
+msgid "My Bookings"
+msgstr ""
+
+msgid "My Dashboard"
+msgstr ""
+
+msgid "My Profile"
+msgstr ""
+
+msgid "My Properties"
+msgstr ""
+
+msgid "My Reservations"
+msgstr ""
+
+msgid "My Rooms"
+msgstr ""
+
+msgid "My properties"
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "New listing"
+msgstr ""
+
+msgid "Nights"
+msgstr ""
+
+msgid "Nights booked"
+msgstr ""
+
+msgid "Nights:"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "No description available."
+msgstr ""
+
+msgid "No hotels found"
+msgstr ""
+
+msgid "No jacuzzi"
+msgstr ""
+
+msgid "No past bookings"
+msgstr ""
+
+msgid "No past reservations"
+msgstr ""
+
+msgid "No properties found"
+msgstr ""
+
+msgid "No properties yet"
+msgstr ""
+
+msgid "No properties yet."
+msgstr ""
+
+msgid "No recent activity"
+msgstr ""
+
+msgid "No reviews yet"
+msgstr ""
+
+msgid "No rooms added yet. Use the form to add rooms to your hotel properties."
+msgstr ""
+
+msgid "No rooms available for selected dates"
+msgstr ""
+
+msgid "No upcoming bookings yet"
+msgstr ""
+
+msgid "No upcoming reservations"
+msgstr ""
+
+msgid "Number of beds"
+msgstr ""
+
+msgid "On most properties"
+msgstr ""
+
+msgid "Optional"
+msgstr ""
+
+msgid "Our support team is available around the clock to assist with any issues."
+msgstr ""
+
+msgid "Our top picks"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Owner Login"
+msgstr ""
+
+msgid "Page Not Found"
+msgstr ""
+
+msgid "Paris"
+msgstr ""
+
+msgid "Parking"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Past"
+msgstr ""
+
+msgid "Past Bookings"
+msgstr ""
+
+msgid "Past Stays"
+msgstr ""
+
+msgid "Pay"
+msgstr ""
+
+msgid "Pay Your Way"
+msgstr ""
+
+msgid "Pay at the property upon arrival"
+msgstr ""
+
+msgid "Pay in Cash"
+msgstr ""
+
+msgid "Pay online or choose cash on arrival — confirmed instantly."
+msgstr ""
+
+msgid "Pay securely online or choose cash on arrival — full flexibility to suit you."
+msgstr ""
+
+msgid "Pay with Card"
+msgstr ""
+
+msgid "Payment Tracking"
+msgstr ""
+
+msgid "Payment successful"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Phone Number"
+msgstr ""
+
+msgid "Photos"
+msgstr ""
+
+msgid "Plans change. Most properties offer free cancellation — peace of mind guaranteed."
+msgstr ""
+
+msgid "Please enter a valid 16-digit card number"
+msgstr ""
+
+msgid "Please enter a valid CVC"
+msgstr ""
+
+msgid "Please enter a valid expiry date (MM/YY)"
+msgstr ""
+
+msgid "Please enter the cardholder name"
+msgstr ""
+
+msgid "Popular Now"
+msgstr ""
+
+msgid "Popular right now"
+msgstr ""
+
+msgid "Press"
+msgstr ""
+
+msgid "Preview"
+msgstr ""
+
+msgid "Price"
+msgstr ""
+
+msgid "Price (high to low)"
+msgstr ""
+
+msgid "Price (low to high)"
+msgstr ""
+
+msgid "Price per night (€)"
+msgstr ""
+
+msgid "Price/night (€)"
+msgstr ""
+
+msgid "Price: high to low"
+msgstr ""
+
+msgid "Price: low to high"
+msgstr ""
+
+msgid "Privacy"
+msgstr ""
+
+msgid "Privacy Policy"
+msgstr ""
+
+msgid "Profile"
+msgstr ""
+
+msgid "Profile Photo"
+msgstr ""
+
+msgid "Profile Settings"
+msgstr ""
+
+msgid "Properties"
+msgstr ""
+
+msgid "Properties Available Worldwide"
+msgstr ""
+
+msgid "Properties Listed"
+msgstr ""
+
+msgid "Properties with professional photos receive 3× more bookings."
+msgstr ""
+
+msgid "Property"
+msgstr ""
+
+msgid "Property / Room"
+msgstr ""
+
+msgid "Property Owner"
+msgstr ""
+
+msgid "Property highlights"
+msgstr ""
+
+msgid "Property name"
+msgstr ""
+
+msgid "Property stats"
+msgstr ""
+
+msgid "Property type"
+msgstr ""
+
+msgid "Quick actions"
+msgstr ""
+
+msgid "Quick links"
+msgstr ""
+
+msgid "Ready to Explore?"
+msgstr ""
+
+msgid "Real Guest Reviews"
+msgstr ""
+
+msgid "Recent activity"
+msgstr ""
+
+msgid "Recommended"
+msgstr ""
+
+msgid "Remove Photo"
+msgstr ""
+
+msgid "Remove all rooms first"
+msgstr ""
+
+msgid "Remove profile photo?"
+msgstr ""
+
+msgid "Repeat password"
+msgstr ""
+
+msgid "Repeat your password"
+msgstr ""
+
+msgid "Replace photo"
+msgstr ""
+
+msgid "Research similar properties in your area before setting your price."
+msgstr ""
+
+msgid "Resorts"
+msgstr ""
+
+msgid "Resources"
+msgstr ""
+
+msgid "Restaurant"
+msgstr ""
+
+msgid "Revenue"
+msgstr ""
+
+msgid "Reviews"
+msgstr ""
+
+msgid "Room"
+msgstr ""
+
+msgid "Room number"
+msgstr ""
+
+msgid "Room type"
+msgstr ""
+
+msgid "Rooms"
+msgstr ""
+
+msgid "SSL Encrypted"
+msgstr ""
+
+msgid "SSL encrypted"
+msgstr ""
+
+msgid "Safety"
+msgstr ""
+
+msgid "Save Changes"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Search & Discover"
+msgstr ""
+
+msgid "Search Hotels"
+msgstr ""
+
+msgid "Search Results"
+msgstr ""
+
+msgid "Secure Booking"
+msgstr ""
+
+msgid "Secure Payment"
+msgstr ""
+
+msgid "Secure booking"
+msgstr ""
+
+msgid "Secure online payment via Stripe"
+msgstr ""
+
+msgid "Secure payments"
+msgstr ""
+
+msgid "Securely"
+msgstr ""
+
+msgid "See availability"
+msgstr ""
+
+msgid "See card & cash payments at a glance."
+msgstr ""
+
+msgid "Select dates"
+msgstr ""
+
+msgid "Select multiple files"
+msgstr ""
+
+msgid "Select property…"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Sign In"
+msgstr ""
+
+msgid "Sign Out"
+msgstr ""
+
+msgid "Sign in"
+msgstr ""
+
+msgid "Sign in to access your account and bookings"
+msgstr ""
+
+msgid "Sign up with Google"
+msgstr ""
+
+msgid "Simple Process"
+msgstr ""
+
+msgid "Sleeps up to 2 guests"
+msgstr ""
+
+msgid "Sort by:"
+msgstr ""
+
+msgid "Spa"
+msgstr ""
+
+msgid "Special offer"
+msgstr ""
+
+msgid "Special offers"
+msgstr ""
+
+msgid "Standard"
+msgstr ""
+
+msgid "Star Rating"
+msgstr ""
+
+msgid "Star rating"
+msgstr ""
+
+msgid "Stars"
+msgstr ""
+
+msgid "Starting from"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Stay at our top"
+msgstr ""
+
+msgid "StayLux Admin"
+msgstr ""
+
+msgid "Stayora Admin"
+msgstr ""
+
+msgid "Stays"
+msgstr ""
+
+msgid "Street address"
+msgstr ""
+
+msgid "Support"
+msgstr ""
+
+msgid "Swimming pool"
+msgstr ""
+
+msgid "System Overview"
+msgstr ""
+
+msgid "Terms"
+msgstr ""
+
+msgid "Terms of Service"
+msgstr ""
+
+msgid "The page you are looking for does not exist or has been moved."
+msgstr ""
+
+msgid "The smarter way to book your stay"
+msgstr ""
+
+msgid "This Month"
+msgstr ""
+
+msgid "This cannot be undone."
+msgstr ""
+
+msgid "Thousands of honest reviews from verified guests help you make smarter decisions."
+msgstr ""
+
+msgid "Tips for success"
+msgstr ""
+
+msgid "Toggle light/dark mode"
+msgstr ""
+
+msgid "Top Rated"
+msgstr ""
+
+msgid "Top rated"
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Total Bookings"
+msgstr ""
+
+msgid "Total Nights"
+msgstr ""
+
+msgid "Total Revenue"
+msgstr ""
+
+msgid "Total Rooms"
+msgstr ""
+
+msgid "Total Spent"
+msgstr ""
+
+msgid "Total Users"
+msgstr ""
+
+msgid "Total nights"
+msgstr ""
+
+msgid "Total:"
+msgstr ""
+
+msgid "Track bookings and revenue in real time."
+msgstr ""
+
+msgid "Trending Destinations"
+msgstr ""
+
+msgid "Trending destinations"
+msgstr ""
+
+msgid "Trusted platform"
+msgstr ""
+
+msgid "Try adjusting your search filters"
+msgstr ""
+
+msgid "Try adjusting your search or clearing filters"
+msgstr ""
+
+msgid "Turn your property into income"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Type:"
+msgstr ""
+
+msgid "Unique destinations"
+msgstr ""
+
+msgid "Unique properties"
+msgstr ""
+
+msgid "Up to"
+msgstr ""
+
+msgid "Upcoming"
+msgstr ""
+
+msgid "Upcoming Bookings"
+msgstr ""
+
+msgid "Upcoming Stays"
+msgstr ""
+
+msgid "Update your administrator profile information"
+msgstr ""
+
+msgid "Update your personal information and password"
+msgstr ""
+
+msgid "Upload new photo"
+msgstr ""
+
+msgid "Upload photo"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Verified Properties"
+msgstr ""
+
+msgid "Verified Reviews"
+msgstr ""
+
+msgid "View Deals"
+msgstr ""
+
+msgid "View all"
+msgstr ""
+
+msgid "View all bookings"
+msgstr ""
+
+msgid "View bookings"
+msgstr ""
+
+msgid "View guest page"
+msgstr ""
+
+msgid "View public"
+msgstr ""
+
+msgid "View public page"
+msgstr ""
+
+msgid "View rooms"
+msgstr ""
+
+msgid "Villas"
+msgstr ""
+
+msgid "We match any price"
+msgstr ""
+
+msgid "Welcome back"
+msgstr ""
+
+msgid "What our guests are saying"
+msgstr ""
+
+msgid "Where are you going?"
+msgstr ""
+
+msgid "Where would you like to go"
+msgstr ""
+
+msgid "Why Stayora"
+msgstr ""
+
+msgid "Why book with Stayora?"
+msgstr ""
+
+msgid "Wonderful"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "Your address"
+msgstr ""
+
+msgid "Your next great stay is"
+msgstr ""
+
+msgid "Your next stay"
+msgstr ""
+
+msgid "Your world of stays"
+msgstr ""
+
+msgid "across"
+msgstr ""
+
+msgid "and"
+msgstr ""
+
+msgid "bed"
+msgstr ""
+
+msgid "beds"
+msgstr ""
+
+msgid "bookings"
+msgstr ""
+
+msgid "e.g. 123 Boulevard Haussmann"
+msgstr ""
+
+msgid "e.g. Grand Palace Hotel"
+msgstr ""
+
+msgid "found in"
+msgstr ""
+
+msgid "guests"
+msgstr ""
+
+msgid "hotels found"
+msgstr ""
+
+msgid "listed"
+msgstr ""
+
+msgid "ll have the whole place to yourself"
+msgstr ""
+
+msgid "night"
+msgstr ""
+
+msgid "nights"
+msgstr ""
+
+msgid "off"
+msgstr ""
+
+msgid "optional, multiple"
+msgstr ""
+
+msgid "or"
+msgstr ""
+
+msgid "per night"
+msgstr ""
+
+msgid "place to stay"
+msgstr ""
+
+msgid "properties"
+msgstr ""
+
+msgid "property"
+msgstr ""
+
+msgid "replace"
+msgstr ""
+
+msgid "reservation"
+msgstr ""
+
+msgid "reservations"
+msgstr ""
+
+msgid "reviews"
+msgstr ""
+
+msgid "room"
+msgstr ""
+
+msgid "rooms"
+msgstr ""
+
+msgid "rooms total"
+msgstr ""
+
+msgid "s a summary of your bookings and activity"
+msgstr ""
+
+msgid "total"
+msgstr ""
+
+msgid "upcoming"
+msgstr ""
+
+msgid "upload"
+msgstr ""
+
+msgid "waiting to be discovered"
+msgstr ""
+
+msgid "your@email.com"
+msgstr ""
+
+msgid "© 2025 Stayora. All rights reserved."
+msgstr ""
+
+msgid "••••••••"
+msgstr ""
+
+msgid "★★"
+msgstr ""
+
+msgid "★★★"
+msgstr ""
+
+msgid "★★★★"
+msgstr ""
+
+msgid "★★★★★"
+msgstr ""
+
+msgid "✍️ Write a compelling description"
+msgstr ""
+
+msgid "🌴 Villa"
+msgstr ""
+
+msgid "🏖️ Resort"
+msgstr ""
+
+msgid "🏠 Apartment"
+msgstr ""
+
+msgid "🏨 For hotels"
+msgstr ""
+
+msgid "🏨 Hotel"
+msgstr ""
+
+msgid "💰 Set competitive pricing"
+msgstr ""
+
+msgid "📸 Great photos matter"
+msgstr ""
+

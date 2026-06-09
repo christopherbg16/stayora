@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'Browse Stays'|t }} — Stayora{% endblock %}
+{% block title %}{{ _('Browse Stays') }} — Stayora{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -307,12 +307,12 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-9 text-center">
-                <div class="section-label mb-2">{{ 'Find your next stay'|t }}</div>
+                <div class="section-label mb-2">{{ _('Find your next stay') }}</div>
                 <h1 class="hero-headline">
-                    {{ 'Where would you like to go'|t }}<span class="gold">?</span>
+                    {{ _('Where would you like to go') }}<span class="gold">?</span>
                 </h1>
                 <p class="hero-subtitle">
-                    {{ 'Hotels, apartments, villas and resorts — all in one place'|t }}
+                    {{ _('Hotels, apartments, villas and resorts — all in one place') }}
                 </p>
 
                 <!-- Search box -->
@@ -320,20 +320,20 @@
                     <form action="{{ url_for('user.search_stays') }}" method="GET">
                         <div class="search-row">
                             <div class="sf">
-                                <label><i class="fas fa-map-marker-alt me-1"></i> {{ 'Destination'|t }}</label>
-                                <input type="text" name="destination" placeholder="{{ 'City, property name or country…'|t }}">
+                                <label><i class="fas fa-map-marker-alt me-1"></i> {{ _('Destination') }}</label>
+                                <input type="text" name="destination" placeholder="{{ _('City, property name or country…') }}">
                             </div>
                             <div class="sf">
-                                <label><i class="fas fa-calendar me-1"></i> {{ 'Check-in'|t }}</label>
+                                <label><i class="fas fa-calendar me-1"></i> {{ _('Check-in') }}</label>
                                 <input type="date" name="check_in">
                             </div>
                             <div class="sf">
-                                <label><i class="fas fa-calendar-check me-1"></i> {{ 'Check-out'|t }}</label>
+                                <label><i class="fas fa-calendar-check me-1"></i> {{ _('Check-out') }}</label>
                                 <input type="date" name="check_out">
                             </div>
                             <div>
                                 <button type="submit" class="btn-search-main">
-                                    <i class="fas fa-search"></i> {{ 'Search'|t }}
+                                    <i class="fas fa-search"></i> {{ _('Search') }}
                                 </button>
                             </div>
                         </div>
@@ -343,16 +343,16 @@
                 <!-- Quick filters -->
                 <div class="type-filters justify-content-center">
                     <a href="{{ url_for('user.search_stays') }}?property_type=hotel" class="type-filter-btn">
-                        <i class="fas fa-hotel fa-sm"></i> {{ 'Hotels'|t }}
+                        <i class="fas fa-hotel fa-sm"></i> {{ _('Hotels') }}
                     </a>
                     <a href="{{ url_for('user.search_stays') }}?property_type=apartment" class="type-filter-btn">
-                        <i class="fas fa-building fa-sm"></i> {{ 'Apartments'|t }}
+                        <i class="fas fa-building fa-sm"></i> {{ _('Apartments') }}
                     </a>
                     <a href="{{ url_for('user.search_stays') }}?property_type=villa" class="type-filter-btn">
-                        <i class="fas fa-home fa-sm"></i> {{ 'Villas'|t }}
+                        <i class="fas fa-home fa-sm"></i> {{ _('Villas') }}
                     </a>
                     <a href="{{ url_for('user.search_stays') }}?property_type=resort" class="type-filter-btn">
-                        <i class="fas fa-umbrella-beach fa-sm"></i> {{ 'Resorts'|t }}
+                        <i class="fas fa-umbrella-beach fa-sm"></i> {{ _('Resorts') }}
                     </a>
                 </div>
             </div>
@@ -367,23 +367,23 @@
     <div class="mb-5">
         <div class="d-flex justify-content-between align-items-end mb-3">
             <div>
-                <div class="section-label">{{ 'Limited time'|t }}</div>
-                <h2 class="section-title">{{ 'Special offers'|t }}</h2>
+                <div class="section-label">{{ _('Limited time') }}</div>
+                <h2 class="section-title">{{ _('Special offers') }}</h2>
             </div>
         </div>
         <div class="row g-3">
             {% for promo in promotions %}
             <div class="col-md-6">
                 <div class="promo-card">
-                    <div class="promo-badge">🔥 {{ 'Special offer'|t }}</div>
+                    <div class="promo-badge">🔥 {{ _('Special offer') }}</div>
                     <h4 class="promo-title">{{ promo.title }}</h4>
                     <p class="promo-desc">{{ promo.description }}</p>
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="promo-price">
-                            {{ 'At least'|t }} {{ promo.discount_percent }}% {{ 'off'|t }}
+                            {{ _('At least') }} {{ promo.discount_percent }}% {{ _('off') }}
                         </span>
                         <a href="{{ url_for('user.search_stays') }}" class="btn btn-primary btn-sm">
-                            {{ 'Explore deals'|t }} <i class="fas fa-arrow-right ms-1 fa-sm"></i>
+                            {{ _('Explore deals') }} <i class="fas fa-arrow-right ms-1 fa-sm"></i>
                         </a>
                     </div>
                 </div>
@@ -397,8 +397,8 @@
     <div class="mb-5">
         <div class="d-flex justify-content-between align-items-end mb-3">
             <div>
-                <div class="section-label">{{ 'Popular right now'|t }}</div>
-                <h2 class="section-title">{{ 'Trending destinations'|t }}</h2>
+                <div class="section-label">{{ _('Popular right now') }}</div>
+                <h2 class="section-title">{{ _('Trending destinations') }}</h2>
             </div>
         </div>
 
@@ -419,7 +419,7 @@
                     <div class="dest-card-overlay"></div>
                     <div class="dest-card-info">
                         <span class="dest-name">{{ name }}</span>
-                        <span class="dest-props">{{ count }} {{ 'properties'|t }}</span>
+                        <span class="dest-props">{{ count }} {{ _('properties') }}</span>
                     </div>
                 </a>
             </div>
@@ -430,36 +430,36 @@
     <!-- ══ WHY BOOK ══════════════════════════════════════════════════ -->
     <div class="why-section">
         <div class="text-center mb-4">
-            <div class="section-label">{{ 'Trusted platform'|t }}</div>
-            <h2 class="section-title">{{ 'Why book with Stayora?'|t }}</h2>
+            <div class="section-label">{{ _('Trusted platform') }}</div>
+            <h2 class="section-title">{{ _('Why book with Stayora?') }}</h2>
         </div>
         <div class="row g-3">
             <div class="col-6 col-md-3">
                 <div class="why-card">
                     <div class="why-icon"><i class="fas fa-check-circle"></i></div>
-                    <div class="why-title">{{ 'Free cancellation'|t }}</div>
-                    <small class="why-subtitle">{{ 'On most properties'|t }}</small>
+                    <div class="why-title">{{ _('Free cancellation') }}</div>
+                    <small class="why-subtitle">{{ _('On most properties') }}</small>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="why-card">
                     <div class="why-icon"><i class="fas fa-tag"></i></div>
-                    <div class="why-title">{{ 'Best price guarantee'|t }}</div>
-                    <small class="why-subtitle">{{ 'We match any price'|t }}</small>
+                    <div class="why-title">{{ _('Best price guarantee') }}</div>
+                    <small class="why-subtitle">{{ _('We match any price') }}</small>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="why-card">
                     <div class="why-icon"><i class="fas fa-shield-alt"></i></div>
-                    <div class="why-title">{{ 'Secure booking'|t }}</div>
-                    <small class="why-subtitle">{{ 'SSL encrypted'|t }}</small>
+                    <div class="why-title">{{ _('Secure booking') }}</div>
+                    <small class="why-subtitle">{{ _('SSL encrypted') }}</small>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="why-card">
                     <div class="why-icon"><i class="fas fa-headset"></i></div>
-                    <div class="why-title">{{ '24/7 support'|t }}</div>
-                    <small class="why-subtitle">{{ 'Always here for you'|t }}</small>
+                    <div class="why-title">{{ _('24/7 support') }}</div>
+                    <small class="why-subtitle">{{ _('Always here for you') }}</small>
                 </div>
             </div>
         </div>

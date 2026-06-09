@@ -102,7 +102,7 @@ def add_property():
         'owner_id': current_user.id,
         'total_rooms': int(total_rooms) if total_rooms else 1,
         'max_guests': int(max_guests) if max_guests else 2,
-        'price_per_night': float(price_per_night) if price_per_night and property_type != 'hotel' else None
+        'price_per_night': float(price_per_night) if price_per_night and property_type == 'apartment' else None
     }
 
     if 'main_image' in request.files:
@@ -197,7 +197,8 @@ def my_rooms():
     my_hotels = Hotel.find_by_owner(current_user.id)
     my_hotel_ids = [h.id for h in my_hotels]
     rooms = Room.find_by_hotel_ids(my_hotel_ids)
-    return render_template('admin/my_rooms.html', rooms=rooms, hotels=my_hotels, now=datetime.now())
+    room_hotels = [h for h in my_hotels if h.property_type in ('hotel', 'villa', 'resort')]
+    return render_template('admin/my_rooms.html', rooms=rooms, hotels=room_hotels, now=datetime.now())
 
 
 @admin_bp.route('/my-rooms/add', methods=['POST'])
@@ -217,14 +218,19 @@ def add_room():
         return redirect(url_for('admin.my_rooms'))
 
     try:
-        Room.create(
-            hotel_id=int(hotel_id),
-            number=int(number),
-            price=float(price),
-            type=room_type,
-            beds=int(beds) if beds else None,
-            jacuzzi=(jacuzzi == 'y')
-        )
+        room_data = {
+            'hotel_id': int(hotel_id),
+            'number': int(number),
+            'price': float(price),
+            'type': room_type,
+            'beds': int(beds) if beds else None,
+            'jacuzzi': (jacuzzi == 'y')
+        }
+        if 'room_image' in request.files:
+            img = request.files['room_image']
+            if img and img.filename:
+                room_data['image_data'] = base64.b64encode(img.read()).decode('utf-8')
+        Room.create(**room_data)
         log_activity(f"Admin '{current_user.username}' added Room #{number} to {hotel.name}")
         flash(f'Room #{number} added successfully!', 'success')
     except Exception as e:
@@ -261,6 +267,84 @@ def delete_room(room_id):
         flash(f'Error deleting room: {str(e)}', 'danger')
 
     return redirect(url_for('admin.my_rooms'))
+
+
+@admin_bp.route('/property/<int:property_id>/rooms')
+@login_required
+@admin_required
+def property_rooms(property_id):
+    hotel = Hotel.find_by_id_and_owner(property_id, current_user.id)
+    if not hotel:
+        flash('Property not found!', 'danger')
+        return redirect(url_for('admin.my_properties'))
+    rooms = Room.find_by_hotel(property_id)
+    return render_template('admin/property_rooms.html', hotel=hotel, rooms=rooms)
+
+
+@admin_bp.route('/property/<int:property_id>/rooms/add', methods=['POST'])
+@login_required
+@admin_required
+def add_property_room(property_id):
+    hotel = Hotel.find_by_id_and_owner(property_id, current_user.id)
+    if not hotel:
+        flash('Property not found!', 'danger')
+        return redirect(url_for('admin.my_properties'))
+
+    number = request.form.get('number')
+    price = request.form.get('price')
+    room_type = request.form.get('type')
+    beds = request.form.get('beds')
+    jacuzzi = request.form.get('jacuzzi')
+
+    try:
+        room_data = {
+            'hotel_id': property_id,
+            'number': int(number),
+            'price': float(price),
+            'type': room_type,
+            'beds': int(beds) if beds else None,
+            'jacuzzi': (jacuzzi == 'y')
+        }
+        if 'room_image' in request.files:
+            img = request.files['room_image']
+            if img and img.filename:
+                room_data['image_data'] = base64.b64encode(img.read()).decode('utf-8')
+        Room.create(**room_data)
+        log_activity(f"Admin '{current_user.username}' added Room #{number} to {hotel.name}")
+        flash(f'Room #{number} added successfully!', 'success')
+    except Exception as e:
+        flash(f'Error adding room: {str(e)}', 'danger')
+
+    return redirect(url_for('admin.property_rooms', property_id=property_id))
+
+
+@admin_bp.route('/property/<int:property_id>/rooms/<int:room_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_property_room(property_id, room_id):
+    hotel = Hotel.find_by_id_and_owner(property_id, current_user.id)
+    if not hotel:
+        flash('Property not found!', 'danger')
+        return redirect(url_for('admin.my_properties'))
+
+    room = Room.get(room_id)
+    if not room or room.hotel_id != property_id:
+        flash('Room not found!', 'danger')
+        return redirect(url_for('admin.property_rooms', property_id=property_id))
+
+    if room.reservations:
+        flash(f'Cannot delete Room #{room.number} — it has active reservations!', 'danger')
+        return redirect(url_for('admin.property_rooms', property_id=property_id))
+
+    try:
+        room_number = room.number
+        room.delete()
+        log_activity(f"Admin '{current_user.username}' deleted Room #{room_number} from {hotel.name}")
+        flash(f'Room #{room_number} deleted!', 'success')
+    except Exception as e:
+        flash(f'Error deleting room: {str(e)}', 'danger')
+
+    return redirect(url_for('admin.property_rooms', property_id=property_id))
 
 
 @admin_bp.route('/profile', methods=['GET', 'POST'])

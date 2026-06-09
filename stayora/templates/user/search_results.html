@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'Search Results'|t }} — Stayora{% endblock %}
+{% block title %}{{ _('Search Results') }} — Stayora{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -245,20 +245,20 @@
         <div class="results-search">
             <form action="{{ url_for('user.search_stays') }}" method="GET">
                 <div>
-                    <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ 'Destination'|t }}</label>
-                    <input type="text" name="destination" value="{{ destination }}" placeholder="{{ 'Where are you going?'|t }}">
+                    <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ _('Destination') }}</label>
+                    <input type="text" name="destination" value="{{ destination }}" placeholder="{{ _('Where are you going?') }}">
                 </div>
                 <div>
-                    <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ 'Check-in'|t }}</label>
+                    <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ _('Check-in') }}</label>
                     <input type="date" name="check_in" value="{{ check_in }}">
                 </div>
                 <div>
-                    <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ 'Check-out'|t }}</label>
+                    <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ _('Check-out') }}</label>
                     <input type="date" name="check_out" value="{{ check_out }}">
                 </div>
                 <div>
                     <button type="submit" class="btn btn-primary w-100" style="font-size: 0.88rem;">
-                        <i class="fas fa-search me-1"></i> {{ 'Search'|t }}
+                        <i class="fas fa-search me-1"></i> {{ _('Search') }}
                     </button>
                 </div>
             </form>
@@ -273,18 +273,18 @@
         <div class="col-lg-3">
             <div class="filter-sidebar">
                 <div class="filter-section">
-                    <div class="filter-title">{{ 'Property type'|t }}</div>
+                    <div class="filter-title">{{ _('Property type') }}</div>
                     {% for ptype, label in [('hotel','Hotels'),('apartment','Apartments'),('villa','Villas'),('resort','Resorts')] %}
                     <label class="filter-check">
                         <input type="checkbox" onchange="applyFilter('property_type','{{ ptype }}')"
                                {% if property_type == ptype %}checked{% endif %}>
-                        <label>{{ label|t }}</label>
+                        <label>{{ _(label) }}</label>
                     </label>
                     {% endfor %}
                 </div>
 
                 <div class="filter-section">
-                    <div class="filter-title">{{ 'Star rating'|t }}</div>
+                    <div class="filter-title">{{ _('Star rating') }}</div>
                     {% for s in [5,4,3,2,1] %}
                     <label class="filter-check">
                         <input type="checkbox" name="stars" value="{{ s }}" onchange="this.form && this.form.submit()">
@@ -296,17 +296,17 @@
                 </div>
 
                 <div class="filter-section">
-                    <div class="filter-title">{{ 'Guest rating'|t }}</div>
+                    <div class="filter-title">{{ _('Guest rating') }}</div>
                     {% for rating, label in [('9.0','Superb: 9+'),('8.0','Very good: 8+'),('7.0','Good: 7+')] %}
                     <label class="filter-check">
                         <input type="checkbox" onchange="applyFilter('min_rating','{{ rating }}')">
-                        <label>{{ label|t }}</label>
+                        <label>{{ _(label) }}</label>
                     </label>
                     {% endfor %}
                 </div>
 
                 <a href="{{ url_for('user.search_stays') }}" class="btn btn-secondary w-100 btn-sm">
-                    <i class="fas fa-times me-1"></i> {{ 'Clear filters'|t }}
+                    <i class="fas fa-times me-1"></i> {{ _('Clear filters') }}
                 </a>
             </div>
         </div>
@@ -316,16 +316,16 @@
             <!-- Sort bar -->
             <div class="sort-bar">
                 <div class="results-count">
-                    <strong>{{ total_hotels }}</strong> {{ 'properties'|t }}
-                    {% if destination %}{{ 'found in'|t }} <strong>{{ destination }}</strong>{% endif %}
+                    <strong>{{ total_hotels }}</strong> {{ _('properties') }}
+                    {% if destination %}{{ _('found in') }} <strong>{{ destination }}</strong>{% endif %}
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span style="font-size: 0.82rem; color: var(--text-muted);">{{ 'Sort by:'|t }}</span>
+                    <span style="font-size: 0.82rem; color: var(--text-muted);">{{ _('Sort by:') }}</span>
                     <select class="sort-select" onchange="applyFilter('sort_by', this.value)">
-                        <option value="recommended" {% if sort_by=='recommended' %}selected{% endif %}>{{ 'Recommended'|t }}</option>
-                        <option value="price_asc" {% if sort_by=='price_asc' %}selected{% endif %}>{{ 'Price: low to high'|t }}</option>
-                        <option value="price_desc" {% if sort_by=='price_desc' %}selected{% endif %}>{{ 'Price: high to low'|t }}</option>
-                        <option value="rating_desc" {% if sort_by=='rating_desc' %}selected{% endif %}>{{ 'Top rated'|t }}</option>
+                        <option value="recommended" {% if sort_by=='recommended' %}selected{% endif %}>{{ _('Recommended') }}</option>
+                        <option value="price_asc" {% if sort_by=='price_asc' %}selected{% endif %}>{{ _('Price: low to high') }}</option>
+                        <option value="price_desc" {% if sort_by=='price_desc' %}selected{% endif %}>{{ _('Price: high to low') }}</option>
+                        <option value="rating_desc" {% if sort_by=='rating_desc' %}selected{% endif %}>{{ _('Top rated') }}</option>
                     </select>
                 </div>
             </div>
@@ -364,11 +364,11 @@
                         </div>
 
                         <div class="prop-amenities">
-                            <span class="prop-tag"><i class="fas fa-wifi me-1"></i> {{ 'Free WiFi'|t }}</span>
-                            <span class="prop-tag"><i class="fas fa-parking me-1"></i> {{ 'Parking'|t }}</span>
-                            <span class="prop-tag"><i class="fas fa-check-circle me-1" style="color: var(--success);"></i> {{ 'Free cancel'|t }}</span>
-                            {% if hotel.property_type != 'hotel' %}
-                                <span class="prop-tag"><i class="fas fa-users me-1"></i> {{ 'Up to'|t }} {{ hotel.max_guests or 2 }} {{ 'guests'|t }}</span>
+                            <span class="prop-tag"><i class="fas fa-wifi me-1"></i> {{ _('Free WiFi') }}</span>
+                            <span class="prop-tag"><i class="fas fa-parking me-1"></i> {{ _('Parking') }}</span>
+                            <span class="prop-tag"><i class="fas fa-check-circle me-1" style="color: var(--success);"></i> {{ _('Free cancel') }}</span>
+                            {% if hotel.property_type == 'apartment' %}
+                                <span class="prop-tag"><i class="fas fa-users me-1"></i> {{ _('Up to') }} {{ hotel.max_guests or 2 }} {{ _('guests') }}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -379,17 +379,17 @@
                             {% if hotel.review_count > 0 %}
                                 <div class="prop-rating-badge">{{ "%.1f"|format(hotel.avg_rating|float) }}</div>
                                 <div class="prop-rating-label">{{ hotel.rating_category }}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ hotel.review_count }} {{ 'reviews'|t }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ hotel.review_count }} {{ _('reviews') }}</div>
                             {% else %}
-                                <span class="prop-rating-badge" style="background: var(--bg-hover);">{{ 'New'|t }}</span>
+                                <span class="prop-rating-badge" style="background: var(--bg-hover);">{{ _('New') }}</span>
                             {% endif %}
                         </div>
 
                         <div class="prop-price">
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px;">{{ 'Starting from'|t }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px;">{{ _('Starting from') }}</div>
                             <div class="prop-price-value">€{{ hotel.display_price|int }}</div>
-                            <div class="prop-price-label">{{ 'per night'|t }}</div>
-                            <div class="btn-book">{{ 'See availability'|t }}</div>
+                            <div class="prop-price-label">{{ _('per night') }}</div>
+                            <div class="btn-book">{{ _('See availability') }}</div>
                         </div>
                     </div>
                 </a>
@@ -398,10 +398,10 @@
             {% else %}
                 <div class="no-results">
                     <i class="fas fa-search fa-3x mb-3" style="color: var(--text-muted);"></i>
-                    <h4 style="color: var(--text-light);">{{ 'No properties found'|t }}</h4>
-                    <p style="color: var(--text-muted);">{{ 'Try adjusting your search or clearing filters'|t }}</p>
+                    <h4 style="color: var(--text-light);">{{ _('No properties found') }}</h4>
+                    <p style="color: var(--text-muted);">{{ _('Try adjusting your search or clearing filters') }}</p>
                     <a href="{{ url_for('user.browse_stays') }}" class="btn btn-primary mt-2">
-                        <i class="fas fa-arrow-left me-2"></i>{{ 'Back to Browse'|t }}
+                        <i class="fas fa-arrow-left me-2"></i>{{ _('Back to Browse') }}
                     </a>
                 </div>
             {% endif %}

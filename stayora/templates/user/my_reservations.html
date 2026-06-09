@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'My Reservations'|t }} - Hotel Management{% endblock %}
+{% block title %}{{ _('My Reservations') }} - Hotel Management{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0" style="margin-top: 30px;">
@@ -19,25 +19,25 @@
                         {% endif %}
                     </div>
                     <h5 class="mb-1" style="color: var(--text-light);">{{ current_user.username }}</h5>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">{{ 'Guest'|t }}</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">{{ _('Guest') }}</p>
                 </div>
 
                 <!-- Навигация -->
                 <div class="nav flex-column nav-pills">
                     <a href="{{ url_for('user.dashboard') }}" class="nav-link mb-2" style="color: var(--text-muted);">
-                        <i class="fas fa-home me-2"></i>{{ 'Dashboard'|t }}
+                        <i class="fas fa-home me-2"></i>{{ _('Dashboard') }}
                     </a>
                     <a href="{{ url_for('user.browse_stays') }}" class="nav-link mb-2" style="color: var(--text-muted);">
-                        <i class="fas fa-search me-2"></i>{{ 'Browse Stays'|t }}
+                        <i class="fas fa-search me-2"></i>{{ _('Browse Stays') }}
                     </a>
                     <a href="{{ url_for('user.my_reservations') }}" class="nav-link active mb-2" style="background-color: var(--primary); color: white;">
-                        <i class="fas fa-calendar-check me-2"></i>{{ 'My Bookings'|t }}
+                        <i class="fas fa-calendar-check me-2"></i>{{ _('My Bookings') }}
                     </a>
                     <a href="{{ url_for('user.profile') }}" class="nav-link mb-2" style="color: var(--text-muted);">
-                        <i class="fas fa-user me-2"></i>{{ 'Profile'|t }}
+                        <i class="fas fa-user me-2"></i>{{ _('Profile') }}
                     </a>
                     <a href="{{ url_for('auth.logout') }}" class="nav-link mb-2" style="color: var(--danger);">
-                        <i class="fas fa-sign-out-alt me-2"></i>{{ 'Logout'|t }}
+                        <i class="fas fa-sign-out-alt me-2"></i>{{ _('Logout') }}
                     </a>
                 </div>
             </div>
@@ -47,14 +47,14 @@
         <div class="col-md-9 col-lg-10" style="background-color: var(--bg-dark); min-height: calc(100vh - 120px); margin-top: 20px;">
             <div class="p-5">
                 <h2 class="mb-5" style="color: var(--text-light); font-size: 2.2rem; font-weight: 500;">
-                    <i class="fas fa-calendar-check me-2" style="color: var(--primary);"></i>{{ 'My Reservations'|t }}
+                    <i class="fas fa-calendar-check me-2" style="color: var(--primary);"></i>{{ _('My Reservations') }}
                 </h2>
 
                 <!-- Upcoming Reservations -->
                 <div class="card mb-4" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;">
                         <h5 class="mb-0" style="color: var(--text-light);">
-                            <i class="fas fa-calendar-alt me-2" style="color: var(--primary);"></i>{{ 'Upcoming Stays'|t }}
+                            <i class="fas fa-calendar-alt me-2" style="color: var(--primary);"></i>{{ _('Upcoming Stays') }}
                         </h5>
                     </div>
                     <div class="card-body p-4">
@@ -67,40 +67,40 @@
                                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                                     <div>
                                                         {% if reservation.room is defined and reservation.room %}
-                                                            <span class="badge mb-2" style="background-color: #667eea; color: white;">{{ 'Hotel Room'|t }}</span>
+                                                            <span class="badge mb-2" style="background-color: #667eea; color: white;">{{ _('Hotel Room') }}</span>
                                                             <h5 class="card-title mb-1" style="color: var(--text-light);">
                                                                 Room #{{ reservation.room.number }} - {{ reservation.room.hotel.name }}
                                                             </h5>
                                                         {% elif reservation.property is defined and reservation.property %}
                                                             <span class="badge mb-2" style="background-color: {% if reservation.property.property_type == 'apartment' %}#48c6ef{% elif reservation.property.property_type == 'villa' %}#5f2c82{% else %}#f093fb{% endif %}; color: white;">
-                                                                {{ 'Entire'|t }} {{ reservation.property.property_type|title }}
+                                                                {{ _('Entire') }} {{ reservation.property.property_type|title }}
                                                             </span>
                                                             <h5 class="card-title mb-1" style="color: var(--text-light);">
                                                                 {{ reservation.property.name }}
                                                             </h5>
                                                         {% endif %}
                                                     </div>
-                                                    <span class="badge" style="background-color: var(--secondary); color: white; padding: 0.5rem 1rem;">{{ 'Confirmed'|t }}</span>
+                                                    <span class="badge" style="background-color: var(--secondary); color: white; padding: 0.5rem 1rem;">{{ _('Confirmed') }}</span>
                                                 </div>
 
                                                 <div class="mb-2">
                                                     <i class="fas fa-calendar-day me-2" style="color: var(--primary);"></i>
-                                                    <strong style="color: var(--text-light);">{{ 'Check-in:'|t }}</strong>
+                                                    <strong style="color: var(--text-light);">{{ _('Check-in:') }}</strong>
                                                     <span style="color: var(--text-muted);">{{ reservation.start_date }}</span>
                                                 </div>
                                                 <div class="mb-2">
                                                     <i class="fas fa-calendar-check me-2" style="color: var(--primary);"></i>
-                                                    <strong style="color: var(--text-light);">{{ 'Check-out:'|t }}</strong>
+                                                    <strong style="color: var(--text-light);">{{ _('Check-out:') }}</strong>
                                                     <span style="color: var(--text-muted);">{{ reservation.end_date }}</span>
                                                 </div>
                                                 <div class="mb-2">
                                                     <i class="fas fa-moon me-2" style="color: var(--primary);"></i>
-                                                    <strong style="color: var(--text-light);">{{ 'Nights:'|t }}</strong>
+                                                    <strong style="color: var(--text-light);">{{ _('Nights:') }}</strong>
                                                     <span style="color: var(--text-muted);">{{ reservation.nights }}</span>
                                                 </div>
                                                 <div class="mb-3">
                                                     <i class="fas fa-tag me-2" style="color: var(--primary);"></i>
-                                                    <strong style="color: var(--text-light);">{{ 'Total:'|t }}</strong>
+                                                    <strong style="color: var(--text-light);">{{ _('Total:') }}</strong>
                                                     <span style="color: var(--text-muted);">
                                                         €{% if reservation.room is defined and reservation.room %}
                                                             {{ reservation.room.price * reservation.nights }}
@@ -116,9 +116,9 @@
                                                                 {{ url_for('user.cancel_property_reservation', reservation_id=reservation.id) }}
                                                               {% endif %}"
                                                       method="POST" class="d-inline"
-                                                       onsubmit="return confirm('{{ 'Are you sure you want to cancel this reservation?'|t }}')">
+                                                       onsubmit="return confirm('{{ _('Are you sure you want to cancel this reservation?') }}')">
                                                     <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.5rem 1rem;">
-                                                        <i class="fas fa-times-circle me-1"></i>{{ 'Cancel Reservation'|t }}
+                                                        <i class="fas fa-times-circle me-1"></i>{{ _('Cancel Reservation') }}
                                                     </button>
                                                 </form>
                                             </div>
@@ -129,9 +129,9 @@
                         {% else %}
                             <div class="text-center py-5">
                                 <i class="fas fa-calendar-times fa-4x mb-3" style="color: var(--text-muted);"></i>
-                                <p style="color: var(--text-muted); font-size: 1.1rem;">{{ 'No upcoming reservations'|t }}</p>
+                                <p style="color: var(--text-muted); font-size: 1.1rem;">{{ _('No upcoming reservations') }}</p>
                                 <a href="{{ url_for('user.browse_stays') }}" class="btn btn-primary mt-3 px-4 py-2">
-                                    <i class="fas fa-search me-2"></i>{{ 'Browse Stays'|t }}
+                                    <i class="fas fa-search me-2"></i>{{ _('Browse Stays') }}
                                 </a>
                             </div>
                         {% endif %}
@@ -142,7 +142,7 @@
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;">
                         <h5 class="mb-0" style="color: var(--text-light);">
-                            <i class="fas fa-history me-2" style="color: var(--text-muted);"></i>{{ 'Past Stays'|t }}
+                            <i class="fas fa-history me-2" style="color: var(--text-muted);"></i>{{ _('Past Stays') }}
                         </h5>
                     </div>
                     <div class="card-body p-4">
@@ -156,40 +156,40 @@
                                                     <div>
                                                         <!-- Проверка дали е стая или имот -->
                                                         {% if reservation.room is defined and reservation.room %}
-                                                            <span class="badge mb-2" style="background-color: #667eea; color: white;">{{ 'Hotel Room'|t }}</span>
+                                                            <span class="badge mb-2" style="background-color: #667eea; color: white;">{{ _('Hotel Room') }}</span>
                                                             <h5 class="card-title mb-1" style="color: var(--text-light);">
                                                                 Room #{{ reservation.room.number }} - {{ reservation.room.hotel.name }}
                                                             </h5>
                                                         {% elif reservation.property is defined and reservation.property %}
                                                             <span class="badge mb-2" style="background-color: {% if reservation.property.property_type == 'apartment' %}#48c6ef{% elif reservation.property.property_type == 'villa' %}#5f2c82{% else %}#f093fb{% endif %}; color: white;">
-                                                                {{ 'Entire'|t }} {{ reservation.property.property_type|title }}
+                                                                {{ _('Entire') }} {{ reservation.property.property_type|title }}
                                                             </span>
                                                             <h5 class="card-title mb-1" style="color: var(--text-light);">
                                                                 {{ reservation.property.name }}
                                                             </h5>
                                                         {% endif %}
                                                     </div>
-                                                    <span class="badge" style="background-color: var(--text-muted); color: white; padding: 0.5rem 1rem;">{{ 'Completed'|t }}</span>
+                                                    <span class="badge" style="background-color: var(--text-muted); color: white; padding: 0.5rem 1rem;">{{ _('Completed') }}</span>
                                                 </div>
 
                                                 <div class="mb-2">
                                                     <i class="fas fa-calendar-day me-2" style="color: var(--primary);"></i>
-                                                    <strong style="color: var(--text-light);">{{ 'Check-in:'|t }}</strong>
+                                                    <strong style="color: var(--text-light);">{{ _('Check-in:') }}</strong>
                                                     <span style="color: var(--text-muted);">{{ reservation.start_date }}</span>
                                                 </div>
                                                 <div class="mb-2">
                                                     <i class="fas fa-calendar-check me-2" style="color: var(--primary);"></i>
-                                                    <strong style="color: var(--text-light);">{{ 'Check-out:'|t }}</strong>
+                                                    <strong style="color: var(--text-light);">{{ _('Check-out:') }}</strong>
                                                     <span style="color: var(--text-muted);">{{ reservation.end_date }}</span>
                                                 </div>
                                                 <div class="mb-2">
                                                     <i class="fas fa-moon me-2" style="color: var(--primary);"></i>
-                                                    <strong style="color: var(--text-light);">{{ 'Nights:'|t }}</strong>
+                                                    <strong style="color: var(--text-light);">{{ _('Nights:') }}</strong>
                                                     <span style="color: var(--text-muted);">{{ reservation.nights }}</span>
                                                 </div>
                                                 <div class="mb-3">
                                                     <i class="fas fa-tag me-2" style="color: var(--primary);"></i>
-                                                    <strong style="color: var(--text-light);">{{ 'Total:'|t }}</strong>
+                                                    <strong style="color: var(--text-light);">{{ _('Total:') }}</strong>
                                                     <span style="color: var(--text-muted);">
                                                         €{% if reservation.room is defined and reservation.room %}
                                                             {{ reservation.room.price * reservation.nights }}
@@ -205,7 +205,7 @@
                             </div>
                         {% else %}
                             <p class="text-center py-4" style="color: var(--text-muted);">
-                                <i class="fas fa-history me-2"></i>{{ 'No past reservations'|t }}
+                                <i class="fas fa-history me-2"></i>{{ _('No past reservations') }}
                             </p>
                         {% endif %}
                     </div>

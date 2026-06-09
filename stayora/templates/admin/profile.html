@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Admin Profile'|t }} — {{ 'Stayora Admin'|t }}{% endblock %}
+{% block title %}{{ _('Admin Profile') }} — {{ _('Stayora Admin') }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -133,33 +133,33 @@
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
             <div class="sidebar-username">{{ current_user.username }}</div>
-            <div class="sidebar-role">{{ 'Administrator'|t }}</div>
+            <div class="sidebar-role">{{ _('Administrator') }}</div>
         </div>
         <nav class="sidebar-nav">
             <a href="{{ url_for('admin.dashboard') }}" class="nav-link">
-                <i class="fas fa-chart-line fa-sm"></i> {{ 'Dashboard'|t }}
+                <i class="fas fa-chart-line fa-sm"></i> {{ _('Dashboard') }}
             </a>
             <a href="{{ url_for('admin.my_properties') }}" class="nav-link">
-                <i class="fas fa-building fa-sm"></i> {{ 'My Properties'|t }}
+                <i class="fas fa-building fa-sm"></i> {{ _('My Properties') }}
             </a>
             <a href="{{ url_for('admin.my_rooms') }}" class="nav-link">
-                <i class="fas fa-door-open fa-sm"></i> {{ 'My Rooms'|t }}
+                <i class="fas fa-door-open fa-sm"></i> {{ _('My Rooms') }}
             </a>
             <a href="{{ url_for('admin.my_reservations') }}" class="nav-link">
-                <i class="fas fa-calendar-check fa-sm"></i> {{ 'Bookings'|t }}
+                <i class="fas fa-calendar-check fa-sm"></i> {{ _('Bookings') }}
             </a>
             <a href="{{ url_for('admin.profile') }}" class="nav-link active">
-                <i class="fas fa-user-cog fa-sm"></i> {{ 'Admin Profile'|t }}
+                <i class="fas fa-user-cog fa-sm"></i> {{ _('Admin Profile') }}
             </a>
             <a href="{{ url_for('auth.logout') }}" class="nav-link danger">
-                <i class="fas fa-sign-out-alt fa-sm"></i> {{ 'Logout'|t }}
+                <i class="fas fa-sign-out-alt fa-sm"></i> {{ _('Logout') }}
             </a>
         </nav>
 
         {% if current_user.profile_image %}
         <form action="{{ url_for('admin.remove_profile_image') }}" method="POST" class="mt-3">
-            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('{{ 'Remove profile photo?'|t }}')">
-                <i class="fas fa-trash me-2"></i>{{ 'Remove Photo'|t }}
+            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('{{ _('Remove profile photo?') }}')">
+                <i class="fas fa-trash me-2"></i>{{ _('Remove Photo') }}
             </button>
         </form>
         {% endif %}
@@ -168,12 +168,12 @@
     <!-- MAIN -->
     <main class="admin-main">
         <div class="mb-4">
-            <div class="section-label">{{ 'Admin Settings'|t }}</div>
+            <div class="section-label">{{ _('Admin Settings') }}</div>
             <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">
-                {{ 'Profile Settings'|t }}
+                {{ _('Profile Settings') }}
             </h1>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
-                {{ 'Update your administrator profile information'|t }}
+                {{ _('Update your administrator profile information') }}
             </p>
         </div>
 
@@ -181,11 +181,11 @@
         <div class="stats-grid">
             <div class="stat-mini-card">
                 <div class="stat-mini-value">{{ current_user.owned_hotels|length if current_user.owned_hotels else 0 }}</div>
-                <div class="stat-mini-label">{{ 'My Properties'|t }}</div>
+                <div class="stat-mini-label">{{ _('My Properties') }}</div>
             </div>
             <div class="stat-mini-card">
                 <div class="stat-mini-value">{{ current_user.username }}</div>
-                <div class="stat-mini-label">{{ 'Username'|t }}</div>
+                <div class="stat-mini-label">{{ _('Username') }}</div>
             </div>
         </div>
 
@@ -195,20 +195,20 @@
             <!-- Info box -->
             <div class="info-box">
                 <i class="fas fa-info-circle"></i>
-                <span>{{ 'Current password is required to make any changes'|t }}</span>
+                <span>{{ _('Current password is required to make any changes') }}</span>
             </div>
 
             <!-- Current Password -->
             <div class="content-card">
                 <div class="content-card-header">
                     <i class="fas fa-lock" style="color: var(--primary);"></i>
-                    {{ 'Current Password'|t }}
+                    {{ _('Current Password') }}
                 </div>
                 <div class="content-card-body">
                     <div class="mb-0">
-                        <label class="form-label">{{ 'Enter your current password'|t }} *</label>
+                        <label class="form-label">{{ _('Enter your current password') }} *</label>
                         {% if form %}
-                            {{ form.current_password(class="form-control", placeholder=("••••••••"|t)) }}
+                            {{ form.current_password(class="form-control", placeholder=(_("••••••••"))) }}
                             {% if form.current_password.errors %}
                                 {% for error in form.current_password.errors %}
                                     <div class="text-danger mt-1" style="font-size: 0.8rem;">
@@ -217,7 +217,7 @@
                                 {% endfor %}
                             {% endif %}
                         {% else %}
-                            <input type="password" name="current_password" class="form-control" placeholder="{{ '••••••••'|t }}" required>
+                            <input type="password" name="current_password" class="form-control" placeholder="{{ _('••••••••') }}" required>
                         {% endif %}
                     </div>
                 </div>
@@ -227,34 +227,34 @@
             <div class="content-card">
                 <div class="content-card-header">
                     <i class="fas fa-key" style="color: var(--primary);"></i>
-                    {{ 'Change Password (Optional)'|t }}
+                    {{ _('Change Password (Optional)') }}
                 </div>
                 <div class="content-card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">{{ 'New Password'|t }}</label>
+                            <label class="form-label">{{ _('New Password') }}</label>
                             {% if form %}
-                                {{ form.new_password(class="form-control", placeholder=("Min. 6 characters"|t)) }}
+                                {{ form.new_password(class="form-control", placeholder=(_("Min. 6 characters"))) }}
                                 {% if form.new_password.errors %}
                                     {% for error in form.new_password.errors %}
                                         <div class="text-danger mt-1" style="font-size: 0.8rem;">{{ error }}</div>
                                     {% endfor %}
                                 {% endif %}
                             {% else %}
-                                <input type="password" name="new_password" class="form-control" placeholder="{{ 'Min. 6 characters'|t }}">
+                                <input type="password" name="new_password" class="form-control" placeholder="{{ _('Min. 6 characters') }}">
                             {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">{{ 'Confirm New Password'|t }}</label>
+                            <label class="form-label">{{ _('Confirm New Password') }}</label>
                             {% if form %}
-                                {{ form.confirm_password(class="form-control", placeholder=("Repeat password"|t)) }}
+                                {{ form.confirm_password(class="form-control", placeholder=(_("Repeat password"))) }}
                                 {% if form.confirm_password.errors %}
                                     {% for error in form.confirm_password.errors %}
                                         <div class="text-danger mt-1" style="font-size: 0.8rem;">{{ error }}</div>
                                     {% endfor %}
                                 {% endif %}
                             {% else %}
-                                <input type="password" name="confirm_password" class="form-control" placeholder="{{ 'Repeat password'|t }}">
+                                <input type="password" name="confirm_password" class="form-control" placeholder="{{ _('Repeat password') }}">
                             {% endif %}
                         </div>
                     </div>
@@ -265,48 +265,48 @@
             <div class="content-card">
                 <div class="content-card-header">
                     <i class="fas fa-address-card" style="color: var(--primary);"></i>
-                    {{ 'Contact Information'|t }}
+                    {{ _('Contact Information') }}
                 </div>
                 <div class="content-card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">
-                                <i class="fas fa-envelope me-1"></i>{{ 'Email Address'|t }}
+                                <i class="fas fa-envelope me-1"></i>{{ _('Email Address') }}
                             </label>
                             {% if form %}
-                                {{ form.email(class="form-control", placeholder=("your@email.com"|t)) }}
+                                {{ form.email(class="form-control", placeholder=(_("your@email.com"))) }}
                                 {% if form.email.errors %}
                                     {% for error in form.email.errors %}
                                         <div class="text-danger mt-1" style="font-size: 0.8rem;">{{ error }}</div>
                                     {% endfor %}
                                 {% endif %}
                             {% else %}
-                                <input type="email" name="email" class="form-control" placeholder="{{ 'your@email.com'|t }}" value="{{ current_user.email or '' }}">
+                                <input type="email" name="email" class="form-control" placeholder="{{ _('your@email.com') }}" value="{{ current_user.email or '' }}">
                             {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">
-                                <i class="fas fa-phone me-1"></i>{{ 'Phone Number'|t }}
+                                <i class="fas fa-phone me-1"></i>{{ _('Phone Number') }}
                             </label>
                             {% if form %}
-                                {{ form.phone(class="form-control", placeholder=("+359 ..."|t)) }}
+                                {{ form.phone(class="form-control", placeholder=(_("+359 ..."))) }}
                                 {% if form.phone.errors %}
                                     {% for error in form.phone.errors %}
                                         <div class="text-danger mt-1" style="font-size: 0.8rem;">{{ error }}</div>
                                     {% endfor %}
                                 {% endif %}
                             {% else %}
-                                <input type="tel" name="phone" class="form-control" placeholder="{{ '+359 ...'|t }}" value="{{ current_user.phone or '' }}">
+                                <input type="tel" name="phone" class="form-control" placeholder="{{ _('+359 ...') }}" value="{{ current_user.phone or '' }}">
                             {% endif %}
                         </div>
                         <div class="col-12">
                             <label class="form-label">
-                                <i class="fas fa-map-marker-alt me-1"></i>{{ 'Address'|t }}
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ _('Address') }}
                             </label>
                             {% if form %}
-                                {{ form.address(class="form-control", rows="2", placeholder=("Your address"|t)) }}
+                                {{ form.address(class="form-control", rows="2", placeholder=(_("Your address"))) }}
                             {% else %}
-                                <textarea name="address" class="form-control" rows="2" placeholder="{{ 'Your address'|t }}">{{ current_user.address or '' }}</textarea>
+                                <textarea name="address" class="form-control" rows="2" placeholder="{{ _('Your address') }}">{{ current_user.address or '' }}</textarea>
                             {% endif %}
                         </div>
                     </div>
@@ -317,12 +317,12 @@
             <div class="content-card">
                 <div class="content-card-header">
                     <i class="fas fa-camera" style="color: var(--primary);"></i>
-                    {{ 'Profile Photo'|t }}
+                    {{ _('Profile Photo') }}
                 </div>
                 <div class="content-card-body">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <label class="form-label">{{ 'Upload new photo'|t }}</label>
+                            <label class="form-label">{{ _('Upload new photo') }}</label>
                             {% if form %}
                                 {{ form.profile_image(class="form-control", accept="image/*") }}
                             {% else %}
@@ -330,11 +330,11 @@
                             {% endif %}
                             <div class="form-text">
                                 <i class="fas fa-info-circle me-1"></i>
-                                {{ 'Allowed formats: JPG, JPEG, PNG, GIF (Max 16MB)'|t }}
+                                {{ _('Allowed formats: JPG, JPEG, PNG, GIF (Max 16MB)') }}
                             </div>
                         </div>
                         <div class="col-md-4 text-center">
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ 'Preview'|t }}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ _('Preview') }}</div>
                             {% if current_user.profile_image %}
                                 <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="profile-avatar" style="width:80px;height:80px;">
                             {% else %}
@@ -348,7 +348,7 @@
             <!-- Submit Button -->
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-save me-2"></i>{{ 'Save Changes'|t }}
+                    <i class="fas fa-save me-2"></i>{{ _('Save Changes') }}
                 </button>
             </div>
         </form>

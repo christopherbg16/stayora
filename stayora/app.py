@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, url_for, redirect, make_response
 from flask_login import LoginManager
+from flask_babel import Babel, _
 from models import User, Hotel, log_activity
 from supabase_client import supabase
 from auth import auth_bp
@@ -22,6 +23,15 @@ login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Please log in to access this page.'
 
 init_oauth(app)
+
+# Flask-Babel setup
+def get_locale():
+    lang = request.cookies.get('site_lang', 'en')
+    if lang not in ['en', 'bg', 'es', 'de']:
+        lang = 'en'
+    return lang
+
+babel = Babel(app, locale_selector=get_locale)
 
 
 @login_manager.user_loader
@@ -55,29 +65,6 @@ def b64encode_filter(data):
     except TypeError:
         # Fallback: convert to string and encode
         return base64.b64encode(str(data).encode('utf-8')).decode('utf-8')
-
-
-# Simple translation loader
-_translation_cache = {}
-
-def load_translations(lang):
-    if lang in _translation_cache:
-        return _translation_cache[lang]
-    path = os.path.join(os.path.dirname(__file__), 'translations', f'{lang}.json')
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception:
-        data = {}
-    _translation_cache[lang] = data
-    return data
-
-
-@app.template_filter('t')
-def translate_filter(text):
-    lang = request.cookies.get('site_lang', 'en')
-    trans = load_translations(lang)
-    return trans.get(text, text)
 
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

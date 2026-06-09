@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stayora — {{ 'Discover Extraordinary Places to Stay'|t }}</title>
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')</script>
+    <title>Stayora — {{ _('Discover Extraordinary Places to Stay') }}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,6 +57,9 @@
         .btn-login:hover { background: var(--gold-dim) !important; }
         .btn-cta { background: var(--gold) !important; color: #07090f !important; font-weight: 700 !important; box-shadow: 0 4px 18px var(--gold-glow); border-radius: 9px !important; }
         .btn-cta:hover { background: var(--gold-hover) !important; transform: translateY(-1px); }
+        .lang-btn { background: none; border: 1px solid rgba(255,255,255,.12); color: rgba(238,242,255,.6); font-size: .72rem; font-weight: 600; padding: .25rem .55rem; border-radius: 6px; cursor: pointer; transition: all .2s; font-family: var(--body); text-transform: uppercase; letter-spacing: .3px; }
+        .lang-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+        .lang-btn.on { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
 
         /* ── HERO ── */
         .hero { position: relative; min-height: 100vh; display: flex; align-items: center; overflow: hidden; }
@@ -246,18 +250,24 @@
         Stay<span>Ora</span>
     </a>
     <div class="nav-right">
-        <a href="{{ url_for('user.browse_stays') }}" class="nav-link hide-sm">{{ 'Explore'|t }}</a>
-        <a href="{{ url_for('user.search_stays') }}" class="nav-link hide-sm">{{ 'Stays'|t }}</a>
+        <a href="{{ url_for('user.browse_stays') }}" class="nav-link hide-sm">{{ _('Explore') }}</a>
+        <a href="{{ url_for('user.search_stays') }}" class="nav-link hide-sm">{{ _('Stays') }}</a>
+        <div class="hide-sm" style="display:flex;align-items:center;gap:2px;margin:0 4px">
+            {% set flag_codes = {'en':'gb','bg':'bg','es':'es','de':'de'} %}
+            {% for code, name in languages.items() %}
+            <a href="{{ url_for('set_language', lang=code) }}" class="lang-btn {% if code == current_language %}on{% endif %}" title="{{ name }}"><img src="https://flagcdn.com/16x12/{{ flag_codes[code] }}.png" srcset="https://flagcdn.com/24x18/{{ flag_codes[code] }}.png 2x" alt="{{ code }}" class="flag-icon"></a>
+            {% endfor %}
+        </div>
         {% if current_user.is_authenticated %}
             {% if current_user.role == 'admin' %}
-                <a href="{{ url_for('admin.dashboard') }}" class="nav-link">{{ 'Dashboard'|t }}</a>
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link">{{ _('Dashboard') }}</a>
             {% else %}
-                <a href="{{ url_for('user.dashboard') }}" class="nav-link">{{ 'My Account'|t }}</a>
+                <a href="{{ url_for('user.dashboard') }}" class="nav-link">{{ _('My Account') }}</a>
             {% endif %}
-            <a href="{{ url_for('auth.logout') }}" class="nav-link" style="color:var(--muted)">{{ 'Sign Out'|t }}</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link" style="color:var(--muted)">{{ _('Sign Out') }}</a>
         {% else %}
-            <a href="{{ url_for('auth.login') }}" class="nav-link btn-login">{{ 'Sign In'|t }}</a>
-            <a href="{{ url_for('auth.register') }}" class="nav-link btn-cta">{{ 'Get Started'|t }}</a>
+            <a href="{{ url_for('auth.login') }}" class="nav-link btn-login">{{ _('Sign In') }}</a>
+            <a href="{{ url_for('auth.register') }}" class="nav-link btn-cta">{{ _('Get Started') }}</a>
         {% endif %}
     </div>
 </nav>
@@ -268,30 +278,30 @@
     <div class="hero-veil"></div>
     <div class="hero-glow"></div>
     <div class="hero-inner">
-        <div class="badge"><span class="pulse"></span>{{ total_properties or '5,200' }}+ {{ 'Curated Properties Worldwide'|t }}</div>
-        <h1 class="hero-h1">{{ 'Find your perfect'|t }}<em>{{ 'place to stay'|t }}</em></h1>
-        <p class="hero-sub">{{ 'From boutique city hotels to secluded villas — discover extraordinary spaces crafted for unforgettable experiences.'|t }}</p>
+        <div class="badge"><span class="pulse"></span>{{ total_properties or '5,200' }}+ {{ _('Curated Properties Worldwide') }}</div>
+        <h1 class="hero-h1">{{ _('Find your perfect') }}<em>{{ _('place to stay') }}</em></h1>
+        <p class="hero-sub">{{ _('From boutique city hotels to secluded villas — discover extraordinary spaces crafted for unforgettable experiences.') }}</p>
         <div class="search-box">
             <div class="s-tabs">
-                <button class="s-tab on">🏨 {{ 'Hotels'|t }}</button>
-                <button class="s-tab">🏠 {{ 'Apartments'|t }}</button>
-                <button class="s-tab">🌿 {{ 'Villas'|t }}</button>
-                <button class="s-tab">🏖️ {{ 'Resorts'|t }}</button>
+                <button class="s-tab on">🏨 {{ _('Hotels') }}</button>
+                <button class="s-tab">🏠 {{ _('Apartments') }}</button>
+                <button class="s-tab">🌿 {{ _('Villas') }}</button>
+                <button class="s-tab">🏖️ {{ _('Resorts') }}</button>
             </div>
             <form action="{{ url_for('user.search_stays') }}" method="GET">
                 <div class="s-grid">
-                    <div class="s-field"><label>{{ 'Where are you going?'|t }}</label><input type="text" name="destination" placeholder="{{ 'City, property or destination'|t }}" autocomplete="off"></div>
-                    <div class="s-field"><label>{{ 'Check in'|t }}</label><input type="date" name="check_in" id="ci"></div>
-                    <div class="s-field"><label>{{ 'Check out'|t }}</label><input type="date" name="check_out" id="co"></div>
-                    <div class="s-field"><label>&nbsp;</label><button type="submit" class="btn-search"><i class="fas fa-search"></i> {{ 'Search'|t }}</button></div>
+                    <div class="s-field"><label>{{ _('Where are you going?') }}</label><input type="text" name="destination" placeholder="{{ _('City, property or destination') }}" autocomplete="off"></div>
+                    <div class="s-field"><label>{{ _('Check in') }}</label><input type="date" name="check_in" id="ci"></div>
+                    <div class="s-field"><label>{{ _('Check out') }}</label><input type="date" name="check_out" id="co"></div>
+                    <div class="s-field"><label>&nbsp;</label><button type="submit" class="btn-search"><i class="fas fa-search"></i> {{ _('Search') }}</button></div>
                 </div>
             </form>
         </div>
         <div class="trust">
-            <div class="trust-item"><i class="fas fa-shield-alt"></i> {{ 'Secure Booking'|t }}</div>
-            <div class="trust-item"><i class="fas fa-star"></i> {{ 'Verified Reviews'|t }}</div>
-            <div class="trust-item"><i class="fas fa-headset"></i> {{ '24/7 Support'|t }}</div>
-            <div class="trust-item"><i class="fas fa-undo"></i> {{ 'Free Cancellation'|t }}</div>
+            <div class="trust-item"><i class="fas fa-shield-alt"></i> {{ _('Secure Booking') }}</div>
+            <div class="trust-item"><i class="fas fa-star"></i> {{ _('Verified Reviews') }}</div>
+            <div class="trust-item"><i class="fas fa-headset"></i> {{ _('24/7 Support') }}</div>
+            <div class="trust-item"><i class="fas fa-undo"></i> {{ _('Free Cancellation') }}</div>
         </div>
     </div>
 </div>
@@ -300,10 +310,10 @@
 <div class="stats">
     <div class="container">
         <div class="row g-4 text-center">
-            <div class="col-6 col-md-3"><div class="stat"><div class="stat-n">{{ total_properties or '5,200' }}+</div><div class="stat-l">{{ 'Properties Listed'|t }}</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat"><div class="stat-n">{{ total_countries or '120' }}+</div><div class="stat-l">{{ 'Cities Covered'|t }}</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat"><div class="stat-n">{{ total_users or '98k' }}+</div><div class="stat-l">{{ 'Happy Guests'|t }}</div></div></div>
-            <div class="col-6 col-md-3"><div class="stat"><div class="stat-n">4.9★</div><div class="stat-l">{{ 'Average Rating'|t }}</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat"><div class="stat-n">{{ total_properties or '5,200' }}+</div><div class="stat-l">{{ _('Properties Listed') }}</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat"><div class="stat-n">{{ total_countries or '120' }}+</div><div class="stat-l">{{ _('Cities Covered') }}</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat"><div class="stat-n">{{ total_users or '98k' }}+</div><div class="stat-l">{{ _('Happy Guests') }}</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat"><div class="stat-n">4.9★</div><div class="stat-l">{{ _('Average Rating') }}</div></div></div>
         </div>
     </div>
 </div>
@@ -312,22 +322,22 @@
 <section>
     <div class="container">
         <div class="row mb-5 align-items-end reveal">
-            <div class="col-lg-5"><span class="lbl">{{ 'Browse by Type'|t }}</span><h2 class="sec-h">{{ 'Every kind of stay, curated for you'|t }}</h2></div>
-            <div class="col-lg-7"><p class="sec-p">{{ 'Whether you want luxury rooms, a private apartment, a villa escape or an all-inclusive resort — we have the perfect option at every price point.'|t }}</p></div>
+            <div class="col-lg-5"><span class="lbl">{{ _('Browse by Type') }}</span><h2 class="sec-h">{{ _('Every kind of stay, curated for you') }}</h2></div>
+            <div class="col-lg-7"><p class="sec-p">{{ _('Whether you want luxury rooms, a private apartment, a villa escape or an all-inclusive resort — we have the perfect option at every price point.') }}</p></div>
         </div>
         <div class="types reveal">
             {% set types = [
-                ('Hotels'|t, 'hotel', 'https://images.pexels.com/photos/1134176/pexels-photo-1134176.jpeg?auto=compress&cs=tinysrgb&w=800', 'Most Popular'|t, total_hotels or 2547),
-                ('Apartments'|t, 'apartment', 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800', '', total_apartments or 1892),
-                ('Villas'|t, 'villa', 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=800', '', total_villas or 521),
-                ('Resorts'|t, 'resort', 'https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg?auto=compress&cs=tinysrgb&w=800', 'All-Inclusive'|t, total_resorts or 843)
+                (_('Hotels'), 'hotel', 'https://images.pexels.com/photos/1134176/pexels-photo-1134176.jpeg?auto=compress&cs=tinysrgb&w=800', _('Most Popular'), total_hotels or 2547),
+                (_('Apartments'), 'apartment', 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800', '', total_apartments or 1892),
+                (_('Villas'), 'villa', 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=800', '', total_villas or 521),
+                (_('Resorts'), 'resort', 'https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg?auto=compress&cs=tinysrgb&w=800', _('All-Inclusive'), total_resorts or 843)
             ] %}
             {% for name, ptype, img, badge, count in types %}
             <a href="{{ url_for('user.search_stays', property_type=ptype) }}" class="type-card">
                 <img src="{{ img }}" alt="{{ name }}" loading="lazy">
                 <div class="type-veil"></div>
                 {% if badge %}<span class="type-badge">{{ badge }}</span>{% endif %}
-                <div class="type-lbl"><strong>{{ name }}</strong><small>{{ count }} {{ 'properties'|t }}</small></div>
+                <div class="type-lbl"><strong>{{ name }}</strong><small>{{ count }} {{ _('properties') }}</small></div>
             </a>
             {% endfor %}
         </div>
@@ -339,9 +349,9 @@
 <section style="padding-top:0">
     <div class="container">
         <div class="row mb-5 align-items-center reveal">
-            <div class="col-md-8"><span class="lbl">{{ 'Top Rated'|t }}</span><h2 class="sec-h">{{ 'Featured properties'|t }}</h2><p class="sec-p">{{ 'Hand-picked stays with exceptional guest reviews.'|t }}</p></div>
+            <div class="col-md-8"><span class="lbl">{{ _('Top Rated') }}</span><h2 class="sec-h">{{ _('Featured properties') }}</h2><p class="sec-p">{{ _('Hand-picked stays with exceptional guest reviews.') }}</p></div>
             <div class="col-md-4 d-flex justify-content-md-end mt-3 mt-md-0">
-                <a href="{{ url_for('user.browse_stays') }}" style="color:var(--gold);text-decoration:none;font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:6px">{{ 'View all'|t }} <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ url_for('user.browse_stays') }}" style="color:var(--gold);text-decoration:none;font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:6px">{{ _('View all') }} <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
         <div class="row g-4 reveal">
@@ -360,9 +370,9 @@
                         <div class="h-name">{{ hotel.name }}</div>
                         <div class="h-loc"><i class="fas fa-map-marker-alt"></i>{{ hotel.city }}{% if hotel.country %}, {{ hotel.country }}{% endif %}</div>
                         <div class="h-foot">
-                            <div class="h-price">€{{ "%.0f"|format(hotel.display_price) }}<small>{{ '/night'|t }}</small></div>
-                            {% if hotel.review_count > 0 %}<div class="h-rate">{{ hotel.rating_display }} · {{ hotel.review_count }} {{ 'reviews'|t }}</div>
-                            {% else %}<div style="font-size:.76rem;color:var(--muted)">{{ 'New listing'|t }}</div>{% endif %}
+                            <div class="h-price">€{{ "%.0f"|format(hotel.display_price) }}<small>{{ _('/night') }}</small></div>
+                            {% if hotel.review_count > 0 %}<div class="h-rate">{{ hotel.rating_display }} · {{ hotel.review_count }} {{ _('reviews') }}</div>
+                            {% else %}<div style="font-size:.76rem;color:var(--muted)">{{ _('New listing') }}</div>{% endif %}
                         </div>
                     </div>
                 </a>
@@ -376,20 +386,20 @@
 <!-- TRENDING DESTINATIONS -->
 <section id="destinations" style="background:var(--bg-panel);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
     <div class="container">
-        <div class="text-center mb-5 reveal"><span class="lbl">{{ 'Popular Now'|t }}</span><h2 class="sec-h">{{ 'Trending Destinations'|t }}</h2><p class="sec-p mx-auto" style="max-width:500px">{{ 'Most loved destinations by our travelers worldwide'|t }}</p></div>
+        <div class="text-center mb-5 reveal"><span class="lbl">{{ _('Popular Now') }}</span><h2 class="sec-h">{{ _('Trending Destinations') }}</h2><p class="sec-p mx-auto" style="max-width:500px">{{ _('Most loved destinations by our travelers worldwide') }}</p></div>
         <div class="row g-4 mb-4">
             <div class="col-md-6 reveal">
                 <a href="{{ url_for('user.search_stays') }}?destination=Paris" class="dest-card" style="height:380px">
                     <img src="https://images.pexels.com/photos/2363/france-landmark-lights-night.jpg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop" alt="Paris" loading="lazy">
                     <div class="dest-overlay"></div>
-                    <div class="dest-info"><div class="dest-name" style="font-size:2rem">Paris</div><div class="dest-meta">🇫🇷 {{ 'France · 843 properties'|t }}</div></div>
+                    <div class="dest-info"><div class="dest-name" style="font-size:2rem">Paris</div><div class="dest-meta">🇫🇷 {{ _('France · 843 properties') }}</div></div>
                 </a>
             </div>
             <div class="col-md-6 reveal">
                 <a href="{{ url_for('user.search_stays') }}?destination=Rome" class="dest-card" style="height:380px">
                     <img src="https://images.pexels.com/photos/1797161/pexels-photo-1797161.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop" alt="Rome" loading="lazy">
                     <div class="dest-overlay"></div>
-                    <div class="dest-info"><div class="dest-name" style="font-size:2rem">Rome</div><div class="dest-meta">🇮🇹 {{ 'Italy · 1,245 properties'|t }}</div></div>
+                    <div class="dest-info"><div class="dest-name" style="font-size:2rem">Rome</div><div class="dest-meta">🇮🇹 {{ _('Italy · 1,245 properties') }}</div></div>
                 </a>
             </div>
         </div>
@@ -409,7 +419,7 @@
                 <a href="{{ url_for('user.search_stays') }}?destination={{ name }}" class="dest-card" style="height:200px">
                     <img src="{{ img }}" alt="{{ name }}" loading="lazy">
                     <div class="dest-overlay"></div>
-                    <div class="dest-info"><div class="dest-name">{{ name }}</div><div class="dest-meta">{{ country }} · {{ count }} {{ 'properties'|t }}</div></div>
+                    <div class="dest-info"><div class="dest-name">{{ name }}</div><div class="dest-meta">{{ country }} · {{ count }} {{ _('properties') }}</div></div>
                 </a>
             </div>
             {% endfor %}
@@ -420,14 +430,14 @@
 <!-- WHY STAYORA -->
 <section id="why-us">
     <div class="container">
-        <div class="text-center mb-5 reveal"><span class="lbl">{{ 'Why Stayora'|t }}</span><h2 class="sec-h">{{ 'The smarter way to book your stay'|t }}</h2></div>
+        <div class="text-center mb-5 reveal"><span class="lbl">{{ _('Why Stayora') }}</span><h2 class="sec-h">{{ _('The smarter way to book your stay') }}</h2></div>
         <div class="feat-grid reveal">
-            <div class="feat-card"><div class="feat-icon"><i class="fas fa-shield-alt"></i></div><div class="feat-title">{{ 'Verified Properties'|t }}</div><p class="feat-desc">{{ 'Every listing is reviewed by our team. You see exactly what you get — no surprises.'|t }}</p></div>
-            <div class="feat-card"><div class="feat-icon"><i class="fas fa-credit-card"></i></div><div class="feat-title">{{ 'Flexible Payment'|t }}</div><p class="feat-desc">{{ 'Pay securely online or choose cash on arrival — full flexibility to suit you.'|t }}</p></div>
-            <div class="feat-card"><div class="feat-icon"><i class="fas fa-bolt"></i></div><div class="feat-title">{{ 'Instant Confirmation'|t }}</div><p class="feat-desc">{{ 'Book in seconds and receive your confirmation immediately. No waiting.'|t }}</p></div>
-            <div class="feat-card"><div class="feat-icon"><i class="fas fa-undo-alt"></i></div><div class="feat-title">{{ 'Free Cancellation'|t }}</div><p class="feat-desc">{{ 'Plans change. Most properties offer free cancellation — peace of mind guaranteed.'|t }}</p></div>
-            <div class="feat-card"><div class="feat-icon"><i class="fas fa-star"></i></div><div class="feat-title">{{ 'Real Guest Reviews'|t }}</div><p class="feat-desc">{{ 'Thousands of honest reviews from verified guests help you make smarter decisions.'|t }}</p></div>
-            <div class="feat-card"><div class="feat-icon"><i class="fas fa-headset"></i></div><div class="feat-title">{{ '24/7 Support'|t }}</div><p class="feat-desc">{{ 'Our support team is available around the clock to assist with any issues.'|t }}</p></div>
+            <div class="feat-card"><div class="feat-icon"><i class="fas fa-shield-alt"></i></div><div class="feat-title">{{ _('Verified Properties') }}</div><p class="feat-desc">{{ _('Every listing is reviewed by our team. You see exactly what you get — no surprises.') }}</p></div>
+            <div class="feat-card"><div class="feat-icon"><i class="fas fa-credit-card"></i></div><div class="feat-title">{{ _('Flexible Payment') }}</div><p class="feat-desc">{{ _('Pay securely online or choose cash on arrival — full flexibility to suit you.') }}</p></div>
+            <div class="feat-card"><div class="feat-icon"><i class="fas fa-bolt"></i></div><div class="feat-title">{{ _('Instant Confirmation') }}</div><p class="feat-desc">{{ _('Book in seconds and receive your confirmation immediately. No waiting.') }}</p></div>
+            <div class="feat-card"><div class="feat-icon"><i class="fas fa-undo-alt"></i></div><div class="feat-title">{{ _('Free Cancellation') }}</div><p class="feat-desc">{{ _('Plans change. Most properties offer free cancellation — peace of mind guaranteed.') }}</p></div>
+            <div class="feat-card"><div class="feat-icon"><i class="fas fa-star"></i></div><div class="feat-title">{{ _('Real Guest Reviews') }}</div><p class="feat-desc">{{ _('Thousands of honest reviews from verified guests help you make smarter decisions.') }}</p></div>
+            <div class="feat-card"><div class="feat-icon"><i class="fas fa-headset"></i></div><div class="feat-title">{{ _('24/7 Support') }}</div><p class="feat-desc">{{ _('Our support team is available around the clock to assist with any issues.') }}</p></div>
         </div>
     </div>
 </section>
@@ -435,12 +445,12 @@
 <!-- HOW IT WORKS -->
 <section style="background:var(--bg-panel);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
     <div class="container">
-        <div class="text-center mb-5 reveal"><span class="lbl">{{ 'Simple Process'|t }}</span><h2 class="sec-h">{{ 'Book your stay in minutes'|t }}</h2></div>
+        <div class="text-center mb-5 reveal"><span class="lbl">{{ _('Simple Process') }}</span><h2 class="sec-h">{{ _('Book your stay in minutes') }}</h2></div>
         <div class="steps reveal">
-            <div class="step"><div class="step-n">1</div><div class="step-t">{{ 'Search & Discover'|t }}</div><p class="step-d">{{ 'Enter your destination and dates to browse available properties.'|t }}</p></div>
-            <div class="step"><div class="step-n">2</div><div class="step-t">{{ 'Choose Your Stay'|t }}</div><p class="step-d">{{ 'Compare options, read reviews and pick the perfect property.'|t }}</p></div>
-            <div class="step"><div class="step-n">3</div><div class="step-t">{{ 'Pay Your Way'|t }}</div><p class="step-d">{{ 'Pay online or choose cash on arrival — confirmed instantly.'|t }}</p></div>
-            <div class="step"><div class="step-n">4</div><div class="step-t">{{ 'Enjoy Your Stay'|t }}</div><p class="step-d">{{ 'Check in and enjoy your handpicked accommodation fully.'|t }}</p></div>
+            <div class="step"><div class="step-n">1</div><div class="step-t">{{ _('Search & Discover') }}</div><p class="step-d">{{ _('Enter your destination and dates to browse available properties.') }}</p></div>
+            <div class="step"><div class="step-n">2</div><div class="step-t">{{ _('Choose Your Stay') }}</div><p class="step-d">{{ _('Compare options, read reviews and pick the perfect property.') }}</p></div>
+            <div class="step"><div class="step-n">3</div><div class="step-t">{{ _('Pay Your Way') }}</div><p class="step-d">{{ _('Pay online or choose cash on arrival — confirmed instantly.') }}</p></div>
+            <div class="step"><div class="step-n">4</div><div class="step-t">{{ _('Enjoy Your Stay') }}</div><p class="step-d">{{ _('Check in and enjoy your handpicked accommodation fully.') }}</p></div>
         </div>
     </div>
 </section>
@@ -448,26 +458,26 @@
 <!-- TESTIMONIALS -->
 <section>
     <div class="container">
-        <div class="text-center mb-5 reveal"><span class="lbl">{{ 'Guest Stories'|t }}</span><h2 class="sec-h">{{ 'What our guests are saying'|t }}</h2></div>
+        <div class="text-center mb-5 reveal"><span class="lbl">{{ _('Guest Stories') }}</span><h2 class="sec-h">{{ _('What our guests are saying') }}</h2></div>
         <div class="row g-4 reveal">
             <div class="col-md-4">
                 <div class="testi-card">
                     <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    <p class="testi-text">{{ '"Absolutely seamless from search to check-in. Found a stunning boutique hotel in Sofia in minutes."'|t }}</p>
+                    <p class="testi-text">{{ _('"Absolutely seamless from search to check-in. Found a stunning boutique hotel in Sofia in minutes."') }}</p>
                     <div class="testi-author"><div class="avatar">M</div><div><div class="a-name">Maria K.</div><div class="a-place">Sofia, Bulgaria</div></div></div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="testi-card">
                     <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    <p class="testi-text">{{ '"The payment flexibility sold me — paying cash on arrival made everything so relaxed."'|t }}</p>
+                    <p class="testi-text">{{ _('"The payment flexibility sold me — paying cash on arrival made everything so relaxed."') }}</p>
                     <div class="testi-author"><div class="avatar">A</div><div><div class="a-name">Alex D.</div><div class="a-place">Plovdiv, Bulgaria</div></div></div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="testi-card">
                     <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
-                    <p class="testi-text">{{ '"Listed my apartment and had my first booking within 48 hours. The dashboard is incredibly easy."'|t }}</p>
+                    <p class="testi-text">{{ _('"Listed my apartment and had my first booking within 48 hours. The dashboard is incredibly easy."') }}</p>
                     <div class="testi-author"><div class="avatar">I</div><div><div class="a-name">Ivan P.</div><div class="a-place">Varna, Bulgaria</div></div></div>
                 </div>
             </div>
@@ -480,23 +490,23 @@
     <div class="container py-5">
         <div class="row align-items-center">
             <div class="col-lg-6 reveal">
-                <span class="lbl">{{ 'For Property Owners'|t }}</span>
-                <h2 class="sec-h">{{ 'Turn your property into income'|t }}</h2>
-                <p class="sec-p" style="margin-bottom:2rem">{{ 'List your hotel, apartment or villa and reach thousands of travellers actively searching.'|t }}</p>
+                <span class="lbl">{{ _('For Property Owners') }}</span>
+                <h2 class="sec-h">{{ _('Turn your property into income') }}</h2>
+                <p class="sec-p" style="margin-bottom:2rem">{{ _('List your hotel, apartment or villa and reach thousands of travellers actively searching.') }}</p>
                 <div class="host-feats">
-                    <div class="hf"><div class="hf-icon"><i class="fas fa-chart-line"></i></div><div><div class="hf-t">{{ 'Live Dashboard'|t }}</div><div class="hf-d">{{ 'Track bookings and revenue in real time.'|t }}</div></div></div>
-                    <div class="hf"><div class="hf-icon"><i class="fas fa-calendar-check"></i></div><div><div class="hf-t">{{ 'Booking Manager'|t }}</div><div class="hf-d">{{ 'All reservations organized in one place.'|t }}</div></div></div>
-                    <div class="hf"><div class="hf-icon"><i class="fas fa-wallet"></i></div><div><div class="hf-t">{{ 'Payment Tracking'|t }}</div><div class="hf-d">{{ 'See card & cash payments at a glance.'|t }}</div></div></div>
+                    <div class="hf"><div class="hf-icon"><i class="fas fa-chart-line"></i></div><div><div class="hf-t">{{ _('Live Dashboard') }}</div><div class="hf-d">{{ _('Track bookings and revenue in real time.') }}</div></div></div>
+                    <div class="hf"><div class="hf-icon"><i class="fas fa-calendar-check"></i></div><div><div class="hf-t">{{ _('Booking Manager') }}</div><div class="hf-d">{{ _('All reservations organized in one place.') }}</div></div></div>
+                    <div class="hf"><div class="hf-icon"><i class="fas fa-wallet"></i></div><div><div class="hf-t">{{ _('Payment Tracking') }}</div><div class="hf-d">{{ _('See card & cash payments at a glance.') }}</div></div></div>
                 </div>
-                <a href="{{ url_for('auth.register') }}" class="btn-g mt-4" style="display:inline-flex"><i class="fas fa-building"></i> {{ 'List Your Property'|t }}</a>
+                <a href="{{ url_for('auth.register') }}" class="btn-g mt-4" style="display:inline-flex"><i class="fas fa-building"></i> {{ _('List Your Property') }}</a>
             </div>
             <div class="col-lg-6 mt-5 mt-lg-0 text-end reveal">
                 <div style="position:relative;display:inline-block;max-width:470px;width:100%">
                     <img src="https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Property" style="width:100%;border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,.55)">
                     <div style="position:absolute;bottom:-1.4rem;left:-1.4rem;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.4rem;box-shadow:0 12px 36px rgba(0,0,0,.4)">
-                        <div style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.9px;margin-bottom:3px">{{ 'This Month'|t }}</div>
+                        <div style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.9px;margin-bottom:3px">{{ _('This Month') }}</div>
                         <div style="font-family:var(--display);font-size:1.7rem;font-weight:700;color:var(--gold)">€2,840</div>
-                        <div style="font-size:.76rem;color:var(--teal);display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fas fa-arrow-up"></i> {{ '+18% vs last month'|t }}</div>
+                        <div style="font-size:.76rem;color:var(--teal);display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fas fa-arrow-up"></i> {{ '+18%' }} {{ _('vs last month') }}</div>
                     </div>
                 </div>
             </div>
@@ -506,13 +516,13 @@
 
 <!-- FINAL CTA -->
 <div class="cta-sec">
-    <span class="lbl">{{ 'Ready to Explore?'|t }}</span>
-    <h2 class="cta-h">{{ 'Your next great stay is'|t }}<br><em>{{ 'waiting to be discovered'|t }}</em></h2>
-    <p style="color:var(--subtle);max-width:450px;margin:0 auto;font-size:.97rem;line-height:1.75;font-weight:300">{{ 'Join thousands of travellers who trust Stayora to find exceptional accommodations at every destination.'|t }}</p>
+    <span class="lbl">{{ _('Ready to Explore?') }}</span>
+    <h2 class="cta-h">{{ _('Your next great stay is') }}<br><em>{{ _('waiting to be discovered') }}</em></h2>
+    <p style="color:var(--subtle);max-width:450px;margin:0 auto;font-size:.97rem;line-height:1.75;font-weight:300">{{ _('Join thousands of travellers who trust Stayora to find exceptional accommodations at every destination.') }}</p>
     <div class="cta-btns">
-        <a href="{{ url_for('user.browse_stays') }}" class="btn-g"><i class="fas fa-search"></i> {{ 'Explore Properties'|t }}</a>
+        <a href="{{ url_for('user.browse_stays') }}" class="btn-g"><i class="fas fa-search"></i> {{ _('Explore Properties') }}</a>
         {% if not current_user.is_authenticated %}
-        <a href="{{ url_for('auth.register') }}" class="btn-o"><i class="fas fa-user-plus"></i> {{ 'Create Free Account'|t }}</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-o"><i class="fas fa-user-plus"></i> {{ _('Create Free Account') }}</a>
         {% endif %}
     </div>
 </div>
@@ -523,7 +533,7 @@
         <div class="row g-5">
             <div class="col-lg-4">
                 <div class="f-logo">Stay<span>Ora</span></div>
-                <p class="f-desc">{{ 'Discover extraordinary places to stay — from boutique hotels to private villas worldwide.'|t }}</p>
+                <p class="f-desc">{{ _('Discover extraordinary places to stay — from boutique hotels to private villas worldwide.') }}</p>
                 <div class="f-social">
                     <a href="#"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-twitter"></i></a>
@@ -531,25 +541,25 @@
                     <a href="#"><i class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
-            <div class="col-6 col-lg-2"><div class="f-col-t">{{ 'Explore'|t }}</div>
-                <a href="{{ url_for('user.search_stays', property_type='hotel') }}">{{ 'Hotels'|t }}</a>
-                <a href="{{ url_for('user.search_stays', property_type='apartment') }}">{{ 'Apartments'|t }}</a>
-                <a href="{{ url_for('user.search_stays', property_type='villa') }}">{{ 'Villas'|t }}</a>
-                <a href="{{ url_for('user.search_stays', property_type='resort') }}">{{ 'Resorts'|t }}</a>
+            <div class="col-6 col-lg-2"><div class="f-col-t">{{ _('Explore') }}</div>
+                <a href="{{ url_for('user.search_stays', property_type='hotel') }}">{{ _('Hotels') }}</a>
+                <a href="{{ url_for('user.search_stays', property_type='apartment') }}">{{ _('Apartments') }}</a>
+                <a href="{{ url_for('user.search_stays', property_type='villa') }}">{{ _('Villas') }}</a>
+                <a href="{{ url_for('user.search_stays', property_type='resort') }}">{{ _('Resorts') }}</a>
             </div>
-            <div class="col-6 col-lg-2"><div class="f-col-t">{{ 'Company'|t }}</div>
-                <a href="#">{{ 'About Us'|t }}</a><a href="#">{{ 'Careers'|t }}</a><a href="#">{{ 'Press'|t }}</a><a href="#">{{ 'Blog'|t }}</a>
+            <div class="col-6 col-lg-2"><div class="f-col-t">{{ _('Company') }}</div>
+                <a href="#">{{ _('About Us') }}</a><a href="#">{{ _('Careers') }}</a><a href="#">{{ _('Press') }}</a><a href="#">{{ _('Blog') }}</a>
             </div>
-            <div class="col-6 col-lg-2"><div class="f-col-t">{{ 'Support'|t }}</div>
-                <a href="#">{{ 'Help Center'|t }}</a><a href="#">{{ 'Contact Us'|t }}</a><a href="#">{{ 'Safety'|t }}</a><a href="#">{{ 'Cancellations'|t }}</a>
+            <div class="col-6 col-lg-2"><div class="f-col-t">{{ _('Support') }}</div>
+                <a href="#">{{ _('Help Center') }}</a><a href="#">{{ _('Contact Us') }}</a><a href="#">{{ _('Safety') }}</a><a href="#">{{ _('Cancellations') }}</a>
             </div>
-            <div class="col-6 col-lg-2"><div class="f-col-t">{{ 'Hosting'|t }}</div>
-                <a href="{{ url_for('auth.register') }}">{{ 'List Property'|t }}</a><a href="{{ url_for('auth.login') }}">{{ 'Owner Login'|t }}</a><a href="#">{{ 'Resources'|t }}</a>
+            <div class="col-6 col-lg-2"><div class="f-col-t">{{ _('Hosting') }}</div>
+                <a href="{{ url_for('auth.register') }}">{{ _('List Property') }}</a><a href="{{ url_for('auth.login') }}">{{ _('Owner Login') }}</a><a href="#">{{ _('Resources') }}</a>
             </div>
         </div>
         <div class="f-bottom">
-            <span>{{ '© 2025 Stayora. All rights reserved.'|t }}</span>
-            <div class="f-links"><a href="#">{{ 'Privacy'|t }}</a><a href="#">{{ 'Terms'|t }}</a><a href="#">{{ 'Cookies'|t }}</a></div>
+            <span>{{ _('© 2025 Stayora. All rights reserved.') }}</span>
+            <div class="f-links"><a href="#">{{ _('Privacy') }}</a><a href="#">{{ _('Terms') }}</a><a href="#">{{ _('Cookies') }}</a></div>
         </div>
     </div>
 </footer>

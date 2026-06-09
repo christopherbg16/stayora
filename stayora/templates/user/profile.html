@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'My Profile'|t }} — Stayora{% endblock %}
+{% block title %}{{ _('My Profile') }} — Stayora{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -255,7 +255,7 @@
         <div class="profile-card">
             <div class="profile-avatar-container">
                 {% if current_user.profile_image %}
-                    <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="profile-avatar" alt="{{ 'Profile'|t }}">
+                    <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="profile-avatar" alt="{{ _('Profile') }}">
                 {% else %}
                     <div class="profile-avatar-placeholder">
                         <i class="fas fa-user"></i>
@@ -265,29 +265,29 @@
             <div class="profile-username">{{ current_user.username }}</div>
             <div class="profile-role">
                 {% if current_user.role == 'admin' %}
-                    <i class="fas fa-crown me-1"></i>{{ 'Administrator'|t }}
+                    <i class="fas fa-crown me-1"></i>{{ _('Administrator') }}
                 {% else %}
-                    <i class="fas fa-user me-1"></i>{{ 'Guest'|t }}
+                    <i class="fas fa-user me-1"></i>{{ _('Guest') }}
                 {% endif %}
             </div>
 
             <div class="profile-info-item">
                 <div class="profile-info-label">
-                    <i class="fas fa-envelope me-1"></i> {{ 'Email'|t }}
+                    <i class="fas fa-envelope me-1"></i> {{ _('Email') }}
                 </div>
                 <div class="profile-info-value">{{ current_user.email or 'Not set' }}</div>
             </div>
 
             <div class="profile-info-item">
                 <div class="profile-info-label">
-                    <i class="fas fa-phone me-1"></i> {{ 'Phone'|t }}
+                    <i class="fas fa-phone me-1"></i> {{ _('Phone') }}
                 </div>
                 <div class="profile-info-value">{{ current_user.phone or 'Not set' }}</div>
             </div>
 
             <div class="profile-info-item">
                 <div class="profile-info-label">
-                    <i class="fas fa-calendar-alt me-1"></i> {{ 'Member since'|t }}
+                    <i class="fas fa-calendar-alt me-1"></i> {{ _('Member since') }}
                 </div>
                 <div class="profile-info-value">
                     {{ current_user.created_at.strftime('%b %d, %Y') if current_user.created_at else 'N/A' }}
@@ -297,26 +297,26 @@
 
         <nav class="profile-nav">
             <a href="{{ url_for('user.dashboard') }}" class="nav-link">
-                <i class="fas fa-home fa-sm"></i> {{ 'Dashboard'|t }}
+                <i class="fas fa-home fa-sm"></i> {{ _('Dashboard') }}
             </a>
             <a href="{{ url_for('user.browse_stays') }}" class="nav-link">
-                <i class="fas fa-search fa-sm"></i> {{ 'Browse Stays'|t }}
+                <i class="fas fa-search fa-sm"></i> {{ _('Browse Stays') }}
             </a>
             <a href="{{ url_for('user.my_reservations') }}" class="nav-link">
-                <i class="fas fa-calendar-check fa-sm"></i> {{ 'My Bookings'|t }}
+                <i class="fas fa-calendar-check fa-sm"></i> {{ _('My Bookings') }}
             </a>
             <a href="{{ url_for('user.profile') }}" class="nav-link active">
-                <i class="fas fa-user fa-sm"></i> {{ 'Profile Settings'|t }}
+                <i class="fas fa-user fa-sm"></i> {{ _('Profile Settings') }}
             </a>
             <a href="{{ url_for('auth.logout') }}" class="nav-link danger">
-                <i class="fas fa-sign-out-alt fa-sm"></i> {{ 'Logout'|t }}
+                <i class="fas fa-sign-out-alt fa-sm"></i> {{ _('Logout') }}
             </a>
         </nav>
 
         {% if current_user.profile_image %}
         <form action="{{ url_for('user.remove_profile_image') }}" method="POST" class="mt-3">
-            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('{{ 'Remove profile photo?'|t }}')">
-                <i class="fas fa-trash me-2"></i>{{ 'Remove Photo'|t }}
+            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('{{ _('Remove profile photo?') }}')">
+                <i class="fas fa-trash me-2"></i>{{ _('Remove Photo') }}
             </button>
         </form>
         {% endif %}
@@ -325,12 +325,12 @@
     <!-- MAIN CONTENT -->
     <main class="profile-main">
         <div class="mb-4">
-            <div class="section-label">{{ 'Settings'|t }}</div>
+            <div class="section-label">{{ _('Settings') }}</div>
             <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">
-                {{ 'Edit Profile'|t }}
+                {{ _('Edit Profile') }}
             </h1>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
-                {{ 'Update your personal information and password'|t }}
+                {{ _('Update your personal information and password') }}
             </p>
         </div>
 
@@ -340,7 +340,7 @@
             <!-- Info box -->
             <div class="info-box">
                 <i class="fas fa-info-circle"></i>
-                <span>{{ 'Current password is required to make any changes'|t }}</span>
+                <span>{{ _('Current password is required to make any changes') }}</span>
             </div>
 
             <!-- Current Password -->
@@ -348,12 +348,12 @@
                 <div class="content-card-header">
                     <div class="content-card-title">
                         <i class="fas fa-lock" style="color: var(--primary);"></i>
-                        {{ 'Current Password'|t }}
+                        {{ _('Current Password') }}
                     </div>
                 </div>
                 <div class="content-card-body">
                     <div class="mb-0">
-                        <label class="form-label">{{ 'Enter your current password'|t }} *</label>
+                        <label class="form-label">{{ _('Enter your current password') }} *</label>
                         {% if form %}
                             {{ form.current_password(class="form-control", placeholder="••••••••") }}
                             {% if form.current_password.errors %}
@@ -375,25 +375,25 @@
                 <div class="content-card-header">
                     <div class="content-card-title">
                         <i class="fas fa-key" style="color: var(--primary);"></i>
-                        {{ 'Change Password'|t }} ({{ 'Optional'|t }})
+                        {{ _('Change Password') }} ({{ _('Optional') }})
                     </div>
                 </div>
                 <div class="content-card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">{{ 'New Password'|t }}</label>
+                            <label class="form-label">{{ _('New Password') }}</label>
                             {% if form %}
                                 {{ form.new_password(class="form-control", placeholder="Min. 6 characters") }}
                             {% else %}
-                                <input type="password" name="new_password" class="form-control" placeholder="{{ 'Min. 6 characters'|t }}">
+                                <input type="password" name="new_password" class="form-control" placeholder="{{ _('Min. 6 characters') }}">
                             {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">{{ 'Confirm New Password'|t }}</label>
+                            <label class="form-label">{{ _('Confirm New Password') }}</label>
                             {% if form %}
                                 {{ form.confirm_password(class="form-control", placeholder="Repeat password") }}
                             {% else %}
-                                <input type="password" name="confirm_password" class="form-control" placeholder="{{ 'Repeat password'|t }}">
+                                <input type="password" name="confirm_password" class="form-control" placeholder="{{ _('Repeat password') }}">
                             {% endif %}
                         </div>
                     </div>
@@ -405,14 +405,14 @@
                 <div class="content-card-header">
                     <div class="content-card-title">
                         <i class="fas fa-address-card" style="color: var(--primary);"></i>
-                        {{ 'Contact Information'|t }}
+                        {{ _('Contact Information') }}
                     </div>
                 </div>
                 <div class="content-card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">
-                                <i class="fas fa-phone me-1"></i>{{ 'Phone Number'|t }}
+                                <i class="fas fa-phone me-1"></i>{{ _('Phone Number') }}
                             </label>
                             {% if form %}
                                 {{ form.phone(class="form-control", placeholder="+359 ...") }}
@@ -422,12 +422,12 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label">
-                                <i class="fas fa-map-marker-alt me-1"></i>{{ 'Address'|t }}
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ _('Address') }}
                             </label>
                             {% if form %}
                                 {{ form.address(class="form-control", rows="2", placeholder="Your address") }}
                             {% else %}
-                                <textarea name="address" class="form-control" rows="2" placeholder="{{ 'Your address'|t }}">{{ current_user.address or '' }}</textarea>
+                                <textarea name="address" class="form-control" rows="2" placeholder="{{ _('Your address') }}">{{ current_user.address or '' }}</textarea>
                             {% endif %}
                         </div>
                     </div>
@@ -439,13 +439,13 @@
                 <div class="content-card-header">
                     <div class="content-card-title">
                         <i class="fas fa-camera" style="color: var(--primary);"></i>
-                        {{ 'Profile Photo'|t }}
+                        {{ _('Profile Photo') }}
                     </div>
                 </div>
                 <div class="content-card-body">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <label class="form-label">{{ 'Upload new photo'|t }}</label>
+                            <label class="form-label">{{ _('Upload new photo') }}</label>
                             {% if form %}
                                 {{ form.profile_image(class="form-control", accept="image/*", id="profileImageInput") }}
                             {% else %}
@@ -453,11 +453,11 @@
                             {% endif %}
                             <div class="form-text">
                                 <i class="fas fa-info-circle me-1"></i>
-                                {{ 'Allowed formats: JPG, JPEG, PNG, GIF (Max 16MB)'|t }}
+                                {{ _('Allowed formats: JPG, JPEG, PNG, GIF (Max 16MB)') }}
                             </div>
                         </div>
                         <div class="col-md-4 text-center">
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ 'Preview'|t }}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ _('Preview') }}</div>
                             <img id="imagePreview"
                                  src="{% if current_user.profile_image %}data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%231e2a3a'/%3E%3Ctext x='40' y='55' font-size='40' text-anchor='middle' fill='%2364748b'%3E👤%3C/text%3E%3C/svg%3E{% endif %}"
                                  class="upload-preview">
@@ -469,7 +469,7 @@
             <!-- Submit Button -->
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-save me-2"></i>{{ 'Save Changes'|t }}
+                    <i class="fas fa-save me-2"></i>{{ _('Save Changes') }}
                 </button>
             </div>
         </form>

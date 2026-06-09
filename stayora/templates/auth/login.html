@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'Sign In'|t }} — Stayora{% endblock %}
+{% block title %}{{ _('Sign In') }} — Stayora{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -169,62 +169,62 @@
     <div class="auth-card">
         <div class="text-center mb-4">
             <div class="auth-logo">Stay<span>Ora</span></div>
-            <small style="color: var(--text-muted); font-size: 0.78rem;">{{ 'Your world of stays'|t }}</small>
+            <small style="color: var(--text-muted); font-size: 0.78rem;">{{ _('Your world of stays') }}</small>
         </div>
 
-        <div class="auth-title">{{ 'Welcome back'|t }}</div>
-        <p class="auth-subtitle">{{ 'Sign in to access your account and bookings'|t }}</p>
+        <div class="auth-title">{{ _('Welcome back') }}</div>
+        <p class="auth-subtitle">{{ _('Sign in to access your account and bookings') }}</p>
 
         <!-- Google Login Button -->
         <a href="{{ url_for('auth.google_login') }}" class="btn-google">
-            <i class="fab fa-google"></i> {{ 'Continue with Google'|t }}
+            <i class="fab fa-google"></i> {{ _('Continue with Google') }}
         </a>
 
-        <div class="divider">{{ 'or'|t }}</div>
+        <div class="divider">{{ _('or') }}</div>
 
         <!-- Email/Password Form -->
         <form method="POST" action="{{ url_for('auth.login') }}">
             {{ form.hidden_tag() if form.hidden_tag is defined else '' }}
 
             <div class="form-group">
-                <label class="form-label">{{ 'Username'|t }}</label>
+                <label class="form-label">{{ _('Username') }}</label>
                 <div class="input-wrapper">
                     <i class="fas fa-user input-icon"></i>
-                    <input type="text" name="username" class="form-control" placeholder="{{ 'Enter your username'|t }}" required autocomplete="username">
+                    <input type="text" name="username" class="form-control" placeholder="{{ _('Enter your username') }}" required autocomplete="username">
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <label class="form-label mb-0">{{ 'Password'|t }}</label>
-                    <a href="#" style="font-size: 0.78rem; color: var(--primary); text-decoration: none;">{{ 'Forgot password?'|t }}</a>
+                    <label class="form-label mb-0">{{ _('Password') }}</label>
+                    <a href="#" style="font-size: 0.78rem; color: var(--primary); text-decoration: none;">{{ _('Forgot password?') }}</a>
                 </div>
                 <div class="input-wrapper">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" name="password" class="form-control" placeholder="{{ 'Enter your password'|t }}" required autocomplete="current-password">
+                    <input type="password" name="password" class="form-control" placeholder="{{ _('Enter your password') }}" required autocomplete="current-password">
                 </div>
             </div>
 
             <button type="submit" class="btn-auth">
-                <i class="fas fa-sign-in-alt me-2"></i>{{ 'Sign In'|t }}
+                <i class="fas fa-sign-in-alt me-2"></i>{{ _('Sign In') }}
             </button>
         </form>
 
         <div class="owner-card">
             <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 0.5rem;">
-                <i class="fas fa-building me-1"></i> {{ 'List your property'|t }}
+                <i class="fas fa-building me-1"></i> {{ _('List your property') }}
             </div>
             <p style="font-size: 0.83rem; color: var(--text-muted); margin-bottom: 0.7rem;">
-                {{ 'Are you a property owner? Sign in with an admin account to manage your listings.'|t }}
+                {{ _('Are you a property owner? Sign in with an admin account to manage your listings.') }}
             </p>
             <div style="display: flex; gap: 6px; font-size: 0.78rem; color: var(--primary);">
                 <i class="fas fa-hotel fa-sm"></i>
-                <span>{{ 'Hotels · Apartments · Villas · Resorts'|t }}</span>
+                <span>{{ _('Hotels · Apartments · Villas · Resorts') }}</span>
             </div>
         </div>
 
         <div class="auth-switch">
-            {{ "Don't have an account?"|t }} <a href="{{ url_for('auth.register') }}">{{ "Create one — it's free"|t }}</a>
+            {{ _("Don't have an account?") }} <a href="{{ url_for('auth.register') }}">{{ _("Create one — it's free") }}</a>
         </div>
     </div>
 </div>

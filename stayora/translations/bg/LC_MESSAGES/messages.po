@@ -1,0 +1,1546 @@
+# Translations for StayOra
+# Copyright (C) 2026
+# This file is distributed under the same license as the StayOra project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: StayOra 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-09 10:18\n"
+"PO-Revision-Date: 2026-06-09 10:18\n"
+"Last-Translator: \n"
+"Language: bg\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel\n"
+
+msgid "\"Absolutely seamless from search to check-in. Found a stunning boutique hotel in Sofia in minutes.\""
+msgstr "\"Абсолютно безпроблемно от търсенето до настаняването. Намерих зашеметяващ бутиков хотел в София за минути.\""
+
+msgid "\"Listed my apartment and had my first booking within 48 hours. The dashboard is incredibly easy.\""
+msgstr "\"Публикувах апартамента си и получих първата резервация в рамките на 48 часа. Таблото е изключително лесно.\""
+
+msgid "\"The payment flexibility sold me — paying cash on arrival made everything so relaxed.\""
+msgstr "\"Гъвкавостта на плащане ме спечели — плащането в брой на място направи всичко толкова спокойно.\""
+
+msgid "+18% vs last month"
+msgstr "+18% спрямо миналия месец"
+
+msgid "+359 ..."
+msgstr "+359 ..."
+
+msgid "/booking"
+msgstr "/резервация"
+
+msgid "/night"
+msgstr "/нощ"
+
+msgid "1 bed"
+msgstr "1 легло"
+
+msgid "1+ Star"
+msgstr "1+ Звезда"
+
+msgid "2 beds"
+msgstr "2 легла"
+
+msgid "2+ Stars"
+msgstr "2+ Звезди"
+
+msgid "24/7 Support"
+msgstr "24/7 Поддръжка"
+
+msgid "24/7 support"
+msgstr "24/7 поддръжка"
+
+msgid "3 beds"
+msgstr "3 легла"
+
+msgid "3+ Stars"
+msgstr "3+ Звезди"
+
+msgid "4+ Stars"
+msgstr "4+ Звезди"
+
+msgid "5 Stars"
+msgstr "5 Звезди"
+
+msgid "About Us"
+msgstr "За нас"
+
+msgid "About this property"
+msgstr "Относно този имот"
+
+msgid "Accommodations"
+msgstr "Настаняване"
+
+msgid "Across all bookings"
+msgstr "При всички резервации"
+
+msgid "Across all properties"
+msgstr "При всички имоти"
+
+msgid "Add New Property"
+msgstr "Добави нов имот"
+
+msgid "Add New Room"
+msgstr "Добави нова стая"
+
+msgid "Add Property"
+msgstr "Добави имот"
+
+msgid "Add Room"
+msgstr "Добави стая"
+
+msgid "Add Your First Property"
+msgstr "Добавете първия си имот"
+
+msgid "Add a property first"
+msgstr "Първо добавете имот"
+
+msgid "Add new property"
+msgstr "Добави нов имот"
+
+msgid "Add your first property to start receiving bookings"
+msgstr "Добавете първия си имот, за да започнете да получавате резервации"
+
+msgid "Address"
+msgstr "Адрес"
+
+msgid "Admin Profile"
+msgstr "Админ профил"
+
+msgid "Admin Settings"
+msgstr "Админ настройки"
+
+msgid "Admin profile"
+msgstr "Админ профил"
+
+msgid "Administrator"
+msgstr "Администратор"
+
+msgid "After creating the hotel, add individual rooms from \"My Rooms\"."
+msgstr "След създаване на хотела, добавете отделни стаи от \"Моите стаи\"."
+
+msgid "All bookings"
+msgstr "Всички резервации"
+
+msgid "All reservations organized in one place."
+msgstr "Всички резервации организирани на едно място."
+
+msgid "All rooms"
+msgstr "Всички стаи"
+
+msgid "All time earnings"
+msgstr "Общи приходи"
+
+msgid "All time reservations"
+msgstr "Общо резервации"
+
+msgid "All-Inclusive"
+msgstr "Всичко включено"
+
+msgid "Allowed formats: JPG, JPEG, PNG, GIF (Max 16MB)"
+msgstr "Позволени формати: JPG, JPEG, PNG, GIF (Макс 16MB)"
+
+msgid "Already have an account?"
+msgstr "Вече имате акаунт?"
+
+msgid "Always here for you"
+msgstr "Винаги на разположение"
+
+msgid "Amenities"
+msgstr "Удобства"
+
+msgid "An error occurred"
+msgstr "Възникна грешка"
+
+msgid "Anonymous"
+msgstr "Анонимен"
+
+msgid "Any"
+msgstr "Всякакви"
+
+msgid "Apartments"
+msgstr "Апартаменти"
+
+msgid "Apartments, villas & resorts only"
+msgstr "Само апартаменти, вили и курорти"
+
+msgid "Are you a property owner? Sign in with an admin account to manage your listings."
+msgstr "Собственик на имот ли сте? Влезте с администраторски акаунт, за да управлявате обявите си."
+
+msgid "Are you sure you want to cancel this reservation?"
+msgstr "Сигурни ли сте, че искате да отмените тази резервация?"
+
+msgid "At least"
+msgstr "Поне"
+
+msgid "Available"
+msgstr "Свободен"
+
+msgid "Available Rooms"
+msgstr "Свободни стаи"
+
+msgid "Average Rating"
+msgstr "Среден рейтинг"
+
+msgid "Avg rating"
+msgstr "Ср. рейтинг"
+
+msgid "Avg."
+msgstr "Ср."
+
+msgid "Back"
+msgstr "Назад"
+
+msgid "Back to Browse"
+msgstr "Назад към преглед"
+
+msgid "Basic information"
+msgstr "Основна информация"
+
+msgid "Bedrooms / total rooms"
+msgstr "Спални / общо стаи"
+
+msgid "Bedrooms:"
+msgstr "Спални:"
+
+msgid "Best price guarantee"
+msgstr "Гаранция за най-добра цена"
+
+msgid "Blog"
+msgstr "Блог"
+
+msgid "Book Stays"
+msgstr "Резервирай имоти"
+
+msgid "Book entire property"
+msgstr "Резервирай целия имот"
+
+msgid "Book in seconds and receive your confirmation immediately. No waiting."
+msgstr "Резервирайте за секунди и получете потвърждение веднага. Без чакане."
+
+msgid "Book now"
+msgstr "Резервирай сега"
+
+msgid "Book your stay in minutes"
+msgstr "Резервирайте престоя си за минути"
+
+msgid "Booked"
+msgstr "Резервирано"
+
+msgid "Booking Manager"
+msgstr "Мениджър на резервации"
+
+msgid "Booking Options"
+msgstr "Опции за резервация"
+
+msgid "Booking Summary"
+msgstr "Резюме на резервацията"
+
+msgid "Booking cancelled"
+msgstr "Резервацията е отменена"
+
+msgid "Booking confirmed"
+msgstr "Резервацията е потвърдена"
+
+msgid "Bookings"
+msgstr "Резервации"
+
+msgid "Browse Hotels"
+msgstr "Разгледай хотели"
+
+msgid "Browse Stays"
+msgstr "Прегледай имоти"
+
+msgid "Browse by Type"
+msgstr "Разгледай по тип"
+
+msgid "Browse by property type"
+msgstr "Разгледай по тип имот"
+
+msgid "By creating an account you agree to our"
+msgstr "Създавайки акаунт, се съгласявате с нашите"
+
+msgid "CVC"
+msgstr "CVC"
+
+msgid "Cancel"
+msgstr "Отказ"
+
+msgid "Cancel Reservation"
+msgstr "Отмени резервацията"
+
+msgid "Cancellation"
+msgstr "Отмяна"
+
+msgid "Cancellations"
+msgstr "Отмени"
+
+msgid "Capacity & pricing"
+msgstr "Капацитет и цени"
+
+msgid "Card Details"
+msgstr "Данни на картата"
+
+msgid "Card Number"
+msgstr "Номер на карта"
+
+msgid "Card has expired"
+msgstr "Картата е с изтекъл срок"
+
+msgid "Cardholder Name"
+msgstr "Име на притежателя"
+
+msgid "Careers"
+msgstr "Кариери"
+
+msgid "Change Password"
+msgstr "Смяна на парола"
+
+msgid "Change Password (Optional)"
+msgstr "Смяна на парола (по избор)"
+
+msgid "Check Availability"
+msgstr "Провери наличност"
+
+msgid "Check availability"
+msgstr "Провери наличност"
+
+msgid "Check in"
+msgstr "Настаняване"
+
+msgid "Check in and enjoy your handpicked accommodation fully."
+msgstr "Настанете се и се насладете напълно на избраното от вас място."
+
+msgid "Check out"
+msgstr "Напускане"
+
+msgid "Check-in"
+msgstr "Настаняване"
+
+msgid "Check-in:"
+msgstr "Настаняване:"
+
+msgid "Check-out"
+msgstr "Напускане"
+
+msgid "Check-out:"
+msgstr "Напускане:"
+
+msgid "Checkout"
+msgstr "Плащане"
+
+msgid "Choose Your Stay"
+msgstr "Изберете вашия престой"
+
+msgid "Choose a username"
+msgstr "Изберете потребителско име"
+
+msgid "Choose your preferred payment method"
+msgstr "Изберете предпочитания метод на плащане"
+
+msgid "Cities Covered"
+msgstr "Покрити градове"
+
+msgid "Cities Visited"
+msgstr "Посетени градове"
+
+msgid "City"
+msgstr "Град"
+
+msgid "City or hotel name"
+msgstr "Име на град или хотел"
+
+msgid "City, property name or country…"
+msgstr "Град, име на имот или държава…"
+
+msgid "City, property or destination"
+msgstr "Град, имот или дестинация"
+
+msgid "Clear filters"
+msgstr "Изчисти филтрите"
+
+msgid "Click to"
+msgstr "Щракнете за"
+
+msgid "Click to upload gallery photos"
+msgstr "Щракнете за качване на галерия снимки"
+
+msgid "Click to upload main photo"
+msgstr "Щракнете за качване на основна снимка"
+
+msgid "Company"
+msgstr "Компания"
+
+msgid "Compare options, read reviews and pick the perfect property."
+msgstr "Сравнете опциите, прочетете отзиви и изберете идеалния имот."
+
+msgid "Complete Your Booking"
+msgstr "Завършете резервацията си"
+
+msgid "Completed"
+msgstr "Завършено"
+
+msgid "Confirm Booking (Pay at Property)"
+msgstr "Потвърди резервация (Плати на място)"
+
+msgid "Confirm New Password"
+msgstr "Потвърди нова парола"
+
+msgid "Confirm password"
+msgstr "Потвърди парола"
+
+msgid "Confirmed"
+msgstr "Потвърдено"
+
+msgid "Contact Information"
+msgstr "Информация за контакт"
+
+msgid "Contact Us"
+msgstr "Свържи се с нас"
+
+msgid "Continue with Google"
+msgstr "Продължете с Google"
+
+msgid "Cookie Policy"
+msgstr "Политика за бисквитки"
+
+msgid "Cookies"
+msgstr "Бисквитки"
+
+msgid "Country"
+msgstr "Държава"
+
+msgid "Create Account"
+msgstr "Създай акаунт"
+
+msgid "Create Free Account"
+msgstr "Създай безплатен акаунт"
+
+msgid "Create Property"
+msgstr "Създай имот"
+
+msgid "Create one — it's free"
+msgstr "Създайте си — безплатно е"
+
+msgid "Create your account"
+msgstr "Създайте своя акаунт"
+
+msgid "Curated Properties Worldwide"
+msgstr "Подбрани имоти по света"
+
+msgid "Current Password"
+msgstr "Текуща парола"
+
+msgid "Current password is required to make any changes"
+msgstr "Текущата парола е задължителна за промени"
+
+msgid "Current photo:"
+msgstr "Текуща снимка:"
+
+msgid "Dashboard"
+msgstr "Табло"
+
+msgid "Delete"
+msgstr "Изтрий"
+
+msgid "Delete Room #"
+msgstr "Изтрий стая #"
+
+msgid "Describe your property — highlight unique features, atmosphere, and what guests can expect…"
+msgstr "Опишете имота си — подчертайте уникалните характеристики, атмосферата и какво могат да очакват гостите…"
+
+msgid "Description"
+msgstr "Описание"
+
+msgid "Destination"
+msgstr "Дестинация"
+
+msgid "Discover Extraordinary Places to Stay"
+msgstr "Открийте необикновени места за престой"
+
+msgid "Discover extraordinary places to stay — from boutique hotels to private villas worldwide."
+msgstr "Открийте необикновени места за престой — от бутикови хотели до частни вили по целия свят."
+
+msgid "Don't have an account?"
+msgstr "Нямате акаунт?"
+
+msgid "Duration"
+msgstr "Продължителност"
+
+msgid "Edit"
+msgstr "Редактирай"
+
+msgid "Edit Profile"
+msgstr "Редактирай профил"
+
+msgid "Email"
+msgstr "Имейл"
+
+msgid "Email Address"
+msgstr "Имейл адрес"
+
+msgid "Enjoy Your Stay"
+msgstr "Насладете се на престоя си"
+
+msgid "Enter your current password"
+msgstr "Въведете текущата си парола"
+
+msgid "Enter your destination and dates to browse available properties."
+msgstr "Въведете дестинацията и датите си, за да разгледате наличните имоти."
+
+msgid "Enter your password"
+msgstr "Въведете паролата си"
+
+msgid "Enter your username"
+msgstr "Въведете потребителското си име"
+
+msgid "Entire"
+msgstr "Цял"
+
+msgid "Error:"
+msgstr "Грешка:"
+
+msgid "Every kind of stay, curated for you"
+msgstr "Всякакъв вид престой, подбран за вас"
+
+msgid "Every listing is reviewed by our team. You see exactly what you get — no surprises."
+msgstr "Всяка обява се преглежда от нашия екип. Виждате точно какво получавате — без изненади."
+
+msgid "Expiry Date"
+msgstr "Срок на валидност"
+
+msgid "Explore"
+msgstr "Разгледай"
+
+msgid "Explore Properties"
+msgstr "Разгледай имоти"
+
+msgid "Explore deals"
+msgstr "Разгледай оферти"
+
+msgid "Featured properties"
+msgstr "Препоръчани имоти"
+
+msgid "Features"
+msgstr "Характеристики"
+
+msgid "Filter Hotels"
+msgstr "Филтрирай хотели"
+
+msgid "Find and book properties"
+msgstr "Намерете и резервирайте имоти"
+
+msgid "Find your next stay"
+msgstr "Намерете следващия си престой"
+
+msgid "Find your perfect"
+msgstr "Намерете своето идеално"
+
+msgid "Fitness center"
+msgstr "Фитнес център"
+
+msgid "Flexible Payment"
+msgstr "Гъвкаво плащане"
+
+msgid "For Property Owners"
+msgstr "За собственици на имоти"
+
+msgid "For hotels: rooms added separately"
+msgstr "За хотели: стаите се добавят отделно"
+
+msgid "Forgot password?"
+msgstr "Забравена парола?"
+
+msgid "France"
+msgstr "Франция"
+
+msgid "France · 843 properties"
+msgstr "Франция · 843 имота"
+
+msgid "Free Cancellation"
+msgstr "Безплатна отмяна"
+
+msgid "Free WiFi"
+msgstr "Безплатен WiFi"
+
+msgid "Free cancel"
+msgstr "Безплатна отмяна"
+
+msgid "Free cancellation"
+msgstr "Безплатна отмяна"
+
+msgid "Free parking"
+msgstr "Безплатен паркинг"
+
+msgid "From boutique city hotels to secluded villas — discover extraordinary spaces crafted for unforgettable experiences."
+msgstr "От бутикови градски хотели до уединени вили — открийте необикновени пространства, създадени за незабравими изживявания."
+
+msgid "Gallery image"
+msgstr "Галерия изображение"
+
+msgid "Gallery photos"
+msgstr "Галерия снимки"
+
+msgid "Get Started"
+msgstr "Регистрация"
+
+msgid "Go Home"
+msgstr "Към началото"
+
+msgid "Guest"
+msgstr "Гост"
+
+msgid "Guest Stories"
+msgstr "Истории на гости"
+
+msgid "Guest rating"
+msgstr "Оценка от гости"
+
+msgid "Guest reviews"
+msgstr "Отзиви от гости"
+
+msgid "Guests"
+msgstr "Гости"
+
+msgid "Hand-picked stays with exceptional guest reviews."
+msgstr "Ръчно подбрани места с изключителни отзиви от гости."
+
+msgid "Happy Guests"
+msgstr "Щастливи гости"
+
+msgid "Has active reservations"
+msgstr "Има активни резервации"
+
+msgid "Help Center"
+msgstr "Център за помощ"
+
+msgid "Home"
+msgstr "Начало"
+
+msgid "Hosting"
+msgstr "Хостинг"
+
+msgid "Hotel Room"
+msgstr "Хотелска стая"
+
+msgid "Hotels"
+msgstr "Хотели"
+
+msgid "Hotels · Apartments · Villas · Resorts"
+msgstr "Хотели · Апартаменти · Вили · Курорти"
+
+msgid "Hotels, apartments, villas and resorts — all in one place"
+msgstr "Хотели, апартаменти, вили и курорти — всичко на едно място"
+
+msgid "I want to:"
+msgstr "Искам да:"
+
+msgid "Instant Confirmation"
+msgstr "Мигновено потвърждение"
+
+msgid "Italy · 1,245 properties"
+msgstr "Италия · 1,245 имота"
+
+msgid "JPG, PNG up to 16MB"
+msgstr "JPG, PNG до 16MB"
+
+msgid "Jacuzzi"
+msgstr "Джакузи"
+
+msgid "John Doe"
+msgstr "John Doe"
+
+msgid "Join millions of travelers and property owners"
+msgstr "Присъединете се към милиони пътници и собственици на имоти"
+
+msgid "Join thousands of travellers who trust Stayora to find exceptional accommodations at every destination."
+msgstr "Присъединете се към хиляди пътници, които се доверяват на Stayora за намиране на изключителни места за престой на всяка дестинация."
+
+msgid "Language"
+msgstr "Език"
+
+msgid "Last 10 events"
+msgstr "Последни 10 събития"
+
+msgid "Legal"
+msgstr "Правна информация"
+
+msgid "Limited time"
+msgstr "Ограничено време"
+
+msgid "List Properties"
+msgstr "Публикувай имоти"
+
+msgid "List Property"
+msgstr "Публикувай имот"
+
+msgid "List Your Property"
+msgstr "Публикувайте своя имот"
+
+msgid "List your hotel, apartment or villa and reach thousands of travellers actively searching."
+msgstr "Публикувайте своя хотел, апартамент или вила и достигнете до хиляди пътници, които активно търсят."
+
+msgid "List your property"
+msgstr "Публикувайте своя имот"
+
+msgid "Live Dashboard"
+msgstr "Активно табло"
+
+msgid "Location"
+msgstr "Локация"
+
+msgid "Logout"
+msgstr "Изход"
+
+msgid "Luxury"
+msgstr "Лукс"
+
+msgid "Luxury room with jacuzzi"
+msgstr "Луксозна стая с джакузи"
+
+msgid "Main image"
+msgstr "Основно изображение"
+
+msgid "Main photo"
+msgstr "Основна снимка"
+
+msgid "Manage"
+msgstr "Управление"
+
+msgid "Manage my own properties"
+msgstr "Управлявай собствените си имоти"
+
+msgid "Manage properties"
+msgstr "Управлявай имоти"
+
+msgid "Manage rooms"
+msgstr "Управлявай стаи"
+
+msgid "Max guests"
+msgstr "Макс гости"
+
+msgid "Max guests:"
+msgstr "Макс гости:"
+
+msgid "Member since"
+msgstr "Член от"
+
+msgid "Mention nearby attractions, unique amenities and the atmosphere."
+msgstr "Споменете близките атракции, уникалните удобства и атмосферата."
+
+msgid "Min. 6 characters"
+msgstr "Мин. 6 знака"
+
+msgid "Most Popular"
+msgstr "Най-популярни"
+
+msgid "Most loved destinations by our travelers worldwide"
+msgstr "Най-обичаните дестинации от нашите пътници по света"
+
+msgid "My Account"
+msgstr "Моят акаунт"
+
+msgid "My Bookings"
+msgstr "Моите резервации"
+
+msgid "My Dashboard"
+msgstr "Моето табло"
+
+msgid "My Profile"
+msgstr "Моят профил"
+
+msgid "My Properties"
+msgstr "Моите имоти"
+
+msgid "My Reservations"
+msgstr "Моите резервации"
+
+msgid "My Rooms"
+msgstr "Моите стаи"
+
+msgid "My properties"
+msgstr "Моите имоти"
+
+msgid "New"
+msgstr "Нов"
+
+msgid "New Password"
+msgstr "Нова парола"
+
+msgid "New listing"
+msgstr "Нова обява"
+
+msgid "Nights"
+msgstr "Нощувки"
+
+msgid "Nights booked"
+msgstr "Резервирани нощувки"
+
+msgid "Nights:"
+msgstr "Нощувки:"
+
+msgid "No"
+msgstr "Не"
+
+msgid "No description available."
+msgstr "Няма налично описание."
+
+msgid "No hotels found"
+msgstr "Няма намерени хотели"
+
+msgid "No jacuzzi"
+msgstr "Без джакузи"
+
+msgid "No past bookings"
+msgstr "Няма минали резервации"
+
+msgid "No past reservations"
+msgstr "Няма минали резервации"
+
+msgid "No properties found"
+msgstr "Няма намерени имоти"
+
+msgid "No properties yet"
+msgstr "Все още няма имоти"
+
+msgid "No properties yet."
+msgstr "Все още няма имоти."
+
+msgid "No recent activity"
+msgstr "Няма скорошна активност"
+
+msgid "No reviews yet"
+msgstr "Все още няма отзиви"
+
+msgid "No rooms added yet. Use the form to add rooms to your hotel properties."
+msgstr "Все още няма добавени стаи. Използвайте формата, за да добавите стаи към вашите хотели."
+
+msgid "No rooms available for selected dates"
+msgstr "Няма свободни стаи за избраните дати"
+
+msgid "No upcoming bookings yet"
+msgstr "Все още няма предстоящи резервации"
+
+msgid "No upcoming reservations"
+msgstr "Няма предстоящи резервации"
+
+msgid "Number of beds"
+msgstr "Брой легла"
+
+msgid "On most properties"
+msgstr "За повечето имоти"
+
+msgid "Optional"
+msgstr "По избор"
+
+msgid "Our support team is available around the clock to assist with any issues."
+msgstr "Нашият екип за поддръжка е на разположение денонощно, за да ви помогне с всякакви проблеми."
+
+msgid "Our top picks"
+msgstr "Нашите най-добри избори"
+
+msgid "Overview"
+msgstr "Общ преглед"
+
+msgid "Owner Login"
+msgstr "Вход за собственици"
+
+msgid "Page Not Found"
+msgstr "Страницата не е намерена"
+
+msgid "Paris"
+msgstr "Париж"
+
+msgid "Parking"
+msgstr "Паркинг"
+
+msgid "Password"
+msgstr "Парола"
+
+msgid "Past"
+msgstr "Минали"
+
+msgid "Past Bookings"
+msgstr "Минали резервации"
+
+msgid "Past Stays"
+msgstr "Минали престои"
+
+msgid "Pay"
+msgstr "Плати"
+
+msgid "Pay Your Way"
+msgstr "Платете по ваш избор"
+
+msgid "Pay at the property upon arrival"
+msgstr "Платете на място при пристигане"
+
+msgid "Pay in Cash"
+msgstr "Плати в брой"
+
+msgid "Pay online or choose cash on arrival — confirmed instantly."
+msgstr "Платете онлайн или изберете плащане в брой на място — потвърдено веднага."
+
+msgid "Pay securely online or choose cash on arrival — full flexibility to suit you."
+msgstr "Платете сигурно онлайн или изберете плащане в брой на място — пълна гъвкавост за вас."
+
+msgid "Pay with Card"
+msgstr "Плати с карта"
+
+msgid "Payment Tracking"
+msgstr "Проследяване на плащания"
+
+msgid "Payment successful"
+msgstr "Плащането е успешно"
+
+msgid "Phone"
+msgstr "Телефон"
+
+msgid "Phone Number"
+msgstr "Телефонен номер"
+
+msgid "Photos"
+msgstr "Снимки"
+
+msgid "Plans change. Most properties offer free cancellation — peace of mind guaranteed."
+msgstr "Плановете се променят. Повечето имоти предлагат безплатна отмяна — спокойствие гарантирано."
+
+msgid "Please enter a valid 16-digit card number"
+msgstr "Моля, въведете валиден 16-цифрен номер на карта"
+
+msgid "Please enter a valid CVC"
+msgstr "Моля, въведете валиден CVC"
+
+msgid "Please enter a valid expiry date (MM/YY)"
+msgstr "Моля, въведете валиден срок на валидност (ММ/ГГ)"
+
+msgid "Please enter the cardholder name"
+msgstr "Моля, въведете името на притежателя на картата"
+
+msgid "Popular Now"
+msgstr "Популярно сега"
+
+msgid "Popular right now"
+msgstr "Популярно в момента"
+
+msgid "Press"
+msgstr "Прес"
+
+msgid "Preview"
+msgstr "Преглед"
+
+msgid "Price"
+msgstr "Цена"
+
+msgid "Price (high to low)"
+msgstr "Цена (низходяща)"
+
+msgid "Price (low to high)"
+msgstr "Цена (възходяща)"
+
+msgid "Price per night (€)"
+msgstr "Цена на нощувка (€)"
+
+msgid "Price/night (€)"
+msgstr "Цена/нощ (€)"
+
+msgid "Price: high to low"
+msgstr "Цена: низходяща"
+
+msgid "Price: low to high"
+msgstr "Цена: възходяща"
+
+msgid "Privacy"
+msgstr "Поверителност"
+
+msgid "Privacy Policy"
+msgstr "Политика за поверителност"
+
+msgid "Profile"
+msgstr "Профил"
+
+msgid "Profile Photo"
+msgstr "Профилна снимка"
+
+msgid "Profile Settings"
+msgstr "Настройки на профила"
+
+msgid "Properties"
+msgstr "Имоти"
+
+msgid "Properties Available Worldwide"
+msgstr "Имоти налични по света"
+
+msgid "Properties Listed"
+msgstr "Публикувани имоти"
+
+msgid "Properties with professional photos receive 3× more bookings."
+msgstr "Имотите с професионални снимки получават 3× повече резервации."
+
+msgid "Property"
+msgstr "Имот"
+
+msgid "Property / Room"
+msgstr "Имот / Стая"
+
+msgid "Property Owner"
+msgstr "Собственик на имот"
+
+msgid "Property highlights"
+msgstr "Акценти на имота"
+
+msgid "Property name"
+msgstr "Име на имот"
+
+msgid "Property stats"
+msgstr "Статистики на имот"
+
+msgid "Property type"
+msgstr "Тип имот"
+
+msgid "Quick actions"
+msgstr "Бързи действия"
+
+msgid "Quick links"
+msgstr "Бързи връзки"
+
+msgid "Ready to Explore?"
+msgstr "Готови за разглеждане?"
+
+msgid "Real Guest Reviews"
+msgstr "Реални отзиви от гости"
+
+msgid "Recent activity"
+msgstr "Скорошна активност"
+
+msgid "Recommended"
+msgstr "Препоръчани"
+
+msgid "Remove Photo"
+msgstr "Премахни снимка"
+
+msgid "Remove all rooms first"
+msgstr "Първо премахнете всички стаи"
+
+msgid "Remove profile photo?"
+msgstr "Премахване на профилна снимка?"
+
+msgid "Repeat password"
+msgstr "Повтори парола"
+
+msgid "Repeat your password"
+msgstr "Повторете паролата си"
+
+msgid "Replace photo"
+msgstr "Замести снимка"
+
+msgid "Research similar properties in your area before setting your price."
+msgstr "Проучете подобни имоти във вашия район, преди да определите цената."
+
+msgid "Resorts"
+msgstr "Курорти"
+
+msgid "Resources"
+msgstr "Ресурси"
+
+msgid "Restaurant"
+msgstr "Ресторант"
+
+msgid "Revenue"
+msgstr "Приходи"
+
+msgid "Reviews"
+msgstr "Отзиви"
+
+msgid "Room"
+msgstr "Стая"
+
+msgid "Room number"
+msgstr "Номер на стая"
+
+msgid "Room type"
+msgstr "Тип стая"
+
+msgid "Rooms"
+msgstr "Стаи"
+
+msgid "SSL Encrypted"
+msgstr "SSL криптиран"
+
+msgid "SSL encrypted"
+msgstr "SSL криптирани"
+
+msgid "Safety"
+msgstr "Безопасност"
+
+msgid "Save Changes"
+msgstr "Запази промените"
+
+msgid "Search"
+msgstr "Търсене"
+
+msgid "Search & Discover"
+msgstr "Търсете и откривайте"
+
+msgid "Search Hotels"
+msgstr "Търси хотели"
+
+msgid "Search Results"
+msgstr "Резултати от търсене"
+
+msgid "Secure Booking"
+msgstr "Сигурна резервация"
+
+msgid "Secure Payment"
+msgstr "Сигурно плащане"
+
+msgid "Secure booking"
+msgstr "Сигурна резервация"
+
+msgid "Secure online payment via Stripe"
+msgstr "Сигурно онлайн плащане чрез Stripe"
+
+msgid "Secure payments"
+msgstr "Сигурни плащания"
+
+msgid "Securely"
+msgstr "Сигурно"
+
+msgid "See availability"
+msgstr "Виж наличност"
+
+msgid "See card & cash payments at a glance."
+msgstr "Вижте плащанията с карта и в брой с един поглед."
+
+msgid "Select dates"
+msgstr "Избери дати"
+
+msgid "Select multiple files"
+msgstr "Избери множество файлове"
+
+msgid "Select property…"
+msgstr "Изберете имот…"
+
+msgid "Settings"
+msgstr "Настройки"
+
+msgid "Sign In"
+msgstr "Вход"
+
+msgid "Sign Out"
+msgstr "Отписване"
+
+msgid "Sign in"
+msgstr "Вход"
+
+msgid "Sign in to access your account and bookings"
+msgstr "Влезте, за да достъпите акаунта и резервациите си"
+
+msgid "Sign up with Google"
+msgstr "Регистрирайте се с Google"
+
+msgid "Simple Process"
+msgstr "Прост процес"
+
+msgid "Sleeps up to 2 guests"
+msgstr "Побира до 2 гости"
+
+msgid "Sort by:"
+msgstr "Сортирай по:"
+
+msgid "Spa"
+msgstr "Спа"
+
+msgid "Special offer"
+msgstr "Специална оферта"
+
+msgid "Special offers"
+msgstr "Специални оферти"
+
+msgid "Standard"
+msgstr "Стандартен"
+
+msgid "Star Rating"
+msgstr "Звезден рейтинг"
+
+msgid "Star rating"
+msgstr "Звезден рейтинг"
+
+msgid "Stars"
+msgstr "Звезди"
+
+msgid "Starting from"
+msgstr "От"
+
+msgid "Status"
+msgstr "Статус"
+
+msgid "Stay at our top"
+msgstr "Отседнете в нашите най-добри"
+
+msgid "StayLux Admin"
+msgstr "StayLux Админ"
+
+msgid "Stayora Admin"
+msgstr "Stayora Админ"
+
+msgid "Stays"
+msgstr "Престои"
+
+msgid "Street address"
+msgstr "Уличен адрес"
+
+msgid "Support"
+msgstr "Поддръжка"
+
+msgid "Swimming pool"
+msgstr "Басейн"
+
+msgid "System Overview"
+msgstr "Системен преглед"
+
+msgid "Terms"
+msgstr "Условия"
+
+msgid "Terms of Service"
+msgstr "Условия за ползване"
+
+msgid "The page you are looking for does not exist or has been moved."
+msgstr "Страницата, която търсите, не съществува или е преместена."
+
+msgid "The smarter way to book your stay"
+msgstr "По-умният начин да резервирате престоя си"
+
+msgid "This Month"
+msgstr "Този месец"
+
+msgid "This cannot be undone."
+msgstr "Това не може да бъде отменено."
+
+msgid "Thousands of honest reviews from verified guests help you make smarter decisions."
+msgstr "Хиляди честни отзиви от потвърдени гости ви помагат да вземате по-добри решения."
+
+msgid "Tips for success"
+msgstr "Съвети за успех"
+
+msgid "Toggle light/dark mode"
+msgstr "Превключи тъмна/светла тема"
+
+msgid "Top Rated"
+msgstr "Най-високо оценени"
+
+msgid "Top rated"
+msgstr "Най-високо оценени"
+
+msgid "Total"
+msgstr "Общо"
+
+msgid "Total Bookings"
+msgstr "Общо резервации"
+
+msgid "Total Nights"
+msgstr "Общо нощувки"
+
+msgid "Total Revenue"
+msgstr "Общ приход"
+
+msgid "Total Rooms"
+msgstr "Общо стаи"
+
+msgid "Total Spent"
+msgstr "Общо похарчено"
+
+msgid "Total Users"
+msgstr "Общо потребители"
+
+msgid "Total nights"
+msgstr "Общо нощувки"
+
+msgid "Total:"
+msgstr "Общо:"
+
+msgid "Track bookings and revenue in real time."
+msgstr "Проследявайте резервации и приходи в реално време."
+
+msgid "Trending Destinations"
+msgstr "Популярни дестинации"
+
+msgid "Trending destinations"
+msgstr "Популярни дестинации"
+
+msgid "Trusted platform"
+msgstr "Доверена платформа"
+
+msgid "Try adjusting your search filters"
+msgstr "Опитайте да промените филтрите за търсене"
+
+msgid "Try adjusting your search or clearing filters"
+msgstr "Опитайте да промените търсенето или изчистете филтрите"
+
+msgid "Turn your property into income"
+msgstr "Превърнете имота си в доход"
+
+msgid "Type"
+msgstr "Тип"
+
+msgid "Type:"
+msgstr "Тип:"
+
+msgid "Unique destinations"
+msgstr "Уникални дестинации"
+
+msgid "Unique properties"
+msgstr "Уникални имоти"
+
+msgid "Up to"
+msgstr "До"
+
+msgid "Upcoming"
+msgstr "Предстоящи"
+
+msgid "Upcoming Bookings"
+msgstr "Предстоящи резервации"
+
+msgid "Upcoming Stays"
+msgstr "Предстоящи престои"
+
+msgid "Update your administrator profile information"
+msgstr "Обновете информацията на администраторския си профил"
+
+msgid "Update your personal information and password"
+msgstr "Обновете личната си информация и парола"
+
+msgid "Upload new photo"
+msgstr "Качи нова снимка"
+
+msgid "Upload photo"
+msgstr "Качи снимка"
+
+msgid "Username"
+msgstr "Потребител"
+
+msgid "Verified Properties"
+msgstr "Потвърдени имоти"
+
+msgid "Verified Reviews"
+msgstr "Потвърдени отзиви"
+
+msgid "View Deals"
+msgstr "Виж оферти"
+
+msgid "View all"
+msgstr "Виж всички"
+
+msgid "View all bookings"
+msgstr "Виж всички резервации"
+
+msgid "View bookings"
+msgstr "Виж резервации"
+
+msgid "View guest page"
+msgstr "Виж страница на госта"
+
+msgid "View public"
+msgstr "Виж публично"
+
+msgid "View public page"
+msgstr "Виж публична страница"
+
+msgid "View rooms"
+msgstr "Виж стаи"
+
+msgid "Villas"
+msgstr "Вили"
+
+msgid "We match any price"
+msgstr "Изравняваме всяка цена"
+
+msgid "Welcome back"
+msgstr "Добре дошли отново"
+
+msgid "What our guests are saying"
+msgstr "Какво казват нашите гости"
+
+msgid "Where are you going?"
+msgstr "Накъде отивате?"
+
+msgid "Where would you like to go"
+msgstr "Къде бихте искали да отидете"
+
+msgid "Why Stayora"
+msgstr "Защо Stayora"
+
+msgid "Why book with Stayora?"
+msgstr "Защо да резервирате със Stayora?"
+
+msgid "Wonderful"
+msgstr "Чудесно"
+
+msgid "Yes"
+msgstr "Да"
+
+msgid "Your address"
+msgstr "Вашият адрес"
+
+msgid "Your next great stay is"
+msgstr "Следващият ви чудесен престой е"
+
+msgid "Your next stay"
+msgstr "Следващият ви престой"
+
+msgid "Your world of stays"
+msgstr "Вашият свят от престои"
+
+msgid "across"
+msgstr "в"
+
+msgid "and"
+msgstr "и"
+
+msgid "bed"
+msgstr "легло"
+
+msgid "beds"
+msgstr "легла"
+
+msgid "bookings"
+msgstr "резервации"
+
+msgid "e.g. 123 Boulevard Haussmann"
+msgstr "напр. бул. Хаусман 123"
+
+msgid "e.g. Grand Palace Hotel"
+msgstr "напр. Grand Palace Hotel"
+
+msgid "found in"
+msgstr "намерени в"
+
+msgid "guests"
+msgstr "гости"
+
+msgid "hotels found"
+msgstr "намерени хотели"
+
+msgid "listed"
+msgstr "публикувани"
+
+msgid "ll have the whole place to yourself"
+msgstr "ще имате цялото място само за себе си"
+
+msgid "night"
+msgstr "нощ"
+
+msgid "nights"
+msgstr "нощувки"
+
+msgid "off"
+msgstr "отстъпка"
+
+msgid "optional, multiple"
+msgstr "по избор, множество"
+
+msgid "or"
+msgstr "или"
+
+msgid "per night"
+msgstr "на нощ"
+
+msgid "place to stay"
+msgstr "място за престой"
+
+msgid "properties"
+msgstr "имоти"
+
+msgid "property"
+msgstr "имот"
+
+msgid "replace"
+msgstr "замести"
+
+msgid "reservation"
+msgstr "резервация"
+
+msgid "reservations"
+msgstr "резервации"
+
+msgid "reviews"
+msgstr "отзиви"
+
+msgid "room"
+msgstr "стая"
+
+msgid "rooms"
+msgstr "стаи"
+
+msgid "rooms total"
+msgstr "общо стаи"
+
+msgid "s a summary of your bookings and activity"
+msgstr "е резюме на вашите резервации и активност"
+
+msgid "total"
+msgstr "общо"
+
+msgid "upcoming"
+msgstr "предстоящи"
+
+msgid "upload"
+msgstr "качи"
+
+msgid "vs last month"
+msgstr "спрямо миналия месец"
+
+msgid "waiting to be discovered"
+msgstr "чакащи да бъдат открити"
+
+msgid "your@email.com"
+msgstr "your@email.com"
+
+msgid "© 2025 Stayora. All rights reserved."
+msgstr "© 2025 Stayora. Всички права запазени."
+
+msgid "••••••••"
+msgstr "••••••••"
+
+msgid "★★"
+msgstr "★★"
+
+msgid "★★★"
+msgstr "★★★"
+
+msgid "★★★★"
+msgstr "★★★★"
+
+msgid "★★★★★"
+msgstr "★★★★★"
+
+msgid "✍️ Write a compelling description"
+msgstr "✍️ Напишете убедително описание"
+
+msgid "🌴 Villa"
+msgstr "🌴 Вила"
+
+msgid "🏖️ Resort"
+msgstr "🏖️ Курорт"
+
+msgid "🏠 Apartment"
+msgstr "🏠 Апартамент"
+
+msgid "🏨 For hotels"
+msgstr "🏨 За хотели"
+
+msgid "🏨 Hotel"
+msgstr "🏨 Хотел"
+
+msgid "💰 Set competitive pricing"
+msgstr "💰 Определете конкурентни цени"
+
+msgid "📸 Great photos matter"
+msgstr "📸 Важни са страхотните снимки"
+

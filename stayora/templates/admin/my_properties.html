@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ 'My Properties'|t }} — {{ 'StayLux Admin'|t }}{% endblock %}
+{% block title %}{{ _('My Properties') }} — {{ _('StayLux Admin') }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -28,26 +28,26 @@
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
             <div class="sidebar-username">{{ current_user.username }}</div>
-            <div class="sidebar-role">{{ 'Property Owner'|t }}</div>
+            <div class="sidebar-role">{{ _('Property Owner') }}</div>
         </div>
         <nav class="sidebar-nav">
-            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-chart-line fa-sm"></i> {{ 'Dashboard'|t }}</a>
-            <a href="{{ url_for('admin.my_properties') }}" class="nav-link active"><i class="fas fa-building fa-sm"></i> {{ 'My Properties'|t }}</a>
-            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ 'My Rooms'|t }}</a>
-            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link"><i class="fas fa-calendar-check fa-sm"></i> {{ 'Bookings'|t }}</a>
-            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ 'Logout'|t }}</a>
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-chart-line fa-sm"></i> {{ _('Dashboard') }}</a>
+            <a href="{{ url_for('admin.my_properties') }}" class="nav-link active"><i class="fas fa-building fa-sm"></i> {{ _('My Properties') }}</a>
+            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ _('My Rooms') }}</a>
+            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link"><i class="fas fa-calendar-check fa-sm"></i> {{ _('Bookings') }}</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ _('Logout') }}</a>
         </nav>
     </aside>
 
     <main class="admin-main">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <div class="section-label">{{ 'Manage'|t }}</div>
-                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ 'My Properties'|t }}</h1>
-                <p style="color: var(--text-muted); font-size: 0.87rem; margin-top: 3px;">{{ hotels|length }} {{ 'property'|t if hotels|length == 1 else 'properties'|t }} {{ 'listed'|t }}</p>
+                <div class="section-label">{{ _('Manage') }}</div>
+                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ _('My Properties') }}</h1>
+                <p style="color: var(--text-muted); font-size: 0.87rem; margin-top: 3px;">{{ hotels|length }} {{ _('property') if hotels|length == 1 else _('properties') }} {{ _('listed') }}</p>
             </div>
             <a href="{{ url_for('admin.add_property') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>{{ 'Add Property'|t }}
+                <i class="fas fa-plus me-2"></i>{{ _('Add Property') }}
             </a>
         </div>
 
@@ -79,20 +79,25 @@
                             <i class="fas fa-map-marker-alt me-1" style="color:var(--primary);"></i>{{ hotel.city }}, {{ hotel.country }}
                         </div>
                         <div class="d-flex gap-2 mb-3" style="font-size:0.8rem;color:var(--text-subtle);">
-                            <span><i class="fas fa-door-open me-1"></i>{{ hotel.rooms|length }} {{ 'rooms'|t }}</span>
-                            {% if hotel.price_per_night %}<span><i class="fas fa-euro-sign me-1"></i>{{ hotel.price_per_night }}/{{ 'night'|t }}</span>{% endif %}
+                            <span><i class="fas fa-door-open me-1"></i>{{ hotel.rooms|length }} {{ _('rooms') }}</span>
+                            {% if hotel.price_per_night %}<span><i class="fas fa-euro-sign me-1"></i>{{ hotel.price_per_night }}/{{ _('night') }}</span>{% endif %}
                             {% if hotel.review_count > 0 %}<span><i class="fas fa-star me-1" style="color:#fbbf24;"></i>{{ "%.1f"|format(hotel.avg_rating|float) }}</span>{% endif %}
                         </div>
-                        <div class="d-flex gap-2">
-                            <a href="{{ url_for('admin.edit_property', property_id=hotel.id) }}" class="btn btn-secondary btn-sm flex-grow-1">
-                                <i class="fas fa-edit me-1"></i>{{ 'Edit'|t }}
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ url_for('admin.edit_property', property_id=hotel.id) }}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-edit me-1"></i>{{ _('Edit') }}
                             </a>
-                            <a href="{{ url_for('user.hotel_detail', hotel_id=hotel.id) }}" class="btn btn-secondary btn-sm" target="_blank" title="{{ 'View public page'|t }}">
+                            {% if hotel.property_type in ('hotel', 'villa', 'resort') %}
+                            <a href="{{ url_for('admin.property_rooms', property_id=hotel.id) }}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-door-open me-1"></i>{{ _('Rooms') }}
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('user.hotel_detail', hotel_id=hotel.id) }}" class="btn btn-secondary btn-sm" target="_blank" title="{{ _('View public page') }}">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <form action="{{ url_for('admin.delete_property', property_id=hotel.id) }}" method="POST" class="d-inline"
-                                  onsubmit="return confirm('{{ 'Delete'|t }} {{ hotel.name }}? {{ 'This cannot be undone.'|t }}')">
-                                <button type="submit" class="btn btn-danger btn-sm" {% if hotel.rooms %}disabled title="{{ 'Remove all rooms first'|t }}"{% endif %}>
+                                  onsubmit="return confirm('{{ _('Delete') }} {{ hotel.name }}? {{ _('This cannot be undone.') }}')">
+                                <button type="submit" class="btn btn-danger btn-sm" {% if hotel.rooms %}disabled title="{{ _('Remove all rooms first') }}"{% endif %}>
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -105,10 +110,10 @@
         {% else %}
         <div style="text-align:center;padding:4rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;">
             <i class="fas fa-building fa-4x mb-3" style="color:var(--text-muted);"></i>
-            <h4 style="color:var(--text-light);">{{ 'No properties yet'|t }}</h4>
-            <p style="color:var(--text-muted);margin-bottom:1.5rem;">{{ 'Add your first property to start receiving bookings'|t }}</p>
+            <h4 style="color:var(--text-light);">{{ _('No properties yet') }}</h4>
+            <p style="color:var(--text-muted);margin-bottom:1.5rem;">{{ _('Add your first property to start receiving bookings') }}</p>
             <a href="{{ url_for('admin.add_property') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>{{ 'Add Your First Property'|t }}
+                <i class="fas fa-plus me-2"></i>{{ _('Add Your First Property') }}
             </a>
         </div>
         {% endif %}

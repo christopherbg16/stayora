@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'Create Account'|t }} — Stayora{% endblock %}
+{% block title %}{{ _('Create Account') }} — Stayora{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -216,22 +216,22 @@
     <div class="auth-card">
         <div class="text-center mb-4">
             <div class="auth-logo">Stay<span>Ora</span></div>
-            <small style="color: var(--text-muted); font-size: 0.78rem;">{{ 'Your world of stays'|t }}</small>
+            <small style="color: var(--text-muted); font-size: 0.78rem;">{{ _('Your world of stays') }}</small>
         </div>
 
         <div style="font-size: 1.2rem; font-weight: 600; color: var(--text-light); margin-bottom: 0.3rem;">
-            {{ 'Create your account'|t }}
+            {{ _('Create your account') }}
         </div>
         <p style="font-size: 0.87rem; color: var(--text-muted); margin-bottom: 1.2rem;">
-            {{ 'Join millions of travelers and property owners'|t }}
+            {{ _('Join millions of travelers and property owners') }}
         </p>
 
         <!-- Google Signup Button -->
         <a href="{{ url_for('auth.google_login') }}" class="btn-google">
-            <i class="fab fa-google"></i> {{ 'Sign up with Google'|t }}
+            <i class="fab fa-google"></i> {{ _('Sign up with Google') }}
         </a>
 
-        <div class="divider">{{ 'or'|t }}</div>
+        <div class="divider">{{ _('or') }}</div>
 
         <!-- Email/Password Form -->
         <form method="POST" action="{{ url_for('auth.register') }}">
@@ -239,31 +239,31 @@
 
             <!-- Account Type Selection -->
             <div class="form-group">
-                <label class="form-label">{{ 'I want to:'|t }}</label>
+                <label class="form-label">{{ _('I want to:') }}</label>
                 <div class="account-type-selector">
                     <label class="account-type-option selected" id="optionBooker" onclick="selectAccountType('user', this)">
                         <input type="radio" name="account_type" value="user" checked>
                         <span class="account-type-icon">🔑</span>
-                        <span class="account-type-title">{{ 'Book Stays'|t }}</span>
-                        <span class="account-type-desc">{{ 'Find and book properties'|t }}</span>
+                        <span class="account-type-title">{{ _('Book Stays') }}</span>
+                        <span class="account-type-desc">{{ _('Find and book properties') }}</span>
                     </label>
                     <label class="account-type-option" id="optionOwner" onclick="selectAccountType('admin', this)">
                         <input type="radio" name="account_type" value="admin">
                         <span class="account-type-icon">🏨</span>
-                        <span class="account-type-title">{{ 'List Properties'|t }}</span>
-                        <span class="account-type-desc">{{ 'Manage my own properties'|t }}</span>
+                        <span class="account-type-title">{{ _('List Properties') }}</span>
+                        <span class="account-type-desc">{{ _('Manage my own properties') }}</span>
                     </label>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label">{{ 'Username'|t }}</label>
+                <label class="form-label">{{ _('Username') }}</label>
                 <div class="input-wrapper">
                     <i class="fas fa-user input-icon"></i>
                     {% if form %}
-                        {{ form.username(class="form-control", placeholder='Choose a username'|t) }}
+                        {{ form.username(class="form-control", placeholder=_('Choose a username')) }}
                     {% else %}
-                        <input type="text" name="username" class="form-control" placeholder="{{ 'Choose a username'|t }}" required minlength="3">
+                        <input type="text" name="username" class="form-control" placeholder="{{ _('Choose a username') }}" required minlength="3">
                     {% endif %}
                 </div>
                 {% if form and form.username.errors %}
@@ -274,13 +274,13 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">{{ 'Password'|t }}</label>
+                <label class="form-label">{{ _('Password') }}</label>
                 <div class="input-wrapper">
                     <i class="fas fa-lock input-icon"></i>
                     {% if form %}
-                        {{ form.password(class="form-control", placeholder='Min. 6 characters'|t, id="passwordInput") }}
+                        {{ form.password(class="form-control", placeholder=_('Min. 6 characters'), id="passwordInput") }}
                     {% else %}
-                        <input type="password" name="password" class="form-control" placeholder="{{ 'Min. 6 characters'|t }}" required minlength="6" id="passwordInput">
+                        <input type="password" name="password" class="form-control" placeholder="{{ _('Min. 6 characters') }}" required minlength="6" id="passwordInput">
                     {% endif %}
                 </div>
                 <div class="password-strength">
@@ -289,30 +289,30 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">{{ 'Confirm password'|t }}</label>
+                <label class="form-label">{{ _('Confirm password') }}</label>
                 <div class="input-wrapper">
                     <i class="fas fa-lock input-icon"></i>
                     {% if form %}
-                        {{ form.confirm_password(class="form-control", placeholder='Repeat your password'|t) }}
+                        {{ form.confirm_password(class="form-control", placeholder=_('Repeat your password')) }}
                     {% else %}
-                        <input type="password" name="confirm_password" class="form-control" placeholder="{{ 'Repeat your password'|t }}" required>
+                        <input type="password" name="confirm_password" class="form-control" placeholder="{{ _('Repeat your password') }}" required>
                     {% endif %}
                 </div>
             </div>
 
             <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                {{ 'By creating an account you agree to our'|t }}
-                <a href="#" style="color: var(--primary);">{{ 'Terms of Service'|t }}</a> {{ 'and'|t }}
-                <a href="#" style="color: var(--primary);">{{ 'Privacy Policy'|t }}</a>.
+                {{ _('By creating an account you agree to our') }}
+                <a href="#" style="color: var(--primary);">{{ _('Terms of Service') }}</a> {{ _('and') }}
+                <a href="#" style="color: var(--primary);">{{ _('Privacy Policy') }}</a>.
             </p>
 
             <button type="submit" class="btn-auth">
-                <i class="fas fa-user-plus me-2"></i>{{ 'Create Account'|t }}
+                <i class="fas fa-user-plus me-2"></i>{{ _('Create Account') }}
             </button>
         </form>
 
         <div class="auth-switch">
-            {{ 'Already have an account?'|t }} <a href="{{ url_for('auth.login') }}">{{ 'Sign in'|t }}</a>
+            {{ _('Already have an account?') }} <a href="{{ url_for('auth.login') }}">{{ _('Sign in') }}</a>
         </div>
     </div>
 </div>

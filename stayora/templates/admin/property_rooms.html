@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Rooms') }} — {{ hotel.name }} — {{ _('StayLux Admin') }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-layout { display: flex; min-height: calc(100vh - 68px); }
+.admin-sidebar { width: 240px; min-width: 240px; background: var(--bg-panel); border-right: 1px solid var(--border); padding: 1.5rem 1rem; }
+.admin-main { flex: 1; background: var(--bg-dark); padding: 2.5rem 2rem; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+
+.card { background: var(--bg-card); border: 1px solid var(--border); }
+.card-header { background: var(--bg-input); border-bottom: 1px solid var(--border); color: var(--text-light); }
+.table { color: var(--text-light); background: transparent; }
+.table th {
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    background: transparent;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-size: 0.78rem;
+    padding: 0.85rem 1rem;
+}
+.table td {
+    border-color: var(--border);
+    color: var(--text-subtle);
+    background: transparent;
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+}
+.table tbody tr:hover { background: var(--bg-hover); }
+
+.form-control, .form-select {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-light);
+}
+.form-control:focus, .form-select:focus {
+    background: var(--bg-input);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+.room-thumb { width: 60px; height: 45px; border-radius: 6px; object-fit: cover; background: var(--bg-input); }
+@media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1.5rem 1rem; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-user-card">
+            {% if current_user.profile_image %}
+                <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="sidebar-avatar">
+            {% else %}
+                <div class="sidebar-avatar-placeholder">👑</div>
+            {% endif %}
+            <div class="sidebar-username">{{ current_user.username }}</div>
+            <div class="sidebar-role">{{ _('Property Owner') }}</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-chart-line fa-sm"></i> {{ _('Dashboard') }}</a>
+            <a href="{{ url_for('admin.my_properties') }}" class="nav-link"><i class="fas fa-building fa-sm"></i> {{ _('My Properties') }}</a>
+            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ _('All Rooms') }}</a>
+            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link"><i class="fas fa-calendar-check fa-sm"></i> {{ _('Bookings') }}</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ _('Logout') }}</a>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <div class="section-label">{{ hotel.property_type|title }} &mdash; {{ hotel.name }}</div>
+                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ _('Manage Rooms') }}</h1>
+                <p style="color: var(--text-muted); font-size: 0.87rem; margin-top: 3px;">
+                    <a href="{{ url_for('admin.edit_property', property_id=hotel.id) }}" style="color:var(--primary);text-decoration:none;">{{ _('Edit property') }}</a>
+                    &middot; {{ rooms|length }} {{ _('room') if rooms|length == 1 else _('rooms') }}
+                </p>
+            </div>
+            <a href="{{ url_for('admin.my_properties') }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Properties') }}
+            </a>
+        </div>
+
+        <div class="row g-3">
+            <!-- ADD ROOM FORM -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header"><i class="fas fa-plus-circle me-2" style="color:var(--primary);"></i>{{ _('Add New Room') }}</div>
+                    <div class="card-body">
+                        <form action="{{ url_for('admin.add_property_room', property_id=hotel.id) }}" method="POST" enctype="multipart/form-data">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">{{ _('Room number') }} *</label>
+                                    <input type="number" name="number" class="form-control" placeholder="101" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">{{ _('Price/night (€)') }} *</label>
+                                    <input type="number" step="0.01" name="price" class="form-control" placeholder="89.00" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ _('Room type') }} *</label>
+                                <select name="type" class="form-select" onchange="toggleRoomFields(this.value)" required>
+                                    <option value="Standard">{{ _('Standard') }}</option>
+                                    <option value="Luxury">{{ _('Luxury') }}</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="bedsField">
+                                <label class="form-label">{{ _('Number of beds') }}</label>
+                                <select name="beds" class="form-select">
+                                    <option value="1">{{ _('1 bed') }}</option>
+                                    <option value="2">{{ _('2 beds') }}</option>
+                                    <option value="3">{{ _('3 beds') }}</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="jacuzziField" style="display:none;">
+                                <label class="form-label">{{ _('Jacuzzi') }}</label>
+                                <select name="jacuzzi" class="form-select">
+                                    <option value="n">{{ _('No') }}</option>
+                                    <option value="y">{{ _('Yes') }}</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ _('Room image') }}</label>
+                                <input type="file" name="room_image" class="form-control" accept="image/*" onchange="previewRoomImage(this)">
+                                <div id="roomImagePreview" style="margin-top:8px;display:none;">
+                                    <img src="" style="width:100%;height:120px;object-fit:cover;border-radius:8px;">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-plus me-2"></i>{{ _('Add Room') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROOMS CARDS -->
+            <div class="col-lg-8">
+                {% if rooms %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span style="font-size:0.87rem;color:var(--text-muted);">
+                        <span style="color:var(--success);">●</span> {{ _('Available') }} &nbsp;
+                        <span style="color:var(--warning);">●</span> {{ _('Booked') }}
+                    </span>
+                </div>
+                <div class="row g-3">
+                    {% for room in rooms %}
+                    <div class="col-md-6">
+                        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .2s;">
+                            <div style="height:180px;overflow:hidden;background:var(--bg-input);position:relative;">
+                                {% if room.image_data %}
+                                    <img src="data:image/jpeg;base64,{{ room.image_data|b64encode }}" alt="Room {{ room.number }}" style="width:100%;height:100%;object-fit:cover;">
+                                {% else %}
+                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-image fa-3x" style="color:var(--border);"></i>
+                                    </div>
+                                {% endif %}
+                                <div style="position:absolute;top:10px;right:10px;">
+                                    <span style="background:{% if room.reservations %}var(--warning){% else %}var(--success){% endif %};color:#fff;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px;">
+                                        {{ _('Booked') if room.reservations else _('Available') }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="padding:1rem;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <strong style="color:var(--text-light);font-size:1.05rem;">{{ _('Room') }} #{{ room.number }}</strong>
+                                        <span style="background:{% if room.type=='Luxury' %}var(--primary-light){% else %}var(--bg-input){% endif %};color:{% if room.type=='Luxury' %}var(--primary){% else %}var(--text-subtle){% endif %};font-size:0.7rem;font-weight:600;padding:2px 7px;border-radius:5px;margin-left:6px;">{{ room.type }}</span>
+                                    </div>
+                                    <div style="font-size:1.15rem;font-weight:700;color:var(--text-light);">€{{ room.price }}<span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;">/{{ _('night') }}</span></div>
+                                </div>
+                                <div style="font-size:0.82rem;color:var(--text-subtle);">
+                                    {% if room.type == 'Standard' %}
+                                        <i class="fas fa-bed me-1"></i>{{ room.beds }} {{ _('bed') }}{{ 's' if room.beds != 1 }}
+                                    {% else %}
+                                        {% if room.jacuzzi %}<i class="fas fa-hot-tub me-1" style="color:var(--primary);"></i>{{ _('Jacuzzi') }}{% else %}<span style="opacity:0.5;">{{ _('No jacuzzi') }}</span>{% endif %}
+                                    {% endif %}
+                                </div>
+                                <div class="mt-2">
+                                    <form action="{{ url_for('admin.delete_property_room', property_id=hotel.id, room_id=room.id) }}" method="POST" class="d-inline"
+                                          onsubmit="return confirm('{{ _('Delete Room #') }}{{ room.number }}?')">
+                                        <button type="submit" class="btn btn-danger btn-sm btn-sm"
+                                                {% if room.reservations %}disabled title="{{ _('Has active reservations') }}"{% endif %}>
+                                            <i class="fas fa-trash me-1"></i>{{ _('Delete') }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="text-align:center;padding:3rem;color:var(--text-muted);background:var(--bg-card);border:1px solid var(--border);border-radius:12px;">
+                    <i class="fas fa-door-open fa-3x mb-3"></i>
+                    <p>{{ _('No rooms added yet. Add rooms for guests to book.') }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleRoomFields(type) {
+    document.getElementById('bedsField').style.display = type === 'Standard' ? 'block' : 'none';
+    document.getElementById('jacuzziField').style.display = type === 'Luxury' ? 'block' : 'none';
+}
+function previewRoomImage(input) {
+    const preview = document.getElementById('roomImagePreview');
+    const img = preview.querySelector('img');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) { img.src = e.target.result; preview.style.display = 'block'; };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

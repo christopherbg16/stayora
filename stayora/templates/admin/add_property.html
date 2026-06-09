@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Add Property'|t }} — {{ 'StayLux Admin'|t }}{% endblock %}
+{% block title %}{{ _('Add Property') }} — {{ _('StayLux Admin') }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -28,25 +28,25 @@
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
             <div class="sidebar-username">{{ current_user.username }}</div>
-            <div class="sidebar-role">{{ 'Property Owner'|t }}</div>
+            <div class="sidebar-role">{{ _('Property Owner') }}</div>
         </div>
         <nav class="sidebar-nav">
-            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-chart-line fa-sm"></i> {{ 'Dashboard'|t }}</a>
-            <a href="{{ url_for('admin.my_properties') }}" class="nav-link active"><i class="fas fa-building fa-sm"></i> {{ 'My Properties'|t }}</a>
-            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ 'My Rooms'|t }}</a>
-            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link"><i class="fas fa-calendar-check fa-sm"></i> {{ 'Bookings'|t }}</a>
-            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ 'Logout'|t }}</a>
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-chart-line fa-sm"></i> {{ _('Dashboard') }}</a>
+            <a href="{{ url_for('admin.my_properties') }}" class="nav-link active"><i class="fas fa-building fa-sm"></i> {{ _('My Properties') }}</a>
+            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ _('My Rooms') }}</a>
+            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link"><i class="fas fa-calendar-check fa-sm"></i> {{ _('Bookings') }}</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ _('Logout') }}</a>
         </nav>
     </aside>
 
     <main class="admin-main">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <div class="section-label">{{ 'Properties'|t }}</div>
-                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ 'Add New Property'|t }}</h1>
+                <div class="section-label">{{ _('Properties') }}</div>
+                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ _('Add New Property') }}</h1>
             </div>
             <a href="{{ url_for('admin.my_properties') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>{{ 'Back'|t }}
+                <i class="fas fa-arrow-left me-2"></i>{{ _('Back') }}
             </a>
         </div>
 
@@ -56,52 +56,52 @@
 
                     <!-- BASIC INFO -->
                     <div class="form-section">
-                        <div class="form-section-title"><i class="fas fa-info-circle"></i> {{ 'Basic information'|t }}</div>
+                        <div class="form-section-title"><i class="fas fa-info-circle"></i> {{ _('Basic information') }}</div>
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <label class="form-label">{{ 'Property name'|t }} *</label>
-                                <input type="text" name="name" class="form-control" placeholder="{{ 'e.g. Grand Palace Hotel'|t }}" required>
+                                <label class="form-label">{{ _('Property name') }} *</label>
+                                <input type="text" name="name" class="form-control" placeholder="{{ _('e.g. Grand Palace Hotel') }}" required>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">{{ 'Property type'|t }} *</label>
+                                <label class="form-label">{{ _('Property type') }} *</label>
                                 <select name="property_type" class="form-select" id="propType" onchange="togglePriceField()" required>
-                                    <option value="hotel">{{ '🏨 Hotel'|t }}</option>
-                                    <option value="apartment">{{ '🏠 Apartment'|t }}</option>
-                                    <option value="villa">{{ '🌴 Villa'|t }}</option>
-                                    <option value="resort">{{ '🏖️ Resort'|t }}</option>
+                                    <option value="hotel">{{ _('🏨 Hotel') }}</option>
+                                    <option value="apartment">{{ _('🏠 Apartment') }}</option>
+                                    <option value="villa">{{ _('🌴 Villa') }}</option>
+                                    <option value="resort">{{ _('🏖️ Resort') }}</option>
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">{{ 'Description'|t }}</label>
-                                <textarea name="description" class="form-control" rows="4" placeholder="{{ 'Describe your property — highlight unique features, atmosphere, and what guests can expect…'|t }}"></textarea>
+                                <label class="form-label">{{ _('Description') }}</label>
+                                <textarea name="description" class="form-control" rows="4" placeholder="{{ _('Describe your property — highlight unique features, atmosphere, and what guests can expect…') }}"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- LOCATION -->
                     <div class="form-section">
-                        <div class="form-section-title"><i class="fas fa-map-marker-alt"></i> {{ 'Location'|t }}</div>
+                        <div class="form-section-title"><i class="fas fa-map-marker-alt"></i> {{ _('Location') }}</div>
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">{{ 'Street address'|t }}</label>
-                                <input type="text" name="address" class="form-control" placeholder="{{ 'e.g. 123 Boulevard Haussmann'|t }}">
+                                <label class="form-label">{{ _('Street address') }}</label>
+                                <input type="text" name="address" class="form-control" placeholder="{{ _('e.g. 123 Boulevard Haussmann') }}">
                             </div>
                             <div class="col-md-5">
-                                <label class="form-label">{{ 'City'|t }} *</label>
-                                <input type="text" name="city" class="form-control" placeholder="{{ 'Paris'|t }}" required>
+                                <label class="form-label">{{ _('City') }} *</label>
+                                <input type="text" name="city" class="form-control" placeholder="{{ _('Paris') }}" required>
                             </div>
                             <div class="col-md-5">
-                                <label class="form-label">{{ 'Country'|t }} *</label>
-                                <input type="text" name="country" class="form-control" placeholder="{{ 'France'|t }}" required>
+                                <label class="form-label">{{ _('Country') }} *</label>
+                                <input type="text" name="country" class="form-control" placeholder="{{ _('France') }}" required>
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label">{{ 'Stars'|t }}</label>
+                                <label class="form-label">{{ _('Stars') }}</label>
                                 <select name="stars" class="form-select">
-                                    <option value="1">{{ '★'|t }}</option>
-                                    <option value="2">{{ '★★'|t }}</option>
-                                    <option value="3" selected>{{ '★★★'|t }}</option>
-                                    <option value="4">{{ '★★★★'|t }}</option>
-                                    <option value="5">{{ '★★★★★'|t }}</option>
+                                    <option value="1">{{ _('★') }}</option>
+                                    <option value="2">{{ _('★★') }}</option>
+                                    <option value="3" selected>{{ _('★★★') }}</option>
+                                    <option value="4">{{ _('★★★★') }}</option>
+                                    <option value="5">{{ _('★★★★★') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -109,46 +109,46 @@
 
                     <!-- CAPACITY & PRICING -->
                     <div class="form-section">
-                        <div class="form-section-title"><i class="fas fa-users"></i> {{ 'Capacity & pricing'|t }}</div>
+                        <div class="form-section-title"><i class="fas fa-users"></i> {{ _('Capacity & pricing') }}</div>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label">{{ 'Bedrooms / total rooms'|t }}</label>
+                                <label class="form-label">{{ _('Bedrooms / total rooms') }}</label>
                                 <input type="number" name="total_rooms" class="form-control" value="1" min="1">
-                                <small class="text-muted" style="font-size:0.75rem;">{{ 'For hotels: rooms added separately'|t }}</small>
+                                <small class="text-muted" style="font-size:0.75rem;">{{ _('For hotels: rooms added separately') }}</small>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">{{ 'Max guests'|t }}</label>
+                                <label class="form-label">{{ _('Max guests') }}</label>
                                 <input type="number" name="max_guests" class="form-control" value="2" min="1">
                             </div>
                             <div class="col-md-4" id="priceField">
-                                <label class="form-label">{{ 'Price per night (€)'|t }}</label>
+                                <label class="form-label">{{ _('Price per night (€)') }}</label>
                                 <input type="number" step="0.01" name="price_per_night" class="form-control" placeholder="150.00">
-                                <small class="text-muted" style="font-size:0.75rem;">{{ 'Apartments, villas & resorts only'|t }}</small>
+                                <small class="text-muted" style="font-size:0.75rem;">{{ _('Apartments, villas & resorts only') }}</small>
                             </div>
                         </div>
                     </div>
 
                     <!-- IMAGES -->
                     <div class="form-section">
-                        <div class="form-section-title"><i class="fas fa-images"></i> {{ 'Photos'|t }}</div>
+                        <div class="form-section-title"><i class="fas fa-images"></i> {{ _('Photos') }}</div>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">{{ 'Main photo'|t }}</label>
+                                <label class="form-label">{{ _('Main photo') }}</label>
                                 <label class="img-preview-box d-block" for="mainImgInput">
                                     <div id="mainImgPreview">
                                         <i class="fas fa-camera fa-2x mb-2" style="color:var(--text-muted);"></i>
-                                        <div style="color:var(--text-muted);font-size:0.87rem;">{{ 'Click to upload main photo'|t }}</div>
-                                        <small style="color:var(--text-muted);">{{ 'JPG, PNG up to 16MB'|t }}</small>
+                                        <div style="color:var(--text-muted);font-size:0.87rem;">{{ _('Click to upload main photo') }}</div>
+                                        <small style="color:var(--text-muted);">{{ _('JPG, PNG up to 16MB') }}</small>
                                     </div>
                                     <input type="file" name="main_image" id="mainImgInput" accept="image/*" onchange="previewImg(this,'mainImgPreview')">
                                 </label>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">{{ 'Gallery photos'|t }} <span style="color:var(--text-muted);font-size:0.78rem;">({{ 'optional, multiple'|t }})</span></label>
+                                <label class="form-label">{{ _('Gallery photos') }} <span style="color:var(--text-muted);font-size:0.78rem;">({{ _('optional, multiple') }})</span></label>
                                 <label class="img-preview-box d-block" for="galleryInput">
                                     <i class="fas fa-images fa-2x mb-2" style="color:var(--text-muted);"></i>
-                                    <div style="color:var(--text-muted);font-size:0.87rem;">{{ 'Click to upload gallery photos'|t }}</div>
-                                    <small style="color:var(--text-muted);">{{ 'Select multiple files'|t }}</small>
+                                    <div style="color:var(--text-muted);font-size:0.87rem;">{{ _('Click to upload gallery photos') }}</div>
+                                    <small style="color:var(--text-muted);">{{ _('Select multiple files') }}</small>
                                     <input type="file" name="gallery_images" id="galleryInput" accept="image/*" multiple>
                                 </label>
                             </div>
@@ -157,9 +157,9 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-2"></i>{{ 'Create Property'|t }}
+                            <i class="fas fa-save me-2"></i>{{ _('Create Property') }}
                         </button>
-                        <a href="{{ url_for('admin.my_properties') }}" class="btn btn-secondary btn-lg">{{ 'Cancel'|t }}</a>
+                        <a href="{{ url_for('admin.my_properties') }}" class="btn btn-secondary btn-lg">{{ _('Cancel') }}</a>
                     </div>
                 </form>
             </div>
@@ -167,23 +167,23 @@
             <!-- TIPS SIDEBAR -->
             <div class="col-lg-4">
                 <div class="card">
-                    <div class="card-header"><i class="fas fa-lightbulb me-2" style="color:var(--primary);"></i>{{ 'Tips for success'|t }}</div>
+                    <div class="card-header"><i class="fas fa-lightbulb me-2" style="color:var(--primary);"></i>{{ _('Tips for success') }}</div>
                     <div class="card-body" style="font-size:0.85rem;">
                         <div style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">
-                            <div style="font-weight:600;color:var(--text-light);margin-bottom:4px;">{{ '📸 Great photos matter'|t }}</div>
-                            <div style="color:var(--text-muted);">{{ 'Properties with professional photos receive 3× more bookings.'|t }}</div>
+                            <div style="font-weight:600;color:var(--text-light);margin-bottom:4px;">{{ _('📸 Great photos matter') }}</div>
+                            <div style="color:var(--text-muted);">{{ _('Properties with professional photos receive 3× more bookings.') }}</div>
                         </div>
                         <div style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">
-                            <div style="font-weight:600;color:var(--text-light);margin-bottom:4px;">{{ '✍️ Write a compelling description'|t }}</div>
-                            <div style="color:var(--text-muted);">{{ 'Mention nearby attractions, unique amenities and the atmosphere.'|t }}</div>
+                            <div style="font-weight:600;color:var(--text-light);margin-bottom:4px;">{{ _('✍️ Write a compelling description') }}</div>
+                            <div style="color:var(--text-muted);">{{ _('Mention nearby attractions, unique amenities and the atmosphere.') }}</div>
                         </div>
                         <div style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">
-                            <div style="font-weight:600;color:var(--text-light);margin-bottom:4px;">{{ '💰 Set competitive pricing'|t }}</div>
-                            <div style="color:var(--text-muted);">{{ 'Research similar properties in your area before setting your price.'|t }}</div>
+                            <div style="font-weight:600;color:var(--text-light);margin-bottom:4px;">{{ _('💰 Set competitive pricing') }}</div>
+                            <div style="color:var(--text-muted);">{{ _('Research similar properties in your area before setting your price.') }}</div>
                         </div>
                         <div>
-                            <div style="font-weight:600;color:var(--text-light);margin-bottom:4px;">{{ '🏨 For hotels'|t }}</div>
-                            <div style="color:var(--text-muted);">{{ 'After creating the hotel, add individual rooms from "My Rooms".'|t }}</div>
+                            <div style="font-weight:600;color:var(--text-light);margin-bottom:4px;">{{ _('🏨 For hotels') }}</div>
+                            <div style="color:var(--text-muted);">{{ _('After creating the hotel, add individual rooms from "My Rooms".') }}</div>
                         </div>
                     </div>
                 </div>
@@ -197,8 +197,9 @@
 <script>
 function togglePriceField() {
     const type = document.getElementById('propType').value;
-    document.getElementById('priceField').style.opacity = type === 'hotel' ? '0.4' : '1';
-    document.querySelector('[name=price_per_night]').disabled = type === 'hotel';
+    const isApart = type === 'apartment';
+    document.getElementById('priceField').style.opacity = isApart ? '1' : '0.4';
+    document.querySelector('[name=price_per_night]').disabled = !isApart;
 }
 
 function previewImg(input, previewId) {

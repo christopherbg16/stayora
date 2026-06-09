@@ -8,7 +8,7 @@
         <!-- Breadcrumb навигация -->
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ url_for('user.browse_stays') }}" style="color: var(--text-muted); text-decoration: none;">{{ 'Home'|t }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('user.browse_stays') }}" style="color: var(--text-muted); text-decoration: none;">{{ _('Home') }}</a></li>
                 <li class="breadcrumb-item"><a href="{{ url_for('user.search_stays', destination=hotel.city) }}" style="color: var(--text-muted); text-decoration: none;">{{ hotel.city }}</a></li>
                 <li class="breadcrumb-item active" style="color: var(--text-light);" aria-current="page">{{ hotel.name }}</li>
             </ol>
@@ -28,9 +28,9 @@
                         {% endfor %}
                     </div>
                     <span class="badge me-2" style="background-color: var(--primary); color: white; font-size: 1rem;">
-                        {{ hotel.rating_category if hotel.rating_category else ('New'|t) }}
+                        {{ hotel.rating_category if hotel.rating_category else (_('New')) }}
                     </span>
-                    <span style="color: var(--text-muted);">{{ hotel.avg_rating or '0' }} ({{ hotel.review_count or '0' }} {{ 'reviews'|t }})</span>
+                    <span style="color: var(--text-muted);">{{ hotel.avg_rating or '0' }} ({{ hotel.review_count or '0' }} {{ _('reviews') }})</span>
                 </div>
                 <p style="color: var(--text-muted);">
                     <i class="fas fa-map-marker-alt me-2" style="color: var(--primary);"></i>
@@ -44,19 +44,19 @@
                             {{ hotel.property_type|title }}
                         </span>
                         <h3 class="mb-1" style="color: var(--secondary);">€{{ hotel.display_price if hotel.display_price else hotel.price_per_night or '0' }}</h3>
-                                                <small class="text-muted">{{ 'per night'|t }}</small>
+                                                <small class="text-muted">{{ _('per night') }}</small>
                                             </div>
                                             {% if check_in and check_out %}
                                                 <p class="mb-2">
-                                                    <small class="text-muted">{{ 'Total:'|t }} €{{ item.total_price }}</small>
+                                                    <small class="text-muted">{{ _('Total:') }} €{{ item.total_price }}</small>
                                                 </p>
                                                 <button class="btn btn-primary w-100"
                                                         onclick="bookRoom({{ item.room.id }}, '{{ check_in }}', '{{ check_out }}')">
-                                                    {{ 'Book now'|t }}
+                                                    {{ _('Book now') }}
                                                 </button>
                                             {% else %}
                                                 <button class="btn btn-outline-primary w-100" disabled>
-                                                    {{ 'Select dates'|t }}
+                                                    {{ _('Select dates') }}
                                                 </button>
                                             {% endif %}
                         <button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-2"
@@ -88,7 +88,7 @@
                             <div style="height: 70px;">
                                 <img src="data:image/jpeg;base64,{{ hotel.main_image|b64encode }}"
                                      style="width: 100%; height: 100%; object-fit: cover;"
-                                     alt="{{ 'Main image'|t }}">
+                                     alt="{{ _('Main image') }}">
                             </div>
                         </div>
                     </div>
@@ -114,38 +114,38 @@
             <div class="col-md-4">
                 <div class="card mb-3" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input);">
-                        <h5 class="mb-0" style="color: var(--text-light);">{{ 'Property highlights'|t }}</h5>
+                        <h5 class="mb-0" style="color: var(--text-light);">{{ _('Property highlights') }}</h5>
                     </div>
                     <div class="card-body">
                         <ul class="list-unstyled">
                             <li class="mb-2">
                                 <i class="fas fa-building me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Type:'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Type:') }}</span>
                                 <span class="text-muted">{{ hotel.property_type|title }}</span>
                             </li>
-                            {% if hotel.property_type != 'hotel' %}
+                            {% if hotel.property_type == 'apartment' %}
                             <li class="mb-2">
                                 <i class="fas fa-bed me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Bedrooms:'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Bedrooms:') }}</span>
                                 <span class="text-muted">{{ hotel.total_rooms or 1 }}</span>
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-users me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Max guests:'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Max guests:') }}</span>
                                 <span class="text-muted">{{ hotel.max_guests or 2 }}</span>
                             </li>
                             {% endif %}
                             <li class="mb-2">
                                 <i class="fas fa-wifi me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Free WiFi'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Free WiFi') }}</span>
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-parking me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Free parking'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Free parking') }}</span>
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-utensils me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Restaurant'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Restaurant') }}</span>
                             </li>
                         </ul>
                     </div>
@@ -154,22 +154,22 @@
                 <!-- Проверка за наличност -->
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input);">
-                        <h5 class="mb-0" style="color: var(--text-light);">{{ 'Check availability'|t }}</h5>
+                        <h5 class="mb-0" style="color: var(--text-light);">{{ _('Check availability') }}</h5>
                     </div>
                     <div class="card-body">
                         <form method="GET" action="#rooms">
                             <div class="mb-3">
-                                <label class="form-label">{{ 'Check-in'|t }}</label>
+                                <label class="form-label">{{ _('Check-in') }}</label>
                                 <input type="date" name="check_in" class="form-control"
                                        value="{{ check_in or '' }}" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">{{ 'Check-out'|t }}</label>
+                                <label class="form-label">{{ _('Check-out') }}</label>
                                 <input type="date" name="check_out" class="form-control"
                                        value="{{ check_out or '' }}" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-search me-2"></i>{{ 'Check Availability'|t }}
+                                <i class="fas fa-search me-2"></i>{{ _('Check Availability') }}
                             </button>
                         </form>
                     </div>
@@ -182,10 +182,10 @@
             <div class="col-12">
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input);">
-                        <h5 class="mb-0" style="color: var(--text-light);">{{ 'About this property'|t }}</h5>
+                        <h5 class="mb-0" style="color: var(--text-light);">{{ _('About this property') }}</h5>
                     </div>
                     <div class="card-body">
-                        <p style="color: var(--text-light); line-height: 1.8;">{{ hotel.description or ('No description available.'|t) }}</p>
+                        <p style="color: var(--text-light); line-height: 1.8;">{{ hotel.description or (_('No description available.')) }}</p>
                     </div>
                 </div>
             </div>
@@ -197,16 +197,16 @@
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input);">
                         <h5 class="mb-0" style="color: var(--text-light);">
-                            {% if hotel.property_type == 'hotel' %}
-                                {{ 'Available Rooms'|t }}
+                            {% if hotel.property_type in ('hotel', 'villa', 'resort') %}
+                                {{ _('Available Rooms') }}
                             {% else %}
-                                {{ 'Booking Options'|t }}
+                                {{ _('Booking Options') }}
                             {% endif %}
                         </h5>
                     </div>
                     <div class="card-body">
-                        {% if hotel.property_type == 'hotel' %}
-                            <!-- ЗА ХОТЕЛИ - показваме отделни стаи -->
+                        {% if hotel.property_type in ('hotel', 'villa', 'resort') %}
+                            <!-- Rooms for hotels, villas, resorts -->
                             {% if rooms %}
                                 {% for item in rooms %}
                                 <div class="mb-3 p-3" style="background-color: var(--bg-input); border-radius: 10px;">
@@ -232,19 +232,19 @@
                                             <p class="mb-1" style="color: var(--text-muted);">
                                                 <i class="fas fa-bed me-2"></i>
                                                 {% if item.room.type == 'Standard' %}
-                                                    {{ item.room.beds }} {{ 'beds'|t }}
+                                                    {{ item.room.beds }} {{ _('beds') }}
                                                 {% else %}
-                                                    {{ 'Luxury room with jacuzzi'|t }}
+                                                    {{ _('Luxury room with jacuzzi') }}
                                                 {% endif %}
                                             </p>
                                             <p style="color: var(--text-muted);">
-                                                <i class="fas fa-users me-2"></i>{{ 'Sleeps up to 2 guests'|t }}
+                                                <i class="fas fa-users me-2"></i>{{ _('Sleeps up to 2 guests') }}
                                             </p>
                                         </div>
                                         <div class="col-md-3 text-end">
                                             <div class="mb-2">
                                                 <h4 class="mb-0" style="color: var(--secondary);">€{{ item.room.price }}</h4>
-<small class="text-muted">{{ 'per night'|t }}</small>
+<small class="text-muted">{{ _('per night') }}</small>
                                             </div>
                                             {% if check_in and check_out %}
                                                 <p class="mb-2">
@@ -264,14 +264,14 @@
                                 </div>
                                 {% endfor %}
                             {% else %}
-                                <p class="text-center text-muted my-4">{{ 'No rooms available for selected dates'|t }}</p>
+                                <p class="text-center text-muted my-4">{{ _('No rooms available for selected dates') }}</p>
                             {% endif %}
                         {% else %}
                             <!-- ЗА АПАРТАМЕНТИ, ВИЛИ, РЕЗОРТИ - целия имот -->
                             <div class="p-4" style="background-color: var(--bg-input); border-radius: 10px;">
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
-                                        <h4 class="mb-3" style="color: var(--text-light);">{{ 'Entire'|t }} {{ hotel.property_type|title }}</h4>
+                                        <h4 class="mb-3" style="color: var(--text-light);">{{ _('Entire') }} {{ hotel.property_type|title }}</h4>
                                         <p class="mb-2" style="color: var(--text-muted);">
                                             <i class="fas fa-bed me-2" style="color: var(--primary);"></i>
                                             {{ hotel.total_rooms or 1 }} bedroom{% if hotel.total_rooms > 1 %}s{% endif %}
@@ -282,24 +282,24 @@
                                         </p>
                                         <p class="mb-0" style="color: var(--text-muted);">
                                             <i class="fas fa-check-circle me-2" style="color: var(--secondary);"></i>
-                                            {{ 'You\'ll have the whole place to yourself'|t }}
+                                            {{ 'You\_('ll have the whole place to yourself') }}
                                         </p>
                                     </div>
                                     <div class="col-md-4 text-end">
     <h3 class="mb-2" style="color: var(--secondary);">€{{ hotel.price_per_night or '0' }}</h3>
-    <p class="text-muted mb-3">{{ 'per night'|t }}</p>
+    <p class="text-muted mb-3">{{ _('per night') }}</p>
     {% if check_in and check_out %}
         <p class="mb-2">
-            <small class="text-muted">{{ 'Total:'|t }} €{{ (hotel.price_per_night or 0) * nights }}</small>
+            <small class="text-muted">{{ _('Total:') }} €{{ (hotel.price_per_night or 0) * nights }}</small>
         </p>
         <button class="btn btn-primary w-100"
                 onclick="bookProperty({{ hotel.id }}, '{{ check_in }}', '{{ check_out }}')"
                 {% if not hotel.price_per_night %}disabled{% endif %}>
-            {{ 'Book entire property'|t }}
+            {{ _('Book entire property') }}
         </button>
     {% else %}
         <button class="btn btn-outline-primary w-100" disabled>
-            {{ 'Select dates'|t }}
+            {{ _('Select dates') }}
         </button>
     {% endif %}
 </div>
@@ -316,33 +316,33 @@
             <div class="col-12">
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input);">
-                        <h5 class="mb-0" style="color: var(--text-light);">{{ 'Amenities'|t }}</h5>
+                        <h5 class="mb-0" style="color: var(--text-light);">{{ _('Amenities') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <i class="fas fa-wifi me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Free WiFi'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Free WiFi') }}</span>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <i class="fas fa-parking me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Free parking'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Free parking') }}</span>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <i class="fas fa-utensils me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Restaurant'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Restaurant') }}</span>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <i class="fas fa-swimming-pool me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Swimming pool'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Swimming pool') }}</span>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <i class="fas fa-dumbbell me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Fitness center'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Fitness center') }}</span>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <i class="fas fa-spa me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ 'Spa'|t }}</span>
+                                <span style="color: var(--text-light);">{{ _('Spa') }}</span>
                             </div>
                         </div>
                     </div>
@@ -355,14 +355,14 @@
             <div class="col-12">
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input);">
-                        <h5 class="mb-0" style="color: var(--text-light);">{{ 'Guest reviews'|t }}</h5>
+                        <h5 class="mb-0" style="color: var(--text-light);">{{ _('Guest reviews') }}</h5>
                     </div>
                     <div class="card-body">
                         {% if hotel.reviews and hotel.reviews|length > 0 %}
                             {% for review in hotel.reviews[:3] %}
                             <div class="mb-3 p-3" style="border-bottom: 1px solid var(--border);">
                                 <div class="d-flex justify-content-between mb-2">
-                                    <strong style="color: var(--text-light);">{{ review.user.username if review.user else ('Anonymous'|t) }}</strong>
+                                    <strong style="color: var(--text-light);">{{ review.user.username if review.user else (_('Anonymous')) }}</strong>
                                     <span class="badge" style="background-color: var(--primary);">{{ review.rating }}</span>
                                 </div>
                                 <p style="color: var(--text-muted);">{{ review.review_text }}</p>
@@ -370,7 +370,7 @@
                             </div>
                             {% endfor %}
                         {% else %}
-                            <p class="text-center text-muted my-4">{{ 'No reviews yet'|t }}</p>
+                            <p class="text-center text-muted my-4">{{ _('No reviews yet') }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -391,7 +391,7 @@ const images = [
     {% for image in hotel.images %}
     {
         src: 'data:image/jpeg;base64,{{ image.image_data|b64encode }}',
-        alt: '{{ 'Gallery image'|t }} {{ loop.index }}'
+        alt: '{{ _('Gallery image') }} {{ loop.index }}'
     },
     {% endfor %}
 ];
@@ -460,12 +460,12 @@ function bookRoom(roomId, checkIn, checkOut) {
         if (data.success && data.redirect) {
             window.location.href = data.redirect;
         } else if (data.error) {
-            alert('{{ 'Error:'|t }} ' + data.error);
+            alert('{{ _('Error:') }} ' + data.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('{{ 'An error occurred'|t }}');
+        alert('{{ _('An error occurred') }}');
     });
 }
 
@@ -485,12 +485,12 @@ function bookProperty(propertyId, checkIn, checkOut) {
         if (data.success && data.redirect) {
             window.location.href = data.redirect;
         } else if (data.error) {
-            alert('{{ 'Error:'|t }} ' + data.error);
+            alert('{{ _('Error:') }} ' + data.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('{{ 'An error occurred'|t }}');
+        alert('{{ _('An error occurred') }}');
     });
 }
 

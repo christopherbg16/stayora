@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - {{ 'Page Not Found'|t }}</title>
+    <title>404 - {{ _('Page Not Found') }}</title>
     <style>
         body {
             background: #0f172a;
@@ -50,9 +50,9 @@
 <body>
     <div class="error-container">
         <h1>404</h1>
-        <h2>{{ 'Page Not Found'|t }}</h2>
-        <p>{{ 'The page you are looking for does not exist or has been moved.'|t }}</p>
-        <a href="/" class="btn">{{ 'Go Home'|t }}</a>
+        <h2>{{ _('Page Not Found') }}</h2>
+        <p>{{ _('The page you are looking for does not exist or has been moved.') }}</p>
+        <a href="/" class="btn">{{ _('Go Home') }}</a>
     </div>
 {% include 'chatbot.html' %}
 </body>

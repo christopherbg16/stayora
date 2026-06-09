@@ -175,7 +175,7 @@ class Hotel(BaseModel):
 
     @property
     def display_price(self):
-        if getattr(self, 'property_type', None) == 'hotel':
+        if getattr(self, 'property_type', None) in ('hotel', 'villa', 'resort'):
             rooms_data = supabase.table('rooms').select('price').eq('hotel_id', self.id).execute()
             prices = [r['price'] for r in (rooms_data.data or []) if r.get('price')]
             return min(prices) if prices else 0

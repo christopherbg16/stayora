@@ -205,7 +205,7 @@ def hotel_detail(hotel_id):
             pass
 
     available_rooms = []
-    if hotel.property_type == 'hotel':
+    if hotel.property_type in ('hotel', 'villa', 'resort'):
         rooms = Room.find_by_hotel(hotel_id)
         for room in rooms:
             conflict = False

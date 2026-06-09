@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ 'Checkout'|t }} — Stayora{% endblock %}
+{% block title %}{{ _('Checkout') }} — Stayora{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -238,9 +238,9 @@
             <i class="fas fa-lock" style="color: var(--success); font-size: 1.2rem;"></i>
             <div>
                 <h2 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--text-light); margin: 0;">
-                    {{ 'Complete Your Booking'|t }}
+                    {{ _('Complete Your Booking') }}
                 </h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">{{ 'Choose your preferred payment method'|t }}</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">{{ _('Choose your preferred payment method') }}</p>
             </div>
         </div>
 
@@ -249,47 +249,47 @@
             <!-- Booking Summary -->
             <div class="booking-summary">
                 <h5 style="color: var(--text-light); font-weight: 600; margin-bottom: 1rem;">
-                    <i class="fas fa-receipt me-2" style="color: var(--primary);"></i>{{ 'Booking Summary'|t }}
+                    <i class="fas fa-receipt me-2" style="color: var(--primary);"></i>{{ _('Booking Summary') }}
                 </h5>
 
                 {% if room %}
                 <div class="summary-row">
-                    <span style="color: var(--text-muted);">{{ 'Property'|t }}</span>
+                    <span style="color: var(--text-muted);">{{ _('Property') }}</span>
                     <span style="color: var(--text-light); font-weight: 500;">{{ hotel.name }}</span>
                 </div>
                 <div class="summary-row">
-                    <span style="color: var(--text-muted);">{{ 'Room'|t }}</span>
+                    <span style="color: var(--text-muted);">{{ _('Room') }}</span>
                     <span style="color: var(--text-light);">Room #{{ room.number }} - {{ room.type }}</span>
                 </div>
                 {% else %}
                 <div class="summary-row">
-                    <span style="color: var(--text-muted);">{{ 'Property'|t }}</span>
+                    <span style="color: var(--text-muted);">{{ _('Property') }}</span>
                     <span style="color: var(--text-light); font-weight: 500;">{{ hotel.name }} ({{ hotel.property_type|title }})</span>
                 </div>
                 {% endif %}
 
                 <div class="summary-row">
-                    <span style="color: var(--text-muted);">{{ 'Location'|t }}</span>
+                    <span style="color: var(--text-muted);">{{ _('Location') }}</span>
                     <span style="color: var(--text-light);">{{ hotel.city }}, {{ hotel.country }}</span>
                 </div>
                 <div class="summary-row">
-                    <span style="color: var(--text-muted);">{{ 'Check-in'|t }}</span>
+                    <span style="color: var(--text-muted);">{{ _('Check-in') }}</span>
                     <span style="color: var(--text-light);">{{ check_in }}</span>
                 </div>
                 <div class="summary-row">
-                    <span style="color: var(--text-muted);">{{ 'Check-out'|t }}</span>
+                    <span style="color: var(--text-muted);">{{ _('Check-out') }}</span>
                     <span style="color: var(--text-light);">{{ check_out }}</span>
                 </div>
                 <div class="summary-row">
-                    <span style="color: var(--text-muted);">{{ 'Duration'|t }}</span>
+                    <span style="color: var(--text-muted);">{{ _('Duration') }}</span>
                     <span style="color: var(--text-light);">{{ nights }} night{{ 's' if nights != 1 }}</span>
                 </div>
                 <div class="summary-row total">
-                    <span style="color: var(--text-light);">{{ 'Total'|t }}</span>
+                    <span style="color: var(--text-light);">{{ _('Total') }}</span>
                     <span style="color: var(--primary);">€{{ "%.2f"|format(total_price) }}</span>
                 </div>
                 <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem;">
-                    €{{ "%.2f"|format(total_price / nights) }} {{ 'per night'|t }} × {{ nights }} {{ 'nights'|t }}
+                    €{{ "%.2f"|format(total_price / nights) }} {{ _('per night') }} × {{ nights }} {{ _('nights') }}
                 </div>
             </div>
 
@@ -306,42 +306,42 @@
                     <label class="payment-method-option" id="optionCard" onclick="selectPayment('card', this)">
                         <input type="radio" name="payment_method" value="card">
                         <span class="payment-method-icon">💳</span>
-                        <span class="payment-method-title">{{ 'Pay with Card'|t }}</span>
-                        <span class="payment-method-desc">{{ 'Secure online payment via Stripe'|t }}</span>
+                        <span class="payment-method-title">{{ _('Pay with Card') }}</span>
+                        <span class="payment-method-desc">{{ _('Secure online payment via Stripe') }}</span>
                     </label>
 
                     <!-- Cash Payment -->
                     <label class="payment-method-option selected" id="optionCash" onclick="selectPayment('cash', this)">
                         <input type="radio" name="payment_method" value="cash" checked>
                         <span class="payment-method-icon">💵</span>
-                        <span class="payment-method-title">{{ 'Pay in Cash'|t }}</span>
-                        <span class="payment-method-desc">{{ 'Pay at the property upon arrival'|t }}</span>
+                        <span class="payment-method-title">{{ _('Pay in Cash') }}</span>
+                        <span class="payment-method-desc">{{ _('Pay at the property upon arrival') }}</span>
                     </label>
                 </div>
 
                 <!-- Card Payment Form (hidden by default) -->
                 <div class="card-form" id="cardForm">
                     <h5 style="color: var(--text-light); font-weight: 600; margin-bottom: 1rem;">
-                        <i class="fas fa-credit-card me-2" style="color: var(--primary);"></i>{{ 'Card Details'|t }}
+                        <i class="fas fa-credit-card me-2" style="color: var(--primary);"></i>{{ _('Card Details') }}
                     </h5>
 
                     <div class="mb-3">
-                        <label class="form-label">{{ 'Cardholder Name'|t }}</label>
-                        <input type="text" name="card_name" class="form-control" placeholder="{{ 'John Doe'|t }}" id="cardName">
+                        <label class="form-label">{{ _('Cardholder Name') }}</label>
+                        <input type="text" name="card_name" class="form-control" placeholder="{{ _('John Doe') }}" id="cardName">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">{{ 'Card Number'|t }}</label>
+                        <label class="form-label">{{ _('Card Number') }}</label>
                         <input type="text" name="card_number" class="form-control" placeholder="1234 5678 9012 3456" id="cardNumber" maxlength="19" oninput="formatCardNumber(this)">
                     </div>
 
                     <div class="card-row">
                         <div class="mb-3">
-                            <label class="form-label">{{ 'Expiry Date'|t }}</label>
+                            <label class="form-label">{{ _('Expiry Date') }}</label>
                             <input type="text" name="card_expiry" class="form-control" placeholder="MM/YY" id="cardExpiry" maxlength="5" oninput="formatExpiry(this)">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">{{ 'CVC'|t }}</label>
+                            <label class="form-label">{{ _('CVC') }}</label>
                             <input type="text" name="card_cvc" class="form-control" placeholder="123" id="cardCvc" maxlength="4">
                         </div>
                     </div>
@@ -353,14 +353,14 @@
                 <div id="buttonCard" style="display: none;">
                     <button type="submit" class="btn-pay">
                         <i class="fas fa-lock"></i>
-                        {{ 'Pay'|t }} €{{ "%.2f"|format(total_price) }} {{ 'Securely'|t }}
+                        {{ _('Pay') }} €{{ "%.2f"|format(total_price) }} {{ _('Securely') }}
                     </button>
                 </div>
 
                 <div id="buttonCash">
                     <button type="submit" class="btn-pay-cash">
                         <i class="fas fa-hand-holding-usd"></i>
-                        {{ 'Confirm Booking (Pay at Property)'|t }}
+                        {{ _('Confirm Booking (Pay at Property)') }}
                     </button>
                 </div>
             </form>
@@ -369,15 +369,15 @@
             <div class="secure-badges">
                 <div class="secure-badge">
                     <i class="fas fa-shield-alt"></i>
-                    {{ 'SSL Encrypted'|t }}
+                    {{ _('SSL Encrypted') }}
                 </div>
                 <div class="secure-badge">
                     <i class="fas fa-lock"></i>
-                    {{ 'Secure Payment'|t }}
+                    {{ _('Secure Payment') }}
                 </div>
                 <div class="secure-badge">
                     <i class="fas fa-undo"></i>
-                    {{ 'Free Cancellation'|t }}
+                    {{ _('Free Cancellation') }}
                 </div>
             </div>
         </div>
@@ -456,17 +456,17 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
         errors.textContent = '';
 
         if (!cardName) {
-            errors.textContent = '{{ 'Please enter the cardholder name'|t }}';
+            errors.textContent = '{{ _('Please enter the cardholder name') }}';
             e.preventDefault();
             return;
         }
         if (cardNumber.length < 16) {
-            errors.textContent = '{{ 'Please enter a valid 16-digit card number'|t }}';
+            errors.textContent = '{{ _('Please enter a valid 16-digit card number') }}';
             e.preventDefault();
             return;
         }
         if (!cardExpiry.match(/^\d{2}\/\d{2}$/)) {
-            errors.textContent = '{{ 'Please enter a valid expiry date (MM/YY)'|t }}';
+            errors.textContent = '{{ _('Please enter a valid expiry date (MM/YY)') }}';
             e.preventDefault();
             return;
         }
@@ -476,12 +476,12 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
         const currentYear = now.getFullYear() % 100;
         const currentMonth = now.getMonth() + 1;
         if (parseInt(year) < currentYear || (parseInt(year) === currentYear && parseInt(month) < currentMonth)) {
-            errors.textContent = '{{ 'Card has expired'|t }}';
+            errors.textContent = '{{ _('Card has expired') }}';
             e.preventDefault();
             return;
         }
         if (cardCvc.length < 3) {
-            errors.textContent = '{{ 'Please enter a valid CVC'|t }}';
+            errors.textContent = '{{ _('Please enter a valid CVC') }}';
             e.preventDefault();
             return;
         }

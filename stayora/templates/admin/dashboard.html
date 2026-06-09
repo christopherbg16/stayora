@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Dashboard'|t }} — {{ 'StayLux Admin'|t }}{% endblock %}
+{% block title %}{{ _('Dashboard') }} — {{ _('StayLux Admin') }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -170,15 +170,15 @@
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
             <div class="sidebar-username">{{ current_user.username }}</div>
-            <div class="sidebar-role">{{ 'Property Owner'|t }}</div>
+            <div class="sidebar-role">{{ _('Property Owner') }}</div>
         </div>
         <nav class="sidebar-nav">
-            <a href="{{ url_for('admin.dashboard') }}" class="nav-link active"><i class="fas fa-chart-line fa-sm"></i> {{ 'Dashboard'|t }}</a>
-            <a href="{{ url_for('admin.my_properties') }}" class="nav-link"><i class="fas fa-building fa-sm"></i> {{ 'My Properties'|t }}</a>
-            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ 'My Rooms'|t }}</a>
-            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link"><i class="fas fa-calendar-check fa-sm"></i> {{ 'Bookings'|t }}</a>
-            <a href="{{ url_for('admin.profile') }}" class="nav-link"><i class="fas fa-user-cog fa-sm"></i> {{ 'Admin Profile'|t }}</a>
-            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ 'Logout'|t }}</a>
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link active"><i class="fas fa-chart-line fa-sm"></i> {{ _('Dashboard') }}</a>
+            <a href="{{ url_for('admin.my_properties') }}" class="nav-link"><i class="fas fa-building fa-sm"></i> {{ _('My Properties') }}</a>
+            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ _('My Rooms') }}</a>
+            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link"><i class="fas fa-calendar-check fa-sm"></i> {{ _('Bookings') }}</a>
+            <a href="{{ url_for('admin.profile') }}" class="nav-link"><i class="fas fa-user-cog fa-sm"></i> {{ _('Admin Profile') }}</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ _('Logout') }}</a>
         </nav>
     </aside>
 
@@ -187,11 +187,11 @@
         <!-- HEADER -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <div class="section-label">{{ 'Overview'|t }}</div>
-                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ 'Dashboard'|t }}</h1>
+                <div class="section-label">{{ _('Overview') }}</div>
+                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ _('Dashboard') }}</h1>
             </div>
             <a href="{{ url_for('admin.add_property') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>{{ 'Add Property'|t }}
+                <i class="fas fa-plus me-2"></i>{{ _('Add Property') }}
             </a>
         </div>
 
@@ -202,14 +202,14 @@
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="stat-label">{{ 'My Properties'|t }}</div>
+                            <div class="stat-label">{{ _('My Properties') }}</div>
                             <div class="stat-value mt-1">{{ total_my_hotels }}</div>
-                            <div class="stat-subtitle">{{ total_my_rooms }} {{ 'rooms total'|t }}</div>
+                            <div class="stat-subtitle">{{ total_my_rooms }} {{ _('rooms total') }}</div>
                         </div>
                         <div class="stat-icon" style="color: var(--primary);"><i class="fas fa-building"></i></div>
                     </div>
                     <a href="{{ url_for('admin.my_properties') }}" class="stat-link">
-                        {{ 'Manage properties'|t }} <i class="fas fa-arrow-right fa-sm ms-1"></i>
+                        {{ _('Manage properties') }} <i class="fas fa-arrow-right fa-sm ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -219,14 +219,14 @@
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="stat-label">{{ 'Total Rooms'|t }}</div>
+                            <div class="stat-label">{{ _('Total Rooms') }}</div>
                             <div class="stat-value mt-1">{{ total_my_rooms }}</div>
-                            <div class="stat-subtitle">{{ 'Across all properties'|t }}</div>
+                            <div class="stat-subtitle">{{ _('Across all properties') }}</div>
                         </div>
                         <div class="stat-icon" style="color: var(--secondary);"><i class="fas fa-door-open"></i></div>
                     </div>
                     <a href="{{ url_for('admin.my_rooms') }}" class="stat-link">
-                        {{ 'View rooms'|t }} <i class="fas fa-arrow-right fa-sm ms-1"></i>
+                        {{ _('View rooms') }} <i class="fas fa-arrow-right fa-sm ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -236,15 +236,15 @@
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="stat-label">{{ 'Bookings'|t }}</div>
+                            <div class="stat-label">{{ _('Bookings') }}</div>
                             <div class="stat-value mt-1">{{ total_my_reservations }}</div>
                             {% set upcoming_count = reservations|selectattr('start_date', 'ge', now.date())|list|length if reservations else 0 %}
-                            <div class="stat-subtitle">{{ upcoming_count }} {{ 'upcoming'|t }}</div>
+                            <div class="stat-subtitle">{{ upcoming_count }} {{ _('upcoming') }}</div>
                         </div>
                         <div class="stat-icon" style="color: var(--warning);"><i class="fas fa-calendar-check"></i></div>
                     </div>
                     <a href="{{ url_for('admin.my_reservations') }}" class="stat-link">
-                        {{ 'View all bookings'|t }} <i class="fas fa-arrow-right fa-sm ms-1"></i>
+                        {{ _('View all bookings') }} <i class="fas fa-arrow-right fa-sm ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -254,15 +254,15 @@
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="stat-label">{{ 'Total Revenue'|t }}</div>
+                            <div class="stat-label">{{ _('Total Revenue') }}</div>
                             <div class="stat-value mt-1">€{{ revenue|int }}</div>
                             <div class="stat-subtitle">
-                                {{ 'Avg.'|t }} €{{ (revenue / total_my_reservations)|int if total_my_reservations > 0 else 0 }}{{ '/booking'|t }}
+                                {{ _('Avg.') }} €{{ (revenue / total_my_reservations)|int if total_my_reservations > 0 else 0 }}{{ _('/booking') }}
                             </div>
                         </div>
                         <div class="stat-icon" style="color: var(--success);"><i class="fas fa-euro-sign"></i></div>
                     </div>
-                    <div class="stat-subtitle">{{ 'All time earnings'|t }}</div>
+                    <div class="stat-subtitle">{{ _('All time earnings') }}</div>
                 </div>
             </div>
         </div>
@@ -273,27 +273,27 @@
                 <div class="overview-card">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="stat-label">{{ 'System Overview'|t }}</div>
+                            <div class="stat-label">{{ _('System Overview') }}</div>
                         </div>
                         <div class="d-flex gap-4">
                             <div class="overview-stat">
                                 <div class="overview-value" style="color: var(--primary);">{{ total_users }}</div>
-                                <div class="overview-label">{{ 'Total Users'|t }}</div>
+                                <div class="overview-label">{{ _('Total Users') }}</div>
                             </div>
                             <div style="width: 1px; background: var(--border);"></div>
                             <div class="overview-stat">
                                 <div class="overview-value" style="color: var(--secondary);">{{ total_my_hotels }}</div>
-                                <div class="overview-label">{{ 'My Properties'|t }}</div>
+                                <div class="overview-label">{{ _('My Properties') }}</div>
                             </div>
                             <div style="width: 1px; background: var(--border);"></div>
                             <div class="overview-stat">
                                 <div class="overview-value" style="color: var(--warning);">{{ total_my_reservations }}</div>
-                                <div class="overview-label">{{ 'My Bookings'|t }}</div>
+                                <div class="overview-label">{{ _('My Bookings') }}</div>
                             </div>
                             <div style="width: 1px; background: var(--border);"></div>
                             <div class="overview-stat">
                                 <div class="overview-value" style="color: var(--success);">€{{ revenue|int }}</div>
-                                <div class="overview-label">{{ 'Revenue'|t }}</div>
+                                <div class="overview-label">{{ _('Revenue') }}</div>
                             </div>
                         </div>
                     </div>
@@ -307,23 +307,23 @@
             <div class="col-lg-4">
                 <div class="quick-action-card">
                     <div class="card-header">
-                        <i class="fas fa-bolt me-2" style="color: var(--primary);"></i>{{ 'Quick actions'|t }}
+                        <i class="fas fa-bolt me-2" style="color: var(--primary);"></i>{{ _('Quick actions') }}
                     </div>
                     <div class="card-body d-flex flex-column gap-2 p-3">
                         <a href="{{ url_for('admin.add_property') }}" class="quick-action-btn">
-                            <i class="fas fa-plus-circle"></i>{{ 'Add new property'|t }}
+                            <i class="fas fa-plus-circle"></i>{{ _('Add new property') }}
                         </a>
                         <a href="{{ url_for('admin.my_rooms') }}" class="quick-action-btn">
-                            <i class="fas fa-door-open"></i>{{ 'Manage rooms'|t }}
+                            <i class="fas fa-door-open"></i>{{ _('Manage rooms') }}
                         </a>
                         <a href="{{ url_for('admin.my_reservations') }}" class="quick-action-btn">
-                            <i class="fas fa-calendar-check"></i>{{ 'View bookings'|t }}
+                            <i class="fas fa-calendar-check"></i>{{ _('View bookings') }}
                         </a>
                         <a href="{{ url_for('admin.my_properties') }}" class="quick-action-btn">
-                            <i class="fas fa-building"></i>{{ 'My properties'|t }}
+                            <i class="fas fa-building"></i>{{ _('My properties') }}
                         </a>
                         <a href="{{ url_for('admin.profile') }}" class="quick-action-btn">
-                            <i class="fas fa-user-cog"></i>{{ 'Admin profile'|t }}
+                            <i class="fas fa-user-cog"></i>{{ _('Admin profile') }}
                         </a>
                     </div>
                 </div>
@@ -333,8 +333,8 @@
             <div class="col-lg-8">
                 <div class="activity-card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-history me-2" style="color: var(--primary);"></i>{{ 'Recent activity'|t }}</span>
-                        <span style="font-size: 0.75rem; color: var(--text-muted);">{{ 'Last 10 events'|t }}</span>
+                        <span><i class="fas fa-history me-2" style="color: var(--primary);"></i>{{ _('Recent activity') }}</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">{{ _('Last 10 events') }}</span>
                     </div>
                     <div class="card-body p-0">
                         {% if activities %}
@@ -349,7 +349,7 @@
                         {% else %}
                             <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
                                 <i class="fas fa-history fa-2x mb-2"></i>
-                                <p class="mb-0">{{ 'No recent activity'|t }}</p>
+                                <p class="mb-0">{{ _('No recent activity') }}</p>
                             </div>
                         {% endif %}
                     </div>

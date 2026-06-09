@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Bookings'|t }} — {{ 'StayLux Admin'|t }}{% endblock %}
+{% block title %}{{ _('Bookings') }} — {{ _('StayLux Admin') }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -61,23 +61,23 @@
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
             <div class="sidebar-username">{{ current_user.username }}</div>
-            <div class="sidebar-role">{{ 'Property Owner'|t }}</div>
+            <div class="sidebar-role">{{ _('Property Owner') }}</div>
         </div>
         <nav class="sidebar-nav">
-            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-chart-line fa-sm"></i> {{ 'Dashboard'|t }}</a>
-            <a href="{{ url_for('admin.my_properties') }}" class="nav-link"><i class="fas fa-building fa-sm"></i> {{ 'My Properties'|t }}</a>
-            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ 'My Rooms'|t }}</a>
-            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link active"><i class="fas fa-calendar-check fa-sm"></i> {{ 'Bookings'|t }}</a>
-            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ 'Logout'|t }}</a>
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-chart-line fa-sm"></i> {{ _('Dashboard') }}</a>
+            <a href="{{ url_for('admin.my_properties') }}" class="nav-link"><i class="fas fa-building fa-sm"></i> {{ _('My Properties') }}</a>
+            <a href="{{ url_for('admin.my_rooms') }}" class="nav-link"><i class="fas fa-door-open fa-sm"></i> {{ _('My Rooms') }}</a>
+            <a href="{{ url_for('admin.my_reservations') }}" class="nav-link active"><i class="fas fa-calendar-check fa-sm"></i> {{ _('Bookings') }}</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link danger"><i class="fas fa-sign-out-alt fa-sm"></i> {{ _('Logout') }}</a>
         </nav>
     </aside>
 
     <main class="admin-main">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <div class="section-label">{{ 'Manage'|t }}</div>
-                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ 'Bookings'|t }}</h1>
-                <p style="color: var(--text-muted); font-size: 0.87rem; margin-top: 3px;">{{ reservations|length }} {{ 'total'|t }} {{ 'reservation'|t if reservations|length == 1 else 'reservations'|t }}</p>
+                <div class="section-label">{{ _('Manage') }}</div>
+                <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">{{ _('Bookings') }}</h1>
+                <p style="color: var(--text-muted); font-size: 0.87rem; margin-top: 3px;">{{ reservations|length }} {{ _('total') }} {{ _('reservation') if reservations|length == 1 else _('reservations') }}</p>
             </div>
         </div>
 
@@ -87,25 +87,25 @@
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
                 <div class="stat-card">
-                    <div class="stat-label">{{ 'Upcoming'|t }}</div>
+                    <div class="stat-label">{{ _('Upcoming') }}</div>
                     <div class="stat-value mt-1" style="color:var(--success);">{{ upcoming|length }}</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-card">
-                    <div class="stat-label">{{ 'Completed'|t }}</div>
+                    <div class="stat-label">{{ _('Completed') }}</div>
                     <div class="stat-value mt-1" style="color:var(--text-muted);">{{ past|length }}</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-card">
-                    <div class="stat-label">{{ 'Total nights'|t }}</div>
+                    <div class="stat-label">{{ _('Total nights') }}</div>
                     <div class="stat-value mt-1">{{ reservations|sum(attribute='nights') }}</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-card">
-                    <div class="stat-label">{{ 'Revenue'|t }}</div>
+                    <div class="stat-label">{{ _('Revenue') }}</div>
                     <div class="stat-value mt-1" style="color:var(--primary);">€{{ reservations|sum(attribute='nights') }}</div>
                 </div>
             </div>
@@ -113,12 +113,12 @@
 
         <div class="tab-bar">
             <button class="tab-btn active" onclick="showTab('upcoming',this)">
-                {{ 'Upcoming'|t }} <span style="background:var(--success);color:white;font-size:0.7rem;padding:1px 6px;border-radius:10px;margin-left:4px;">{{ upcoming|length }}</span>
+                {{ _('Upcoming') }} <span style="background:var(--success);color:white;font-size:0.7rem;padding:1px 6px;border-radius:10px;margin-left:4px;">{{ upcoming|length }}</span>
             </button>
             <button class="tab-btn" onclick="showTab('past',this)">
-                {{ 'Past'|t }} <span style="background:var(--bg-hover);color:var(--text-muted);font-size:0.7rem;padding:1px 6px;border-radius:10px;margin-left:4px;">{{ past|length }}</span>
+                {{ _('Past') }} <span style="background:var(--bg-hover);color:var(--text-muted);font-size:0.7rem;padding:1px 6px;border-radius:10px;margin-left:4px;">{{ past|length }}</span>
             </button>
-            <button class="tab-btn" onclick="showTab('all',this)">{{ 'All bookings'|t }}</button>
+            <button class="tab-btn" onclick="showTab('all',this)">{{ _('All bookings') }}</button>
         </div>
 
         {% macro reservation_table(res_list, badge_style, badge_label) %}
@@ -129,13 +129,13 @@
                     <table class="table mb-0">
                         <thead>
                             <tr>
-                                <th>{{ 'Guest'|t }}</th>
-                                <th>{{ 'Property / Room'|t }}</th>
-                                <th>{{ 'Check-in'|t }}</th>
-                                <th>{{ 'Check-out'|t }}</th>
-                                <th>{{ 'Nights'|t }}</th>
-                                <th>{{ 'Revenue'|t }}</th>
-                                <th>{{ 'Status'|t }}</th>
+                                <th>{{ _('Guest') }}</th>
+                                <th>{{ _('Property / Room') }}</th>
+                                <th>{{ _('Check-in') }}</th>
+                                <th>{{ _('Check-out') }}</th>
+                                <th>{{ _('Nights') }}</th>
+                                <th>{{ _('Revenue') }}</th>
+                                <th>{{ _('Status') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -148,7 +148,7 @@
                                     {% endif %}
                                 </td>
                                 <td style="color:var(--text-subtle);font-size:0.87rem;">
-                                    {{ res.room.hotel.name }} — {{ 'Room'|t }} #{{ res.room.number }}
+                                    {{ res.room.hotel.name }} — {{ _('Room') }} #{{ res.room.number }}
                                     <div style="font-size:0.75rem;">{{ res.room.type }}</div>
                                 </td>
                                 <td style="color:var(--text-light);">{{ res.start_date.strftime('%d %b %Y') }}</td>
@@ -170,7 +170,7 @@
         {% else %}
         <div style="text-align:center;padding:3rem;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;color:var(--text-muted);">
             <i class="fas fa-calendar-times fa-3x mb-3"></i>
-            <p>{{ 'No'|t }} {{ badge_label|lower }} {{ 'bookings'|t }}</p>
+            <p>{{ _('No') }} {{ badge_label|lower }} {{ _('bookings') }}</p>
         </div>
         {% endif %}
         {% endmacro %}

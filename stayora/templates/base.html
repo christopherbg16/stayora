@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark')</script>
     <title>{% block title %}Stayora — Find Your Perfect Stay{% endblock %}</title>
 
     <!-- Fonts -->
@@ -546,89 +547,88 @@
                     {% if current_user.role == 'admin' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
-                                <i class="fas fa-chart-line fa-sm"></i>{{ 'Dashboard'|t }}
+                                <i class="fas fa-chart-line fa-sm"></i>{{ _('Dashboard') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.my_properties') }}">
-                                <i class="fas fa-building fa-sm"></i>{{ 'Properties'|t }}
+                                <i class="fas fa-building fa-sm"></i>{{ _('Properties') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.my_rooms') }}">
-                                <i class="fas fa-door-open fa-sm"></i>{{ 'Rooms'|t }}
+                                <i class="fas fa-door-open fa-sm"></i>{{ _('Rooms') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.my_reservations') }}">
-                                <i class="fas fa-calendar-check fa-sm"></i>{{ 'Bookings'|t }}
+                                <i class="fas fa-calendar-check fa-sm"></i>{{ _('Bookings') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('admin.profile') }}">
-                                <i class="fas fa-user-cog fa-sm"></i>{{ 'Profile'|t }}
+                                <i class="fas fa-user-cog fa-sm"></i>{{ _('Profile') }}
                             </a>
                         </li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('user.dashboard') }}">
-                                <i class="fas fa-home fa-sm"></i>{{ 'Dashboard'|t }}
+                                <i class="fas fa-home fa-sm"></i>{{ _('Dashboard') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('user.browse_stays') }}">
-                                <i class="fas fa-search fa-sm"></i>{{ 'Browse Stays'|t }}
+                                <i class="fas fa-search fa-sm"></i>{{ _('Browse Stays') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('user.my_reservations') }}">
-                                <i class="fas fa-calendar-check fa-sm"></i>{{ 'My Bookings'|t }}
+                                <i class="fas fa-calendar-check fa-sm"></i>{{ _('My Bookings') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('user.profile') }}">
-                                <i class="fas fa-user fa-sm"></i>{{ 'Profile'|t }}
+                                <i class="fas fa-user fa-sm"></i>{{ _('Profile') }}
                             </a>
                         </li>
                     {% endif %}
                     <li class="nav-item ms-1">
                         <a class="nav-link nav-logout" href="{{ url_for('auth.logout') }}">
-                            <i class="fas fa-sign-out-alt fa-sm"></i>{{ 'Logout'|t }}
+                            <i class="fas fa-sign-out-alt fa-sm"></i>{{ _('Logout') }}
                         </a>
                     </li>
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('auth.login') }}">
-                            <i class="fas fa-sign-in-alt fa-sm"></i>{{ 'Sign In'|t }}
+                            <i class="fas fa-sign-in-alt fa-sm"></i>{{ _('Sign In') }}
                         </a>
                     </li>
                     <li class="nav-item ms-1">
                         <a class="nav-link nav-btn-primary" href="{{ url_for('auth.register') }}">
-                            {{ 'Get Started'|t }}
+                            {{ _('Get Started') }}
                         </a>
                     </li>
                 {% endif %}
 
                 <!-- Theme Toggle Button -->
                 <li class="nav-item ms-2">
-                    <button class="theme-toggle-btn nav-link" onclick="toggleTheme()" title="{{ 'Toggle light/dark mode'|t }}">
+                    <button class="theme-toggle-btn nav-link" onclick="toggleTheme()" title="{{ _('Toggle light/dark mode') }}">
                         <i id="theme-toggle-icon" class="fas fa-moon"></i>
                     </button>
                 </li>
+                <style>
+                    .lang-flag { line-height: 1; padding: .25rem .35rem !important; border-radius: 6px; transition: all .2s; }
+                    .flag-icon { display:block; width:16px; height:12px; border-radius:2px; object-fit:cover; }
+                    .lang-flag:hover { background: var(--bg-hover); }
+                    .lang-flag.active-flag { background: var(--primary-light); }
+                </style>
 
-                <!-- Language Selector Dropdown -->
-                <li class="nav-item ms-1 dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-language fa-sm"></i>
-                        {% if current_language in languages %}{{ languages[current_language] }}{% else %}{{ 'Language'|t }}{% endif %}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
-                        {% for code, name in languages.items() %}
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('set_language', lang=code) }}">{{ name }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                <!-- Language Selector Flags -->
+                <li class="nav-item ms-1 d-flex align-items-center gap-1">
+                    {% set flag_codes = {'en':'gb','bg':'bg','es':'es','de':'de'} %}
+                    {% for code, name in languages.items() %}
+                        <a href="{{ url_for('set_language', lang=code) }}" class="nav-link lang-flag px-1 {% if code == current_language %}active-flag{% endif %}" title="{{ name }}"><img src="https://flagcdn.com/16x12/{{ flag_codes[code] }}.png" srcset="https://flagcdn.com/24x18/{{ flag_codes[code] }}.png 2x" alt="{{ code }}" class="flag-icon"></a>
+                    {% endfor %}
                 </li>
             </ul>
         </div>
@@ -662,7 +662,7 @@
         <div class="row g-4">
             <div class="col-lg-4">
                 <div class="footer-brand">Stay<span style="color: var(--primary);">Ora</span></div>
-                <p class="footer-desc">{{ 'Discover extraordinary places to stay — from boutique hotels to private villas. We connect travelers with unique properties worldwide.'|t }}</p>
+                <p class="footer-desc">{{ _('Discover extraordinary places to stay — from boutique hotels to private villas. We connect travelers with unique properties worldwide.') }}</p>
                 <div class="d-flex gap-3 mt-3">
                     <a href="#" style="color: var(--text-muted); font-size: 1.1rem;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fab fa-instagram"></i></a>
                     <a href="#" style="color: var(--text-muted); font-size: 1.1rem;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'"><i class="fab fa-twitter"></i></a>
@@ -670,37 +670,37 @@
                 </div>
             </div>
             <div class="col-6 col-lg-2">
-                <div class="footer-heading">{{ 'Explore'|t }}</div>
-                <a href="{{ url_for('user.browse_stays') if current_user.is_authenticated else url_for('auth.login') }}" class="footer-link">{{ 'Hotels'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Apartments'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Villas'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Resorts'|t }}</a>
+                <div class="footer-heading">{{ _('Explore') }}</div>
+                <a href="{{ url_for('user.browse_stays') if current_user.is_authenticated else url_for('auth.login') }}" class="footer-link">{{ _('Hotels') }}</a>
+                <a href="#" class="footer-link">{{ _('Apartments') }}</a>
+                <a href="#" class="footer-link">{{ _('Villas') }}</a>
+                <a href="#" class="footer-link">{{ _('Resorts') }}</a>
             </div>
             <div class="col-6 col-lg-2">
-                <div class="footer-heading">{{ 'Company'|t }}</div>
-                <a href="#" class="footer-link">{{ 'About Us'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Careers'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Blog'|t }}</a>
+                <div class="footer-heading">{{ _('Company') }}</div>
+                <a href="#" class="footer-link">{{ _('About Us') }}</a>
+                <a href="#" class="footer-link">{{ _('Careers') }}</a>
+                <a href="#" class="footer-link">{{ _('Blog') }}</a>
             </div>
             <div class="col-6 col-lg-2">
-                <div class="footer-heading">{{ 'Support'|t }}</div>
-                <a href="#" class="footer-link">{{ 'Help Center'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Contact Us'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Cancellation'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Safety'|t }}</a>
+                <div class="footer-heading">{{ _('Support') }}</div>
+                <a href="#" class="footer-link">{{ _('Help Center') }}</a>
+                <a href="#" class="footer-link">{{ _('Contact Us') }}</a>
+                <a href="#" class="footer-link">{{ _('Cancellation') }}</a>
+                <a href="#" class="footer-link">{{ _('Safety') }}</a>
             </div>
             <div class="col-6 col-lg-2">
-                <div class="footer-heading">{{ 'Legal'|t }}</div>
-                <a href="#" class="footer-link">{{ 'Privacy Policy'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Terms of Service'|t }}</a>
-                <a href="#" class="footer-link">{{ 'Cookie Policy'|t }}</a>
+                <div class="footer-heading">{{ _('Legal') }}</div>
+                <a href="#" class="footer-link">{{ _('Privacy Policy') }}</a>
+                <a href="#" class="footer-link">{{ _('Terms of Service') }}</a>
+                <a href="#" class="footer-link">{{ _('Cookie Policy') }}</a>
             </div>
 
             <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>{{ '© 2025 Stayora. All rights reserved.'|t }}</span>
+                <span>{{ _('© 2025 Stayora. All rights reserved.') }}</span>
                 <div class="d-flex gap-3 align-items-center">
-                    <span><i class="fas fa-shield-alt me-1" style="color: var(--primary);"></i> {{ 'Secure payments'|t }}</span>
-                    <span><i class="fas fa-lock me-1" style="color: var(--primary);"></i> {{ 'SSL encrypted'|t }}</span>
+                    <span><i class="fas fa-shield-alt me-1" style="color: var(--primary);"></i> {{ _('Secure payments') }}</span>
+                    <span><i class="fas fa-lock me-1" style="color: var(--primary);"></i> {{ _('SSL encrypted') }}</span>
                 </div>
             </div>
         </div>

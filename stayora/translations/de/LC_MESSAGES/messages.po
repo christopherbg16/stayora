@@ -1,0 +1,1546 @@
+# Translations for StayOra
+# Copyright (C) 2026
+# This file is distributed under the same license as the StayOra project.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: StayOra 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-09 10:18\n"
+"PO-Revision-Date: 2026-06-09 10:18\n"
+"Last-Translator: \n"
+"Language: de\n"
+"Language-Team: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel\n"
+
+msgid "\"Absolutely seamless from search to check-in. Found a stunning boutique hotel in Sofia in minutes.\""
+msgstr "\"Absolut nahtlos von der Suche bis zum Check-in. Habe in Minuten ein atemberaubendes Boutique-Hotel in Sofia gefunden.\""
+
+msgid "\"Listed my apartment and had my first booking within 48 hours. The dashboard is incredibly easy.\""
+msgstr "\"Habe meine Wohnung inseriert und hatte innerhalb von 48 Stunden die erste Buchung. Das Dashboard ist unglaublich einfach.\""
+
+msgid "\"The payment flexibility sold me — paying cash on arrival made everything so relaxed.\""
+msgstr "\"Die Flexibilität bei der Zahlung hat mich überzeugt — Barzahlung bei Ankunft hat alles so entspannt gemacht.\""
+
+msgid "+18% vs last month"
+msgstr "+18 % gegenüber Vormonat"
+
+msgid "+359 ..."
+msgstr "+359 ..."
+
+msgid "/booking"
+msgstr "/Buchung"
+
+msgid "/night"
+msgstr "/Nacht"
+
+msgid "1 bed"
+msgstr "1 Bett"
+
+msgid "1+ Star"
+msgstr "1+ Stern"
+
+msgid "2 beds"
+msgstr "2 Betten"
+
+msgid "2+ Stars"
+msgstr "2+ Sterne"
+
+msgid "24/7 Support"
+msgstr "24/7-Support"
+
+msgid "24/7 support"
+msgstr "24/7-Support"
+
+msgid "3 beds"
+msgstr "3 Betten"
+
+msgid "3+ Stars"
+msgstr "3+ Sterne"
+
+msgid "4+ Stars"
+msgstr "4+ Sterne"
+
+msgid "5 Stars"
+msgstr "5 Sterne"
+
+msgid "About Us"
+msgstr "Über uns"
+
+msgid "About this property"
+msgstr "Über diese Unterkunft"
+
+msgid "Accommodations"
+msgstr "Unterkünfte"
+
+msgid "Across all bookings"
+msgstr "Über alle Buchungen hinweg"
+
+msgid "Across all properties"
+msgstr "Über alle Objekte hinweg"
+
+msgid "Add New Property"
+msgstr "Neues Objekt hinzufügen"
+
+msgid "Add New Room"
+msgstr "Neues Zimmer hinzufügen"
+
+msgid "Add Property"
+msgstr "Objekt hinzufügen"
+
+msgid "Add Room"
+msgstr "Zimmer hinzufügen"
+
+msgid "Add Your First Property"
+msgstr "Füge dein erstes Objekt hinzu"
+
+msgid "Add a property first"
+msgstr "Füge zuerst ein Objekt hinzu"
+
+msgid "Add new property"
+msgstr "Neues Objekt hinzufügen"
+
+msgid "Add your first property to start receiving bookings"
+msgstr "Füge dein erstes Objekt hinzu, um Buchungen zu erhalten"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Admin Profile"
+msgstr "Admin-Profil"
+
+msgid "Admin Settings"
+msgstr "Admin-Einstellungen"
+
+msgid "Admin profile"
+msgstr "Admin-Profil"
+
+msgid "Administrator"
+msgstr "Administrator"
+
+msgid "After creating the hotel, add individual rooms from \"My Rooms\"."
+msgstr "Nach der Erstellung des Hotels füge einzelne Zimmer unter \"Meine Zimmer\" hinzu."
+
+msgid "All bookings"
+msgstr "Alle Buchungen"
+
+msgid "All reservations organized in one place."
+msgstr "Alle Reservierungen an einem Ort organisiert."
+
+msgid "All rooms"
+msgstr "Alle Zimmer"
+
+msgid "All time earnings"
+msgstr "Gesamteinnahmen"
+
+msgid "All time reservations"
+msgstr "Gesamtreservierungen"
+
+msgid "All-Inclusive"
+msgstr "All-Inklusive"
+
+msgid "Allowed formats: JPG, JPEG, PNG, GIF (Max 16MB)"
+msgstr "Erlaubte Formate: JPG, JPEG, PNG, GIF (Max. 16 MB)"
+
+msgid "Already have an account?"
+msgstr "Bereits ein Konto?"
+
+msgid "Always here for you"
+msgstr "Immer für dich da"
+
+msgid "Amenities"
+msgstr "Ausstattung"
+
+msgid "An error occurred"
+msgstr "Ein Fehler ist aufgetreten"
+
+msgid "Anonymous"
+msgstr "Anonym"
+
+msgid "Any"
+msgstr "Alle"
+
+msgid "Apartments"
+msgstr "Apartments"
+
+msgid "Apartments, villas & resorts only"
+msgstr "Nur Apartments, Villen und Resorts"
+
+msgid "Are you a property owner? Sign in with an admin account to manage your listings."
+msgstr "Bist du ein Objektbesitzer? Melde dich mit einem Admin-Konto an, um deine Inserate zu verwalten."
+
+msgid "Are you sure you want to cancel this reservation?"
+msgstr "Bist du sicher, dass du diese Reservierung stornieren möchtest?"
+
+msgid "At least"
+msgstr "Mindestens"
+
+msgid "Available"
+msgstr "Verfügbar"
+
+msgid "Available Rooms"
+msgstr "Verfügbare Zimmer"
+
+msgid "Average Rating"
+msgstr "Durchschnittsbewertung"
+
+msgid "Avg rating"
+msgstr "Ø Bewertung"
+
+msgid "Avg."
+msgstr "Ø"
+
+msgid "Back"
+msgstr "Zurück"
+
+msgid "Back to Browse"
+msgstr "Zurück zur Suche"
+
+msgid "Basic information"
+msgstr "Grundinformationen"
+
+msgid "Bedrooms / total rooms"
+msgstr "Schlafzimmer / Gesamtzimmer"
+
+msgid "Bedrooms:"
+msgstr "Schlafzimmer:"
+
+msgid "Best price guarantee"
+msgstr "Bestpreisgarantie"
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Book Stays"
+msgstr "Unterkünfte buchen"
+
+msgid "Book entire property"
+msgstr "Ganze Unterkunft buchen"
+
+msgid "Book in seconds and receive your confirmation immediately. No waiting."
+msgstr "Buche in Sekunden und erhalte sofort deine Bestätigung. Kein Warten."
+
+msgid "Book now"
+msgstr "Jetzt buchen"
+
+msgid "Book your stay in minutes"
+msgstr "Buche deinen Aufenthalt in Minuten"
+
+msgid "Booked"
+msgstr "Gebucht"
+
+msgid "Booking Manager"
+msgstr "Buchungsmanager"
+
+msgid "Booking Options"
+msgstr "Buchungsoptionen"
+
+msgid "Booking Summary"
+msgstr "Buchungsübersicht"
+
+msgid "Booking cancelled"
+msgstr "Buchung storniert"
+
+msgid "Booking confirmed"
+msgstr "Buchung bestätigt"
+
+msgid "Bookings"
+msgstr "Buchungen"
+
+msgid "Browse Hotels"
+msgstr "Hotels durchsuchen"
+
+msgid "Browse Stays"
+msgstr "Unterkünfte durchsuchen"
+
+msgid "Browse by Type"
+msgstr "Nach Typ durchsuchen"
+
+msgid "Browse by property type"
+msgstr "Nach Objekttyp durchsuchen"
+
+msgid "By creating an account you agree to our"
+msgstr "Mit der Kontoerstellung stimmst du unseren"
+
+msgid "CVC"
+msgstr "CVC"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Cancel Reservation"
+msgstr "Reservierung stornieren"
+
+msgid "Cancellation"
+msgstr "Stornierung"
+
+msgid "Cancellations"
+msgstr "Stornierungen"
+
+msgid "Capacity & pricing"
+msgstr "Kapazität und Preise"
+
+msgid "Card Details"
+msgstr "Kartendaten"
+
+msgid "Card Number"
+msgstr "Kartennummer"
+
+msgid "Card has expired"
+msgstr "Karte ist abgelaufen"
+
+msgid "Cardholder Name"
+msgstr "Karteninhaber"
+
+msgid "Careers"
+msgstr "Karriere"
+
+msgid "Change Password"
+msgstr "Passwort ändern"
+
+msgid "Change Password (Optional)"
+msgstr "Passwort ändern (Optional)"
+
+msgid "Check Availability"
+msgstr "Verfügbarkeit prüfen"
+
+msgid "Check availability"
+msgstr "Verfügbarkeit prüfen"
+
+msgid "Check in"
+msgstr "Check-in"
+
+msgid "Check in and enjoy your handpicked accommodation fully."
+msgstr "Checke ein und genieße deine handverlesene Unterkunft in vollen Zügen."
+
+msgid "Check out"
+msgstr "Check-out"
+
+msgid "Check-in"
+msgstr "Check-in"
+
+msgid "Check-in:"
+msgstr "Check-in:"
+
+msgid "Check-out"
+msgstr "Check-out"
+
+msgid "Check-out:"
+msgstr "Check-out:"
+
+msgid "Checkout"
+msgstr "Check-out"
+
+msgid "Choose Your Stay"
+msgstr "Wähle deine Unterkunft"
+
+msgid "Choose a username"
+msgstr "Wähle einen Benutzernamen"
+
+msgid "Choose your preferred payment method"
+msgstr "Wähle deine bevorzugte Zahlungsmethode"
+
+msgid "Cities Covered"
+msgstr "Abgedeckte Städte"
+
+msgid "Cities Visited"
+msgstr "Besuchte Städte"
+
+msgid "City"
+msgstr "Stadt"
+
+msgid "City or hotel name"
+msgstr "Stadt oder Hotelname"
+
+msgid "City, property name or country…"
+msgstr "Stadt, Objektname oder Land…"
+
+msgid "City, property or destination"
+msgstr "Stadt, Objekt oder Reiseziel"
+
+msgid "Clear filters"
+msgstr "Filter zurücksetzen"
+
+msgid "Click to"
+msgstr "Klicke zum"
+
+msgid "Click to upload gallery photos"
+msgstr "Klicke, um Galeriefotos hochzuladen"
+
+msgid "Click to upload main photo"
+msgstr "Klicke, um Hauptfoto hochzuladen"
+
+msgid "Company"
+msgstr "Unternehmen"
+
+msgid "Compare options, read reviews and pick the perfect property."
+msgstr "Vergleiche Optionen, lies Bewertungen und wähle die perfekte Unterkunft."
+
+msgid "Complete Your Booking"
+msgstr "Buchung abschließen"
+
+msgid "Completed"
+msgstr "Abgeschlossen"
+
+msgid "Confirm Booking (Pay at Property)"
+msgstr "Buchung bestätigen (vor Ort zahlen)"
+
+msgid "Confirm New Password"
+msgstr "Neues Passwort bestätigen"
+
+msgid "Confirm password"
+msgstr "Passwort bestätigen"
+
+msgid "Confirmed"
+msgstr "Bestätigt"
+
+msgid "Contact Information"
+msgstr "Kontaktinformationen"
+
+msgid "Contact Us"
+msgstr "Kontakt"
+
+msgid "Continue with Google"
+msgstr "Weiter mit Google"
+
+msgid "Cookie Policy"
+msgstr "Cookie-Richtlinie"
+
+msgid "Cookies"
+msgstr "Cookies"
+
+msgid "Country"
+msgstr "Land"
+
+msgid "Create Account"
+msgstr "Konto erstellen"
+
+msgid "Create Free Account"
+msgstr "Kostenloses Konto erstellen"
+
+msgid "Create Property"
+msgstr "Objekt erstellen"
+
+msgid "Create one — it's free"
+msgstr "Erstelle eines — es ist kostenlos"
+
+msgid "Create your account"
+msgstr "Erstelle dein Konto"
+
+msgid "Curated Properties Worldwide"
+msgstr "Kuratierte Unterkünfte weltweit"
+
+msgid "Current Password"
+msgstr "Aktuelles Passwort"
+
+msgid "Current password is required to make any changes"
+msgstr "Das aktuelle Passwort ist erforderlich, um Änderungen vorzunehmen"
+
+msgid "Current photo:"
+msgstr "Aktuelles Foto:"
+
+msgid "Dashboard"
+msgstr "Instrumententafel"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Delete Room #"
+msgstr "Zimmer # löschen"
+
+msgid "Describe your property — highlight unique features, atmosphere, and what guests can expect…"
+msgstr "Beschreibe dein Objekt — hebe besondere Merkmale, Atmosphäre und das hervor, was Gäste erwartet…"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Destination"
+msgstr "Reiseziel"
+
+msgid "Discover Extraordinary Places to Stay"
+msgstr "Entdecke außergewöhnliche Unterkünfte"
+
+msgid "Discover extraordinary places to stay — from boutique hotels to private villas worldwide."
+msgstr "Entdecke außergewöhnliche Unterkünfte — von Boutique-Hotels bis zu privaten Villen weltweit."
+
+msgid "Don't have an account?"
+msgstr "Noch kein Konto?"
+
+msgid "Duration"
+msgstr "Dauer"
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "Edit Profile"
+msgstr "Profil bearbeiten"
+
+msgid "Email"
+msgstr "E-Mail"
+
+msgid "Email Address"
+msgstr "E-Mail-Adresse"
+
+msgid "Enjoy Your Stay"
+msgstr "Genieße deinen Aufenthalt"
+
+msgid "Enter your current password"
+msgstr "Gib dein aktuelles Passwort ein"
+
+msgid "Enter your destination and dates to browse available properties."
+msgstr "Gib dein Reiseziel und die Daten ein, um verfügbare Unterkünfte zu durchsuchen."
+
+msgid "Enter your password"
+msgstr "Gib dein Passwort ein"
+
+msgid "Enter your username"
+msgstr "Gib deinen Benutzernamen ein"
+
+msgid "Entire"
+msgstr "Ganze"
+
+msgid "Error:"
+msgstr "Fehler:"
+
+msgid "Every kind of stay, curated for you"
+msgstr "Jede Art von Aufenthalt, kuratiert für dich"
+
+msgid "Every listing is reviewed by our team. You see exactly what you get — no surprises."
+msgstr "Jedes Inserat wird von unserem Team geprüft. Du siehst genau, was du bekommst — keine Überraschungen."
+
+msgid "Expiry Date"
+msgstr "Ablaufdatum"
+
+msgid "Explore"
+msgstr "Erkunden"
+
+msgid "Explore Properties"
+msgstr "Unterkünfte erkunden"
+
+msgid "Explore deals"
+msgstr "Angebote entdecken"
+
+msgid "Featured properties"
+msgstr "Vorgestellte Unterkünfte"
+
+msgid "Features"
+msgstr "Merkmale"
+
+msgid "Filter Hotels"
+msgstr "Hotels filtern"
+
+msgid "Find and book properties"
+msgstr "Unterkünfte finden und buchen"
+
+msgid "Find your next stay"
+msgstr "Finde deinen nächsten Aufenthalt"
+
+msgid "Find your perfect"
+msgstr "Finde dein perfektes"
+
+msgid "Fitness center"
+msgstr "Fitnesscenter"
+
+msgid "Flexible Payment"
+msgstr "Flexible Zahlung"
+
+msgid "For Property Owners"
+msgstr "Für Objektbesitzer"
+
+msgid "For hotels: rooms added separately"
+msgstr "Bei Hotels: Zimmer werden separat hinzugefügt"
+
+msgid "Forgot password?"
+msgstr "Passwort vergessen?"
+
+msgid "France"
+msgstr "Frankreich"
+
+msgid "France · 843 properties"
+msgstr "Frankreich · 843 Unterkünfte"
+
+msgid "Free Cancellation"
+msgstr "Kostenlose Stornierung"
+
+msgid "Free WiFi"
+msgstr "Kostenloses WLAN"
+
+msgid "Free cancel"
+msgstr "Kostenlos stornieren"
+
+msgid "Free cancellation"
+msgstr "Kostenlose Stornierung"
+
+msgid "Free parking"
+msgstr "Kostenloses Parken"
+
+msgid "From boutique city hotels to secluded villas — discover extraordinary spaces crafted for unforgettable experiences."
+msgstr "Von Boutique-Stadthotels bis zu abgeschiedenen Villen — entdecke außergewöhnliche Räume für unvergessliche Erlebnisse."
+
+msgid "Gallery image"
+msgstr "Galeriebild"
+
+msgid "Gallery photos"
+msgstr "Galeriefotos"
+
+msgid "Get Started"
+msgstr "Registrieren"
+
+msgid "Go Home"
+msgstr "Zur Startseite"
+
+msgid "Guest"
+msgstr "Gast"
+
+msgid "Guest Stories"
+msgstr "Gästegeschichten"
+
+msgid "Guest rating"
+msgstr "Gästebewertung"
+
+msgid "Guest reviews"
+msgstr "Gästebewertungen"
+
+msgid "Guests"
+msgstr "Gäste"
+
+msgid "Hand-picked stays with exceptional guest reviews."
+msgstr "Handverlesene Unterkünfte mit herausragenden Gästebewertungen."
+
+msgid "Happy Guests"
+msgstr "Zufriedene Gäste"
+
+msgid "Has active reservations"
+msgstr "Hat aktive Reservierungen"
+
+msgid "Help Center"
+msgstr "Hilfezentrum"
+
+msgid "Home"
+msgstr "Startseite"
+
+msgid "Hosting"
+msgstr "Gastgeben"
+
+msgid "Hotel Room"
+msgstr "Hotelzimmer"
+
+msgid "Hotels"
+msgstr "Hotels"
+
+msgid "Hotels · Apartments · Villas · Resorts"
+msgstr "Hotels · Apartments · Villen · Resorts"
+
+msgid "Hotels, apartments, villas and resorts — all in one place"
+msgstr "Hotels, Apartments, Villen und Resorts — alles an einem Ort"
+
+msgid "I want to:"
+msgstr "Ich möchte:"
+
+msgid "Instant Confirmation"
+msgstr "Sofortige Bestätigung"
+
+msgid "Italy · 1,245 properties"
+msgstr "Italien · 1.245 Unterkünfte"
+
+msgid "JPG, PNG up to 16MB"
+msgstr "JPG, PNG bis 16 MB"
+
+msgid "Jacuzzi"
+msgstr "Whirlpool"
+
+msgid "John Doe"
+msgstr "Max Mustermann"
+
+msgid "Join millions of travelers and property owners"
+msgstr "Schließe dich Millionen von Reisenden und Objektbesitzern an"
+
+msgid "Join thousands of travellers who trust Stayora to find exceptional accommodations at every destination."
+msgstr "Schließe dich Tausenden von Reisenden an, die Stayora vertrauen, um außergewöhnliche Unterkünfte an jedem Reiseziel zu finden."
+
+msgid "Language"
+msgstr "Sprache"
+
+msgid "Last 10 events"
+msgstr "Letzte 10 Ereignisse"
+
+msgid "Legal"
+msgstr "Rechtliches"
+
+msgid "Limited time"
+msgstr "Begrenzte Zeit"
+
+msgid "List Properties"
+msgstr "Unterkünfte auflisten"
+
+msgid "List Property"
+msgstr "Unterkunft auflisten"
+
+msgid "List Your Property"
+msgstr "Unterkunft inserieren"
+
+msgid "List your hotel, apartment or villa and reach thousands of travellers actively searching."
+msgstr "Inseriere dein Hotel, Apartment oder deine Villa und erreiche Tausende von aktiv suchenden Reisenden."
+
+msgid "List your property"
+msgstr "Inseriere deine Unterkunft"
+
+msgid "Live Dashboard"
+msgstr "Live-Dashboard"
+
+msgid "Location"
+msgstr "Standort"
+
+msgid "Logout"
+msgstr "Abmelden"
+
+msgid "Luxury"
+msgstr "Luxus"
+
+msgid "Luxury room with jacuzzi"
+msgstr "Luxuszimmer mit Whirlpool"
+
+msgid "Main image"
+msgstr "Hauptbild"
+
+msgid "Main photo"
+msgstr "Hauptfoto"
+
+msgid "Manage"
+msgstr "Verwalten"
+
+msgid "Manage my own properties"
+msgstr "Meine eigenen Objekte verwalten"
+
+msgid "Manage properties"
+msgstr "Objekte verwalten"
+
+msgid "Manage rooms"
+msgstr "Zimmer verwalten"
+
+msgid "Max guests"
+msgstr "Max. Gäste"
+
+msgid "Max guests:"
+msgstr "Max. Gäste:"
+
+msgid "Member since"
+msgstr "Mitglied seit"
+
+msgid "Mention nearby attractions, unique amenities and the atmosphere."
+msgstr "Erwähne nahegelegene Attraktionen, besondere Annehmlichkeiten und die Atmosphäre."
+
+msgid "Min. 6 characters"
+msgstr "Mind. 6 Zeichen"
+
+msgid "Most Popular"
+msgstr "Am beliebtesten"
+
+msgid "Most loved destinations by our travelers worldwide"
+msgstr "Die beliebtesten Reiseziele unserer Reisenden weltweit"
+
+msgid "My Account"
+msgstr "Mein Konto"
+
+msgid "My Bookings"
+msgstr "Meine Buchungen"
+
+msgid "My Dashboard"
+msgstr "Mein Dashboard"
+
+msgid "My Profile"
+msgstr "Mein Profil"
+
+msgid "My Properties"
+msgstr "Meine Objekte"
+
+msgid "My Reservations"
+msgstr "Meine Reservierungen"
+
+msgid "My Rooms"
+msgstr "Meine Zimmer"
+
+msgid "My properties"
+msgstr "Meine Objekte"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "New Password"
+msgstr "Neues Passwort"
+
+msgid "New listing"
+msgstr "Neues Inserat"
+
+msgid "Nights"
+msgstr "Nächte"
+
+msgid "Nights booked"
+msgstr "Gebuchte Nächte"
+
+msgid "Nights:"
+msgstr "Nächte:"
+
+msgid "No"
+msgstr "Nein"
+
+msgid "No description available."
+msgstr "Keine Beschreibung verfügbar."
+
+msgid "No hotels found"
+msgstr "Keine Hotels gefunden"
+
+msgid "No jacuzzi"
+msgstr "Kein Whirlpool"
+
+msgid "No past bookings"
+msgstr "Keine vergangenen Buchungen"
+
+msgid "No past reservations"
+msgstr "Keine vergangenen Reservierungen"
+
+msgid "No properties found"
+msgstr "Keine Unterkünfte gefunden"
+
+msgid "No properties yet"
+msgstr "Noch keine Unterkünfte"
+
+msgid "No properties yet."
+msgstr "Noch keine Unterkünfte."
+
+msgid "No recent activity"
+msgstr "Keine aktuellen Aktivitäten"
+
+msgid "No reviews yet"
+msgstr "Noch keine Bewertungen"
+
+msgid "No rooms added yet. Use the form to add rooms to your hotel properties."
+msgstr "Noch keine Zimmer hinzugefügt. Verwende das Formular, um Zimmer zu deinen Hotelobjekten hinzuzufügen."
+
+msgid "No rooms available for selected dates"
+msgstr "Keine Zimmer für die ausgewählten Daten verfügbar"
+
+msgid "No upcoming bookings yet"
+msgstr "Noch keine bevorstehenden Buchungen"
+
+msgid "No upcoming reservations"
+msgstr "Keine bevorstehenden Reservierungen"
+
+msgid "Number of beds"
+msgstr "Anzahl der Betten"
+
+msgid "On most properties"
+msgstr "Bei den meisten Unterkünften"
+
+msgid "Optional"
+msgstr "Optional"
+
+msgid "Our support team is available around the clock to assist with any issues."
+msgstr "Unser Support-Team ist rund um die Uhr erreichbar, um bei allen Fragen zu helfen."
+
+msgid "Our top picks"
+msgstr "Unsere Top-Auswahl"
+
+msgid "Overview"
+msgstr "Übersicht"
+
+msgid "Owner Login"
+msgstr "Besitzer-Login"
+
+msgid "Page Not Found"
+msgstr "Seite nicht gefunden"
+
+msgid "Paris"
+msgstr "Paris"
+
+msgid "Parking"
+msgstr "Parken"
+
+msgid "Password"
+msgstr "Passwort"
+
+msgid "Past"
+msgstr "Vergangenheit"
+
+msgid "Past Bookings"
+msgstr "Vergangene Buchungen"
+
+msgid "Past Stays"
+msgstr "Vergangene Aufenthalte"
+
+msgid "Pay"
+msgstr "Bezahlen"
+
+msgid "Pay Your Way"
+msgstr "Zahle wie du möchtest"
+
+msgid "Pay at the property upon arrival"
+msgstr "Bei Ankunft vor Ort bezahlen"
+
+msgid "Pay in Cash"
+msgstr "Bar bezahlen"
+
+msgid "Pay online or choose cash on arrival — confirmed instantly."
+msgstr "Bezahle online oder wähle Barzahlung bei Ankunft — sofort bestätigt."
+
+msgid "Pay securely online or choose cash on arrival — full flexibility to suit you."
+msgstr "Bezahle sicher online oder wähle Barzahlung bei Ankunft — volle Flexibilität für dich."
+
+msgid "Pay with Card"
+msgstr "Mit Karte zahlen"
+
+msgid "Payment Tracking"
+msgstr "Zahlungsverfolgung"
+
+msgid "Payment successful"
+msgstr "Zahlung erfolgreich"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Phone Number"
+msgstr "Telefonnummer"
+
+msgid "Photos"
+msgstr "Fotos"
+
+msgid "Plans change. Most properties offer free cancellation — peace of mind guaranteed."
+msgstr "Pläne ändern sich. Die meisten Unterkünfte bieten kostenlose Stornierung — garantiert sorgenfrei."
+
+msgid "Please enter a valid 16-digit card number"
+msgstr "Bitte gib eine gültige 16-stellige Kartennummer ein"
+
+msgid "Please enter a valid CVC"
+msgstr "Bitte gib einen gültigen CVC ein"
+
+msgid "Please enter a valid expiry date (MM/YY)"
+msgstr "Bitte gib ein gültiges Ablaufdatum (MM/JJ) ein"
+
+msgid "Please enter the cardholder name"
+msgstr "Bitte gib den Namen des Karteninhabers ein"
+
+msgid "Popular Now"
+msgstr "Gerade beliebt"
+
+msgid "Popular right now"
+msgstr "Gerade beliebt"
+
+msgid "Press"
+msgstr "Presse"
+
+msgid "Preview"
+msgstr "Vorschau"
+
+msgid "Price"
+msgstr "Preis"
+
+msgid "Price (high to low)"
+msgstr "Preis (absteigend)"
+
+msgid "Price (low to high)"
+msgstr "Preis (aufsteigend)"
+
+msgid "Price per night (€)"
+msgstr "Preis pro Nacht (€)"
+
+msgid "Price/night (€)"
+msgstr "Preis/Nacht (€)"
+
+msgid "Price: high to low"
+msgstr "Preis: absteigend"
+
+msgid "Price: low to high"
+msgstr "Preis: aufsteigend"
+
+msgid "Privacy"
+msgstr "Datenschutz"
+
+msgid "Privacy Policy"
+msgstr "Datenschutzrichtlinie"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Profile Photo"
+msgstr "Profilfoto"
+
+msgid "Profile Settings"
+msgstr "Profileinstellungen"
+
+msgid "Properties"
+msgstr "Immobilien"
+
+msgid "Properties Available Worldwide"
+msgstr "Verfügbare Unterkünfte weltweit"
+
+msgid "Properties Listed"
+msgstr "Inserierte Unterkünfte"
+
+msgid "Properties with professional photos receive 3× more bookings."
+msgstr "Unterkünfte mit professionellen Fotos erhalten 3× mehr Buchungen."
+
+msgid "Property"
+msgstr "Objekt"
+
+msgid "Property / Room"
+msgstr "Objekt / Zimmer"
+
+msgid "Property Owner"
+msgstr "Objektbesitzer"
+
+msgid "Property highlights"
+msgstr "Objekt-Highlights"
+
+msgid "Property name"
+msgstr "Objektname"
+
+msgid "Property stats"
+msgstr "Objektstatistiken"
+
+msgid "Property type"
+msgstr "Objekttyp"
+
+msgid "Quick actions"
+msgstr "Schnellaktionen"
+
+msgid "Quick links"
+msgstr "Schnelllinks"
+
+msgid "Ready to Explore?"
+msgstr "Bereit zu erkunden?"
+
+msgid "Real Guest Reviews"
+msgstr "Echte Gästebewertungen"
+
+msgid "Recent activity"
+msgstr "Letzte Aktivitäten"
+
+msgid "Recommended"
+msgstr "Empfohlen"
+
+msgid "Remove Photo"
+msgstr "Foto entfernen"
+
+msgid "Remove all rooms first"
+msgstr "Entferne zuerst alle Zimmer"
+
+msgid "Remove profile photo?"
+msgstr "Profilfoto entfernen?"
+
+msgid "Repeat password"
+msgstr "Passwort wiederholen"
+
+msgid "Repeat your password"
+msgstr "Wiederhole dein Passwort"
+
+msgid "Replace photo"
+msgstr "Foto ersetzen"
+
+msgid "Research similar properties in your area before setting your price."
+msgstr "Recherchiere ähnliche Unterkünfte in deiner Gegend, bevor du deinen Preis festlegst."
+
+msgid "Resorts"
+msgstr "Resorts"
+
+msgid "Resources"
+msgstr "Ressourcen"
+
+msgid "Restaurant"
+msgstr "Restaurant"
+
+msgid "Revenue"
+msgstr "Umsatz"
+
+msgid "Reviews"
+msgstr "Bewertungen"
+
+msgid "Room"
+msgstr "Zimmer"
+
+msgid "Room number"
+msgstr "Zimmernummer"
+
+msgid "Room type"
+msgstr "Zimmertyp"
+
+msgid "Rooms"
+msgstr "Zimmer"
+
+msgid "SSL Encrypted"
+msgstr "SSL-verschlüsselt"
+
+msgid "SSL encrypted"
+msgstr "SSL-verschlüsselt"
+
+msgid "Safety"
+msgstr "Sicherheit"
+
+msgid "Save Changes"
+msgstr "Änderungen speichern"
+
+msgid "Search"
+msgstr "Suche"
+
+msgid "Search & Discover"
+msgstr "Suchen & Entdecken"
+
+msgid "Search Hotels"
+msgstr "Hotels suchen"
+
+msgid "Search Results"
+msgstr "Suchergebnisse"
+
+msgid "Secure Booking"
+msgstr "Sichere Buchung"
+
+msgid "Secure Payment"
+msgstr "Sichere Zahlung"
+
+msgid "Secure booking"
+msgstr "Sichere Buchung"
+
+msgid "Secure online payment via Stripe"
+msgstr "Sichere Online-Zahlung über Stripe"
+
+msgid "Secure payments"
+msgstr "Sichere Zahlungen"
+
+msgid "Securely"
+msgstr "Sicher"
+
+msgid "See availability"
+msgstr "Verfügbarkeit ansehen"
+
+msgid "See card & cash payments at a glance."
+msgstr "Sieh Karten- und Barzahlungen auf einen Blick."
+
+msgid "Select dates"
+msgstr "Daten auswählen"
+
+msgid "Select multiple files"
+msgstr "Mehrere Dateien auswählen"
+
+msgid "Select property…"
+msgstr "Objekt auswählen…"
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Sign In"
+msgstr "Anmelden"
+
+msgid "Sign Out"
+msgstr "Abmelden"
+
+msgid "Sign in"
+msgstr "Anmelden"
+
+msgid "Sign in to access your account and bookings"
+msgstr "Melde dich an, um auf dein Konto und deine Buchungen zuzugreifen"
+
+msgid "Sign up with Google"
+msgstr "Mit Google registrieren"
+
+msgid "Simple Process"
+msgstr "Einfacher Prozess"
+
+msgid "Sleeps up to 2 guests"
+msgstr "Platz für bis zu 2 Gäste"
+
+msgid "Sort by:"
+msgstr "Sortieren nach:"
+
+msgid "Spa"
+msgstr "Spa"
+
+msgid "Special offer"
+msgstr "Sonderangebot"
+
+msgid "Special offers"
+msgstr "Sonderangebote"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Star Rating"
+msgstr "Sternebewertung"
+
+msgid "Star rating"
+msgstr "Sternebewertung"
+
+msgid "Stars"
+msgstr "Sterne"
+
+msgid "Starting from"
+msgstr "Ab"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Stay at our top"
+msgstr "Übernachte in unseren Top"
+
+msgid "StayLux Admin"
+msgstr "StayLux Admin"
+
+msgid "Stayora Admin"
+msgstr "Stayora Admin"
+
+msgid "Stays"
+msgstr "Aufenthalte"
+
+msgid "Street address"
+msgstr "Straßenadresse"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "Swimming pool"
+msgstr "Schwimmbad"
+
+msgid "System Overview"
+msgstr "Systemübersicht"
+
+msgid "Terms"
+msgstr "Bedingungen"
+
+msgid "Terms of Service"
+msgstr "Nutzungsbedingungen"
+
+msgid "The page you are looking for does not exist or has been moved."
+msgstr "Die von dir gesuchte Seite existiert nicht oder wurde verschoben."
+
+msgid "The smarter way to book your stay"
+msgstr "Der intelligentere Weg, deine Unterkunft zu buchen"
+
+msgid "This Month"
+msgstr "Diesen Monat"
+
+msgid "This cannot be undone."
+msgstr "Dies kann nicht rückgängig gemacht werden."
+
+msgid "Thousands of honest reviews from verified guests help you make smarter decisions."
+msgstr "Tausende ehrlicher Bewertungen von verifizierten Gästen helfen dir, bessere Entscheidungen zu treffen."
+
+msgid "Tips for success"
+msgstr "Tipps für den Erfolg"
+
+msgid "Toggle light/dark mode"
+msgstr "Hell/Dunkel-Modus umschalten"
+
+msgid "Top Rated"
+msgstr "Top bewertet"
+
+msgid "Top rated"
+msgstr "Top bewertet"
+
+msgid "Total"
+msgstr "Gesamt"
+
+msgid "Total Bookings"
+msgstr "Buchungen gesamt"
+
+msgid "Total Nights"
+msgstr "Nächte gesamt"
+
+msgid "Total Revenue"
+msgstr "Gesamtumsatz"
+
+msgid "Total Rooms"
+msgstr "Zimmer gesamt"
+
+msgid "Total Spent"
+msgstr "Gesamtausgaben"
+
+msgid "Total Users"
+msgstr "Benutzer gesamt"
+
+msgid "Total nights"
+msgstr "Nächte gesamt"
+
+msgid "Total:"
+msgstr "Gesamt:"
+
+msgid "Track bookings and revenue in real time."
+msgstr "Verfolge Buchungen und Umsätze in Echtzeit."
+
+msgid "Trending Destinations"
+msgstr "Trend-Reiseziele"
+
+msgid "Trending destinations"
+msgstr "Trend-Reiseziele"
+
+msgid "Trusted platform"
+msgstr "Vertrauenswürdige Plattform"
+
+msgid "Try adjusting your search filters"
+msgstr "Versuche, deine Suchfilter anzupassen"
+
+msgid "Try adjusting your search or clearing filters"
+msgstr "Versuche, deine Suche anzupassen oder Filter zu löschen"
+
+msgid "Turn your property into income"
+msgstr "Verdiene mit deiner Unterkunft"
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Type:"
+msgstr "Typ:"
+
+msgid "Unique destinations"
+msgstr "Einzigartige Reiseziele"
+
+msgid "Unique properties"
+msgstr "Einzigartige Unterkünfte"
+
+msgid "Up to"
+msgstr "Bis zu"
+
+msgid "Upcoming"
+msgstr "Bevorstehend"
+
+msgid "Upcoming Bookings"
+msgstr "Bevorstehende Buchungen"
+
+msgid "Upcoming Stays"
+msgstr "Bevorstehende Aufenthalte"
+
+msgid "Update your administrator profile information"
+msgstr "Aktualisiere deine Administrator-Profilinformationen"
+
+msgid "Update your personal information and password"
+msgstr "Aktualisiere deine persönlichen Daten und dein Passwort"
+
+msgid "Upload new photo"
+msgstr "Neues Foto hochladen"
+
+msgid "Upload photo"
+msgstr "Foto hochladen"
+
+msgid "Username"
+msgstr "Benutzername"
+
+msgid "Verified Properties"
+msgstr "Verifizierte Unterkünfte"
+
+msgid "Verified Reviews"
+msgstr "Verifizierte Bewertungen"
+
+msgid "View Deals"
+msgstr "Angebote ansehen"
+
+msgid "View all"
+msgstr "Alle anzeigen"
+
+msgid "View all bookings"
+msgstr "Alle Buchungen anzeigen"
+
+msgid "View bookings"
+msgstr "Buchungen anzeigen"
+
+msgid "View guest page"
+msgstr "Gästeseite anzeigen"
+
+msgid "View public"
+msgstr "Öffentlich anzeigen"
+
+msgid "View public page"
+msgstr "Öffentliche Seite anzeigen"
+
+msgid "View rooms"
+msgstr "Zimmer anzeigen"
+
+msgid "Villas"
+msgstr "Villen"
+
+msgid "We match any price"
+msgstr "Wir gleichen jeden Preis aus"
+
+msgid "Welcome back"
+msgstr "Willkommen zurück"
+
+msgid "What our guests are saying"
+msgstr "Was unsere Gäste sagen"
+
+msgid "Where are you going?"
+msgstr "Wohin gehst du?"
+
+msgid "Where would you like to go"
+msgstr "Wohin möchtest du reisen"
+
+msgid "Why Stayora"
+msgstr "Warum Stayora"
+
+msgid "Why book with Stayora?"
+msgstr "Warum bei Stayora buchen?"
+
+msgid "Wonderful"
+msgstr "Hervorragend"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Your address"
+msgstr "Deine Adresse"
+
+msgid "Your next great stay is"
+msgstr "Dein nächster großartiger Aufenthalt ist"
+
+msgid "Your next stay"
+msgstr "Dein nächster Aufenthalt"
+
+msgid "Your world of stays"
+msgstr "Deine Welt der Unterkünfte"
+
+msgid "across"
+msgstr "in"
+
+msgid "and"
+msgstr "und"
+
+msgid "bed"
+msgstr "Bett"
+
+msgid "beds"
+msgstr "Betten"
+
+msgid "bookings"
+msgstr "Buchungen"
+
+msgid "e.g. 123 Boulevard Haussmann"
+msgstr "z. B. Boulevard Haussmann 123"
+
+msgid "e.g. Grand Palace Hotel"
+msgstr "z. B. Grand Palace Hotel"
+
+msgid "found in"
+msgstr "gefunden in"
+
+msgid "guests"
+msgstr "Gäste"
+
+msgid "hotels found"
+msgstr "Hotels gefunden"
+
+msgid "listed"
+msgstr "gelistet"
+
+msgid "ll have the whole place to yourself"
+msgstr "wirst du die ganze Unterkunft für dich haben"
+
+msgid "night"
+msgstr "Nacht"
+
+msgid "nights"
+msgstr "Nächte"
+
+msgid "off"
+msgstr "sparen"
+
+msgid "optional, multiple"
+msgstr "optional, mehrere"
+
+msgid "or"
+msgstr "oder"
+
+msgid "per night"
+msgstr "pro Nacht"
+
+msgid "place to stay"
+msgstr "Unterkunft"
+
+msgid "properties"
+msgstr "Unterkünfte"
+
+msgid "property"
+msgstr "Unterkunft"
+
+msgid "replace"
+msgstr "ersetzen"
+
+msgid "reservation"
+msgstr "Reservierung"
+
+msgid "reservations"
+msgstr "Reservierungen"
+
+msgid "reviews"
+msgstr "Bewertungen"
+
+msgid "room"
+msgstr "Zimmer"
+
+msgid "rooms"
+msgstr "Zimmer"
+
+msgid "rooms total"
+msgstr "Zimmer gesamt"
+
+msgid "s a summary of your bookings and activity"
+msgstr "ist eine Zusammenfassung deiner Buchungen und Aktivitäten"
+
+msgid "total"
+msgstr "gesamt"
+
+msgid "upcoming"
+msgstr "bevorstehend"
+
+msgid "upload"
+msgstr "hochladen"
+
+msgid "vs last month"
+msgstr "gegenüber Vormonat"
+
+msgid "waiting to be discovered"
+msgstr "wartet darauf, entdeckt zu werden"
+
+msgid "your@email.com"
+msgstr "deine@email.de"
+
+msgid "© 2025 Stayora. All rights reserved."
+msgstr "© 2025 Stayora. Alle Rechte vorbehalten."
+
+msgid "••••••••"
+msgstr "••••••••"
+
+msgid "★★"
+msgstr "★★"
+
+msgid "★★★"
+msgstr "★★★"
+
+msgid "★★★★"
+msgstr "★★★★"
+
+msgid "★★★★★"
+msgstr "★★★★★"
+
+msgid "✍️ Write a compelling description"
+msgstr "✍️ Schreibe eine überzeugende Beschreibung"
+
+msgid "🌴 Villa"
+msgstr "🌴 Villa"
+
+msgid "🏖️ Resort"
+msgstr "🏖️ Resort"
+
+msgid "🏠 Apartment"
+msgstr "🏠 Apartment"
+
+msgid "🏨 For hotels"
+msgstr "🏨 Bei Hotels"
+
+msgid "🏨 Hotel"
+msgstr "🏨 Hotel"
+
+msgid "💰 Set competitive pricing"
+msgstr "💰 Setze wettbewerbsfähige Preise"
+
+msgid "📸 Great photos matter"
+msgstr "📸 Großartige Fotos sind wichtig"
+
