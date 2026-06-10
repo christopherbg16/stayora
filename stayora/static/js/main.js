@@ -12,8 +12,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 document.addEventListener('DOMContentLoaded', function() {
     const cards = document.querySelectorAll('.card');
     cards.forEach((card, index) => {
-        card.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1}s`;
         card.style.opacity = '0';
+        card.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1}s`;
     });
 });
 

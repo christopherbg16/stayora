@@ -5,7 +5,6 @@
 {% block content %}
 <div class="container-fluid px-0" style="margin-top: 30px;">
     <div class="container">
-        <!-- Breadcrumb навигация -->
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ url_for('user.browse_stays') }}" style="color: var(--text-muted); text-decoration: none;">{{ _('Home') }}</a></li>
@@ -14,9 +13,8 @@
             </ol>
         </nav>
 
-        <!-- Заглавие и основна информация -->
-        <div class="row mb-4">
-            <div class="col-md-8">
+        <div class="row mb-3">
+            <div class="col-12">
                 <h1 class="mb-2" style="color: var(--text-light); font-size: 2.5rem;">{{ hotel.name }}</h1>
                 <div class="d-flex align-items-center mb-2">
                     <div class="me-3">
@@ -37,51 +35,42 @@
                     {{ hotel.address }}, {{ hotel.city }}, {{ hotel.country }}
                 </p>
             </div>
-            <div class="col-md-4 text-end">
-                <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
-                    <div class="card-body">
-                        <span class="badge mb-2" style="background-color: {% if hotel.property_type == 'hotel' %}#667eea{% elif hotel.property_type == 'apartment' %}#48c6ef{% elif hotel.property_type == 'villa' %}#5f2c82{% else %}#f093fb{% endif %}; color: white; font-size: 0.9rem;">
-                            {{ hotel.property_type|title }}
-                        </span>
-                        <h3 class="mb-1" style="color: var(--secondary);">€{{ hotel.display_price if hotel.display_price else hotel.price_per_night or '0' }}</h3>
-                                                <small class="text-muted">{{ _('per night') }}</small>
-                                            </div>
-                                            {% if check_in and check_out %}
-                                                <p class="mb-2">
-                                                    <small class="text-muted">{{ _('Total:') }} €{{ item.total_price }}</small>
-                                                </p>
-                                                <button class="btn btn-primary w-100"
-                                                        onclick="bookRoom({{ item.room.id }}, '{{ check_in }}', '{{ check_out }}')">
-                                                    {{ _('Book now') }}
-                                                </button>
-                                            {% else %}
-                                                <button class="btn btn-outline-primary w-100" disabled>
-                                                    {{ _('Select dates') }}
-                                                </button>
-                                            {% endif %}
-                        <button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-2"
-                                style="opacity: 0.7; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"
-                                onclick="nextImage()" id="nextBtn">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+        </div>
 
-                        <!-- Индикатор за брой снимки -->
-                        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2"
-                             style="background-color: rgba(0,0,0,0.6); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;"
-                             id="imageCounter">
-                            {% if hotel.images and hotel.images|length > 0 %}
-                                1/{{ hotel.images|length + 1 }}
-                            {% else %}
-                                1/1
-                            {% endif %}
-                        </div>
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="position-relative" style="border-radius: 12px; overflow: hidden; background-color: var(--bg-panel);">
+                    <img id="mainHotelImage"
+                         src="data:image/jpeg;base64,{{ hotel.main_image|b64encode }}"
+                         style="width: 100%; height: 450px; object-fit: cover; display: block;"
+                         alt="{{ hotel.name }}">
+
+                    {% if hotel.images and hotel.images|length > 0 %}
+                    <button class="btn btn-dark position-absolute top-50 start-0 translate-middle-y ms-2"
+                            style="opacity: 0.7; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 10;"
+                            onclick="prevImage()" id="prevBtn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-2"
+                            style="opacity: 0.7; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; z-index: 10;"
+                            onclick="nextImage()" id="nextBtn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+
+                    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2"
+                         style="background-color: rgba(0,0,0,0.6); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; z-index: 10;"
+                         id="imageCounter">
+                        {% if hotel.images and hotel.images|length > 0 %}
+                            1/{{ hotel.images|length + 1 }}
+                        {% else %}
+                            1/1
+                        {% endif %}
                     </div>
+                    {% endif %}
                 </div>
 
-                <!-- Миниатюри (ако има галерия) -->
                 {% if hotel.images and hotel.images|length > 0 %}
-                <div class="row g-2" id="thumbnailContainer">
-                    <!-- Първата миниатюра е основната снимка -->
+                <div class="row g-2 mt-2" id="thumbnailContainer">
                     <div class="col-3">
                         <div class="card" style="background-color: var(--bg-panel); border: 2px solid var(--primary); cursor: pointer; overflow: hidden; border-radius: 8px;"
                              onclick="showImage(0)" id="thumb-0">
@@ -92,8 +81,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Останалите снимки от галерията -->
                     {% for image in hotel.images %}
                     <div class="col-3">
                         <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); cursor: pointer; overflow: hidden; border-radius: 8px;"
@@ -110,8 +97,19 @@
                 {% endif %}
             </div>
 
-            <!-- Бърза информация -->
             <div class="col-md-4">
+                <div class="card mb-3" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
+                    <div class="card-body">
+                        <span class="badge mb-2" style="background-color: {% if hotel.property_type == 'hotel' %}#667eea{% elif hotel.property_type == 'apartment' %}#48c6ef{% elif hotel.property_type == 'villa' %}#5f2c82{% else %}#f093fb{% endif %}; color: white; font-size: 0.9rem;">
+                            {{ hotel.property_type|title }}
+                        </span>
+                        <h3 class="mb-1" style="color: var(--secondary);">
+                            €{{ hotel.display_price if hotel.display_price else hotel.price_per_night or '0' }}
+                        </h3>
+                        <small class="text-muted">{{ _('per night') }}</small>
+                    </div>
+                </div>
+
                 <div class="card mb-3" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input);">
                         <h5 class="mb-0" style="color: var(--text-light);">{{ _('Property highlights') }}</h5>
@@ -151,7 +149,6 @@
                     </div>
                 </div>
 
-                <!-- Проверка за наличност -->
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
                     <div class="card-header" style="background-color: var(--bg-input);">
                         <h5 class="mb-0" style="color: var(--text-light);">{{ _('Check availability') }}</h5>
@@ -177,7 +174,6 @@
             </div>
         </div>
 
-        <!-- Описание -->
         <div class="row mb-5">
             <div class="col-12">
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
@@ -191,7 +187,6 @@
             </div>
         </div>
 
-        <!-- Секция за настаняване -->
         <div class="row mb-5" id="rooms">
             <div class="col-12">
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
@@ -206,7 +201,6 @@
                     </div>
                     <div class="card-body">
                         {% if hotel.property_type in ('hotel', 'villa', 'resort') %}
-                            <!-- Rooms for hotels, villas, resorts -->
                             {% if rooms %}
                                 {% for item in rooms %}
                                 <div class="mb-3 p-3" style="background-color: var(--bg-input); border-radius: 10px;">
@@ -244,19 +238,19 @@
                                         <div class="col-md-3 text-end">
                                             <div class="mb-2">
                                                 <h4 class="mb-0" style="color: var(--secondary);">€{{ item.room.price }}</h4>
-<small class="text-muted">{{ _('per night') }}</small>
+                                                <small class="text-muted">{{ _('per night') }}</small>
                                             </div>
                                             {% if check_in and check_out %}
                                                 <p class="mb-2">
-                                                    <small class="text-muted">Total: €{{ item.total_price }}</small>
+                                                    <small class="text-muted">{{ _('Total:') }} €{{ item.total_price }}</small>
                                                 </p>
                                                 <button class="btn btn-primary w-100"
                                                         onclick="bookRoom({{ item.room.id }}, '{{ check_in }}', '{{ check_out }}')">
-                                                    Book now
+                                                    {{ _('Book now') }}
                                                 </button>
                                             {% else %}
                                                 <button class="btn btn-outline-primary w-100" disabled>
-                                                    Select dates
+                                                    {{ _('Select dates') }}
                                                 </button>
                                             {% endif %}
                                         </div>
@@ -267,7 +261,6 @@
                                 <p class="text-center text-muted my-4">{{ _('No rooms available for selected dates') }}</p>
                             {% endif %}
                         {% else %}
-                            <!-- ЗА АПАРТАМЕНТИ, ВИЛИ, РЕЗОРТИ - целия имот -->
                             <div class="p-4" style="background-color: var(--bg-input); border-radius: 10px;">
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
@@ -278,31 +271,31 @@
                                         </p>
                                         <p class="mb-2" style="color: var(--text-muted);">
                                             <i class="fas fa-users me-2" style="color: var(--primary);"></i>
-                                            Sleeps up to {{ hotel.max_guests or 2 }} guests
+                                            {{ _('Sleeps up to') }} {{ hotel.max_guests or 2 }} {{ _('guests') }}
                                         </p>
                                         <p class="mb-0" style="color: var(--text-muted);">
                                             <i class="fas fa-check-circle me-2" style="color: var(--secondary);"></i>
-                                            {{ 'You\_('ll have the whole place to yourself') }}
+                                            {{ _("You'll have the whole place to yourself") }}
                                         </p>
                                     </div>
                                     <div class="col-md-4 text-end">
-    <h3 class="mb-2" style="color: var(--secondary);">€{{ hotel.price_per_night or '0' }}</h3>
-    <p class="text-muted mb-3">{{ _('per night') }}</p>
-    {% if check_in and check_out %}
-        <p class="mb-2">
-            <small class="text-muted">{{ _('Total:') }} €{{ (hotel.price_per_night or 0) * nights }}</small>
-        </p>
-        <button class="btn btn-primary w-100"
-                onclick="bookProperty({{ hotel.id }}, '{{ check_in }}', '{{ check_out }}')"
-                {% if not hotel.price_per_night %}disabled{% endif %}>
-            {{ _('Book entire property') }}
-        </button>
-    {% else %}
-        <button class="btn btn-outline-primary w-100" disabled>
-            {{ _('Select dates') }}
-        </button>
-    {% endif %}
-</div>
+                                        <h3 class="mb-2" style="color: var(--secondary);">€{{ hotel.price_per_night or '0' }}</h3>
+                                        <p class="text-muted mb-3">{{ _('per night') }}</p>
+                                        {% if check_in and check_out %}
+                                            <p class="mb-2">
+                                                <small class="text-muted">{{ _('Total:') }} €{{ (hotel.price_per_night or 0) * nights }}</small>
+                                            </p>
+                                            <button class="btn btn-primary w-100"
+                                                    onclick="bookProperty({{ hotel.id }}, '{{ check_in }}', '{{ check_out }}')"
+                                                    {% if not hotel.price_per_night %}disabled{% endif %}>
+                                                {{ _('Book entire property') }}
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-outline-primary w-100" disabled>
+                                                {{ _('Select dates') }}
+                                            </button>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         {% endif %}
@@ -311,7 +304,6 @@
             </div>
         </div>
 
-        <!-- Amenities секция -->
         <div class="row mb-5">
             <div class="col-12">
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
@@ -350,7 +342,6 @@
             </div>
         </div>
 
-        <!-- Reviews секция -->
         <div class="row mb-5">
             <div class="col-12">
                 <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border);">
@@ -380,12 +371,11 @@
 </div>
 
 <script>
-// Масив с всички снимки
 const images = [
     {% if hotel.main_image %}
     {
         src: 'data:image/jpeg;base64,{{ hotel.main_image|b64encode }}',
-        alt: 'Main image'
+        alt: '{{ _('Main image') }}'
     },
     {% endif %}
     {% for image in hotel.images %}
@@ -406,19 +396,16 @@ function showImage(index) {
 
     currentImageIndex = index;
 
-    // Обнови главната снимка
     const mainImage = document.getElementById('mainHotelImage');
     if (mainImage) {
         mainImage.src = images[index].src;
     }
 
-    // Обнови индикатора
     const counter = document.getElementById('imageCounter');
     if (counter) {
         counter.innerText = `${index + 1}/${images.length}`;
     }
 
-    // Обнови активния бордер на миниатюрите
     for (let i = 0; i < images.length; i++) {
         const thumb = document.getElementById(`thumb-${i}`);
         if (thumb) {
@@ -494,7 +481,6 @@ function bookProperty(propertyId, checkIn, checkOut) {
     });
 }
 
-// Инициализация
 document.addEventListener('DOMContentLoaded', function() {
     if (images.length > 0) {
         showImage(0);
@@ -520,7 +506,6 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* Стилове за галерията */
 .gallery-main-img {
     transition: opacity 0.3s ease;
 }
@@ -534,7 +519,6 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* Стрелките */
 .btn-dark {
     background-color: rgba(0,0,0,0.5);
     border: none;
@@ -552,7 +536,6 @@ document.addEventListener('DOMContentLoaded', function() {
     cursor: not-allowed;
 }
 
-/* Индикатор */
 #imageCounter {
     font-weight: 500;
     letter-spacing: 0.5px;

@@ -517,6 +517,12 @@
             color: var(--text-muted);
         }
 
+        /* ── ANIMATIONS ─────────────────────────── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* ── RESPONSIVE ──────────────────────────── */
         @media (max-width: 768px) {
             .navbar { padding: 0 1rem; }

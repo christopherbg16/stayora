@@ -61,6 +61,9 @@ class User(UserMixin, BaseModel):
 
     @classmethod
     def create(cls, **kwargs):
+        if 'id' not in kwargs:
+            max_id = supabase.table('users').select('id').order('id', desc=True).limit(1).execute()
+            kwargs['id'] = (max_id.data[0]['id'] + 1) if (max_id.data and max_id.data[0].get('id')) else 1
         data = supabase.table('users').insert(kwargs).execute()
         return cls(data.data[0]) if data.data else None
 
@@ -130,6 +133,9 @@ class Hotel(BaseModel):
 
     @classmethod
     def create(cls, **kwargs):
+        if 'id' not in kwargs:
+            max_id = supabase.table('hotels').select('id').order('id', desc=True).limit(1).execute()
+            kwargs['id'] = (max_id.data[0]['id'] + 1) if (max_id.data and max_id.data[0].get('id')) else 1
         data = supabase.table('hotels').insert(kwargs).execute()
         return cls(data.data[0]) if data.data else None
 
@@ -237,6 +243,9 @@ class Room(BaseModel):
 
     @classmethod
     def create(cls, **kwargs):
+        if 'id' not in kwargs:
+            max_id = supabase.table('rooms').select('id').order('id', desc=True).limit(1).execute()
+            kwargs['id'] = (max_id.data[0]['id'] + 1) if (max_id.data and max_id.data[0].get('id')) else 1
         data = supabase.table('rooms').insert(kwargs).execute()
         return cls(data.data[0]) if data.data else None
 
@@ -299,6 +308,9 @@ class HotelImage(BaseModel):
 
     @classmethod
     def create(cls, **kwargs):
+        if 'id' not in kwargs:
+            max_id = supabase.table('hotel_images').select('id').order('id', desc=True).limit(1).execute()
+            kwargs['id'] = (max_id.data[0]['id'] + 1) if (max_id.data and max_id.data[0].get('id')) else 1
         data = supabase.table('hotel_images').insert(kwargs).execute()
         return cls(data.data[0]) if data.data else None
 
@@ -398,6 +410,9 @@ class PropertyReservation(BaseModel):
 
     @classmethod
     def create(cls, **kwargs):
+        if 'id' not in kwargs:
+            max_id = supabase.table('property_reservations').select('id').order('id', desc=True).limit(1).execute()
+            kwargs['id'] = (max_id.data[0]['id'] + 1) if (max_id.data and max_id.data[0].get('id')) else 1
         data = supabase.table('property_reservations').insert(kwargs).execute()
         return cls(data.data[0]) if data.data else None
 
@@ -436,6 +451,9 @@ class HotelReview(BaseModel):
 class Activity(BaseModel):
     @classmethod
     def create(cls, **kwargs):
+        if 'id' not in kwargs:
+            max_id = supabase.table('activities').select('id').order('id', desc=True).limit(1).execute()
+            kwargs['id'] = (max_id.data[0]['id'] + 1) if (max_id.data and max_id.data[0].get('id')) else 1
         data = supabase.table('activities').insert(kwargs).execute()
         return cls(data.data[0]) if data.data else None
 
