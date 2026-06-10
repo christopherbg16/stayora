@@ -123,7 +123,7 @@
                             <div class="col-md-4" id="priceField">
                                 <label class="form-label">{{ _('Price per night (€)') }}</label>
                                 <input type="number" step="0.01" name="price_per_night" class="form-control" placeholder="150.00">
-                                <small class="text-muted" style="font-size:0.75rem;">{{ _('Apartments, villas & resorts only') }}</small>
+                                <small class="text-muted" style="font-size:0.75rem;">{{ _('Apartments only') }}</small>
                             </div>
                         </div>
                     </div>
@@ -151,6 +151,76 @@
                                     <small style="color:var(--text-muted);">{{ _('Select multiple files') }}</small>
                                     <input type="file" name="gallery_images" id="galleryInput" accept="image/*" multiple>
                                 </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AMENITIES -->
+                    <div class="form-section">
+                        <div class="form-section-title"><i class="fas fa-concierge-bell"></i> {{ _('Amenities') }}</div>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">{{ _('Select amenities') }}</label>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Free WiFi" class="form-check-input" id="amenity_wifi">
+                                            <label class="form-check-label" for="amenity_wifi">{{ _('Free WiFi') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Free parking" class="form-check-input" id="amenity_parking">
+                                            <label class="form-check-label" for="amenity_parking">{{ _('Free parking') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Restaurant" class="form-check-input" id="amenity_restaurant">
+                                            <label class="form-check-label" for="amenity_restaurant">{{ _('Restaurant') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Swimming pool" class="form-check-input" id="amenity_pool">
+                                            <label class="form-check-label" for="amenity_pool">{{ _('Swimming pool') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Fitness center" class="form-check-input" id="amenity_fitness">
+                                            <label class="form-check-label" for="amenity_fitness">{{ _('Fitness center') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Spa" class="form-check-input" id="amenity_spa">
+                                            <label class="form-check-label" for="amenity_spa">{{ _('Spa') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Jacuzzi" class="form-check-input" id="amenity_jacuzzi">
+                                            <label class="form-check-label" for="amenity_jacuzzi">{{ _('Jacuzzi') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Air conditioning" class="form-check-input" id="amenity_ac">
+                                            <label class="form-check-label" for="amenity_ac">{{ _('Air conditioning') }}</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="amenities" value="Pet friendly" class="form-check-input" id="amenity_pets">
+                                            <label class="form-check-label" for="amenity_pets">{{ _('Pet friendly') }}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">{{ _('Custom amenities') }} <span style="color:var(--text-muted);font-size:0.78rem;">({{ _('comma separated') }})</span></label>
+                                <input type="text" name="custom_amenities" class="form-control" placeholder="{{ _('e.g. Beach view, Breakfast included, Rooftop terrace') }}">
                             </div>
                         </div>
                     </div>

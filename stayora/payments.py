@@ -43,7 +43,7 @@ def checkout_room(room_id):
                         'currency': 'eur',
                         'product_data': {
                             'name': f'Room #{room.number} - {hotel.name}',
-                            'description': f'{room.type} Room · {nights} night(s) · {hotel.city}, {hotel.country}',
+                            'description': f'Room #{room.number} · {nights} night(s) · {hotel.city}, {hotel.country}',
                         },
                         'unit_amount': total_cents,
                     },
@@ -237,30 +237,38 @@ def process_payment():
             room = Room.get(booking_id)
 
             if payment_method == 'card':
-                checkout_session = stripe.checkout.Session.create(
-                    payment_method_types=['card'],
-                    line_items=[{
+                session_data = {
+                    'payment_method_types': ['card'],
+                    'line_items': [{
                         'price_data': {
                             'currency': 'eur',
                             'product_data': {
                                 'name': f'Room #{room.number} - {room.hotel.name}',
-                                'description': f'{room.type} Room · {nights} night(s)',
+                                'description': f'Room #{room.number} · {nights} night(s)',
                             },
                             'unit_amount': int(total_price * 100),
                         },
                         'quantity': 1,
                     }],
-                    mode='payment',
-                    success_url=url_for('payments.success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-                    cancel_url=url_for('payments.cancel', _external=True),
-                    metadata={
+                    'mode': 'payment',
+                    'success_url': url_for('payments.success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url': url_for('payments.cancel', _external=True),
+                    'metadata': {
                         'room_id': booking_id,
                         'user_id': current_user.id,
                         'check_in': check_in,
                         'nights': nights,
                         'type': 'room'
                     }
-                )
+                }
+                owner_stripe_id = getattr(room.hotel, 'stripe_account_id', None) or None
+                if owner_stripe_id:
+                    session_data['payment_intent_data'] = {
+                        'transfer_data': {
+                            'destination': owner_stripe_id,
+                        }
+                    }
+                checkout_session = stripe.checkout.Session.create(**session_data)
                 return redirect(checkout_session.url, code=303)
 
             else:
@@ -283,9 +291,9 @@ def process_payment():
             hotel = Hotel.get(booking_id)
 
             if payment_method == 'card':
-                checkout_session = stripe.checkout.Session.create(
-                    payment_method_types=['card'],
-                    line_items=[{
+                session_data = {
+                    'payment_method_types': ['card'],
+                    'line_items': [{
                         'price_data': {
                             'currency': 'eur',
                             'product_data': {
@@ -296,17 +304,25 @@ def process_payment():
                         },
                         'quantity': 1,
                     }],
-                    mode='payment',
-                    success_url=url_for('payments.success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-                    cancel_url=url_for('payments.cancel', _external=True),
-                    metadata={
+                    'mode': 'payment',
+                    'success_url': url_for('payments.success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url': url_for('payments.cancel', _external=True),
+                    'metadata': {
                         'property_id': booking_id,
                         'user_id': current_user.id,
                         'check_in': check_in,
                         'nights': nights,
                         'type': 'property'
                     }
-                )
+                }
+                owner_stripe_id = getattr(hotel, 'stripe_account_id', None) or None
+                if owner_stripe_id:
+                    session_data['payment_intent_data'] = {
+                        'transfer_data': {
+                            'destination': owner_stripe_id,
+                        }
+                    }
+                checkout_session = stripe.checkout.Session.create(**session_data)
                 return redirect(checkout_session.url, code=303)
 
             else:

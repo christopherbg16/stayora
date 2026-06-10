@@ -143,7 +143,7 @@ def search_stays():
 
     min_price = request.args.get('min_price', type=int)
     max_price = request.args.get('max_price', type=int)
-    stars = request.args.getlist('stars')
+    stars = [int(s) for s in request.args.getlist('stars') if s.isdigit()]
     min_rating = request.args.get('min_rating', type=float)
 
     hotels = Hotel.search(
@@ -162,6 +162,7 @@ def search_stays():
                            check_out=check_out, adults=adults,
                            children=children, rooms=rooms,
                            sort_by=sort_by, property_type=property_type,
+                           stars=stars, min_rating=min_rating,
                            now=datetime.now())
 
 
@@ -382,8 +383,7 @@ def available_rooms_api():
                     'number': rd.get('number'),
                     'price': rd.get('price'),
                     'type': rd.get('type'),
-                    'beds': rd.get('beds'),
-                    'jacuzzi': rd.get('jacuzzi', False)
+                    'beds': rd.get('beds')
                 }
                 if rd.get('image_data'):
                     r['image'] = rd['image_data']

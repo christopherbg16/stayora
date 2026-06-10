@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS "hotels" (
   "avg_rating" DECIMAL(2,1) DEFAULT 0.0,
   "review_count" INTEGER DEFAULT 0,
   "accept_online_payments" SMALLINT DEFAULT 0,
-  "stripe_account_id" VARCHAR(255) DEFAULT NULL
+  "stripe_account_id" VARCHAR(255) DEFAULT NULL,
+  "amenities" TEXT DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "hotel_images" (
@@ -111,7 +112,11 @@ CREATE TABLE IF NOT EXISTS "users" (
   "address" VARCHAR(500) DEFAULT NULL,
   "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   "google_id" VARCHAR(255) DEFAULT NULL,
-  "account_type_request" VARCHAR(20) DEFAULT 'user'
+  "account_type_request" VARCHAR(20) DEFAULT 'user',
+  "stripe_account_id" VARCHAR(255) DEFAULT NULL,
+  "bank_name" VARCHAR(255) DEFAULT NULL,
+  "bank_iban" VARCHAR(255) DEFAULT NULL,
+  "bank_holder" VARCHAR(255) DEFAULT NULL
 );
 
 ALTER TABLE "activities" ADD PRIMARY KEY ("id");

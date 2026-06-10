@@ -256,6 +256,10 @@
                     <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ _('Check-out') }}</label>
                     <input type="date" name="check_out" value="{{ check_out }}">
                 </div>
+                <input type="hidden" name="property_type" value="{{ property_type }}">
+                <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                {% if min_rating %}<input type="hidden" name="min_rating" value="{{ min_rating }}">{% endif %}
+                {% for star in stars %}<input type="hidden" name="stars" value="{{ star }}">{% endfor %}
                 <div>
                     <button type="submit" class="btn btn-primary w-100" style="font-size: 0.88rem;">
                         <i class="fas fa-search me-1"></i> {{ _('Search') }}
@@ -276,9 +280,9 @@
                     <div class="filter-title">{{ _('Property type') }}</div>
                     {% for ptype, label in [('hotel','Hotels'),('apartment','Apartments'),('villa','Villas'),('resort','Resorts')] %}
                     <label class="filter-check">
-                        <input type="checkbox" onchange="applyFilter('property_type','{{ ptype }}')"
+                        <input type="checkbox" onchange="toggleFilter('property_type','{{ ptype }}')"
                                {% if property_type == ptype %}checked{% endif %}>
-                        <label>{{ _(label) }}</label>
+                        <span>{{ _(label) }}</span>
                     </label>
                     {% endfor %}
                 </div>
@@ -287,10 +291,11 @@
                     <div class="filter-title">{{ _('Star rating') }}</div>
                     {% for s in [5,4,3,2,1] %}
                     <label class="filter-check">
-                        <input type="checkbox" name="stars" value="{{ s }}" onchange="this.form && this.form.submit()">
-                        <label>
+                        <input type="checkbox" value="{{ s }}" onchange="toggleFilter('stars','{{ s }}')"
+                               {% if s in stars %}checked{% endif %}>
+                        <span>
                             {% for i in range(s) %}<i class="fas fa-star" style="color: var(--warning); font-size: 0.75rem;"></i>{% endfor %}
-                        </label>
+                        </span>
                     </label>
                     {% endfor %}
                 </div>
@@ -299,8 +304,9 @@
                     <div class="filter-title">{{ _('Guest rating') }}</div>
                     {% for rating, label in [('9.0','Superb: 9+'),('8.0','Very good: 8+'),('7.0','Good: 7+')] %}
                     <label class="filter-check">
-                        <input type="checkbox" onchange="applyFilter('min_rating','{{ rating }}')">
-                        <label>{{ _(label) }}</label>
+                        <input type="checkbox" onchange="toggleFilter('min_rating','{{ rating }}')"
+                               {% if min_rating and min_rating == rating|float %}checked{% endif %}>
+                        <span>{{ _(label) }}</span>
                     </label>
                     {% endfor %}
                 </div>
@@ -415,6 +421,27 @@
 function applyFilter(key, value) {
     const url = new URL(window.location.href);
     url.searchParams.set(key, value);
+    window.location.href = url.toString();
+}
+
+function toggleFilter(key, value) {
+    const url = new URL(window.location.href);
+    if (key === 'property_type') {
+        if (url.searchParams.get(key) === value) {
+            url.searchParams.delete(key);
+        } else {
+            url.searchParams.set(key, value);
+        }
+    } else {
+        const values = url.searchParams.getAll(key);
+        const index = values.indexOf(value);
+        if (index === -1) {
+            url.searchParams.append(key, value);
+        } else {
+            url.searchParams.delete(key);
+            values.filter(v => v !== value).forEach(v => url.searchParams.append(key, v));
+        }
+    }
     window.location.href = url.toString();
 }
 </script>

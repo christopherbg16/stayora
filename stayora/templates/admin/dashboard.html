@@ -96,60 +96,25 @@
     color: var(--primary);
 }
 
-/* Activity feed */
-.activity-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    height: 100%;
-}
-
-.activity-card .card-header {
-    background: var(--bg-input);
-    border-bottom: 1px solid var(--border);
-    padding: 1rem 1.5rem;
-    color: var(--text-light);
-    font-weight: 600;
-}
-
-.activity-item {
-    padding: 0.75rem 1.2rem;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.83rem;
-    color: var(--text-subtle);
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-}
-
-.activity-dot {
-    font-size: 0.4rem;
-    color: var(--primary);
-    margin-top: 5px;
-    min-width: 8px;
-}
-
-/* System overview */
-.overview-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-}
-
-.overview-stat {
-    text-align: center;
-}
-
-.overview-value {
-    font-size: 1.4rem;
-    font-weight: 700;
-}
-
-.overview-label {
-    font-size: 0.75rem;
+.table { color: var(--text-light); background: transparent; }
+.table th {
     color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    background: transparent;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-size: 0.75rem;
+    padding: 0.85rem 1rem;
 }
+.table td {
+    border-color: var(--border);
+    color: var(--text-subtle);
+    background: transparent;
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+}
+.table tbody tr:hover { background: var(--bg-hover); }
 
 @media (max-width: 768px) {
     .admin-sidebar { display: none; }
@@ -238,8 +203,7 @@
                         <div>
                             <div class="stat-label">{{ _('Bookings') }}</div>
                             <div class="stat-value mt-1">{{ total_my_reservations }}</div>
-                            {% set upcoming_count = reservations|selectattr('start_date', 'ge', now.date())|list|length if reservations else 0 %}
-                            <div class="stat-subtitle">{{ upcoming_count }} {{ _('upcoming') }}</div>
+                            <div class="stat-subtitle">{{ _('All time bookings') }}</div>
                         </div>
                         <div class="stat-icon" style="color: var(--warning);"><i class="fas fa-calendar-check"></i></div>
                     </div>
@@ -267,91 +231,90 @@
             </div>
         </div>
 
-        <!-- SYSTEM OVERVIEW -->
+        <!-- YOUR PROPERTIES -->
         <div class="row g-3 mb-4">
             <div class="col-12">
-                <div class="overview-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="stat-label">{{ _('System Overview') }}</div>
+                <div class="quick-action-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-building me-2" style="color: var(--primary);"></i>{{ _('Your Properties') }}</span>
+                        <a href="{{ url_for('admin.my_properties') }}" style="font-size:0.8rem;color:var(--primary);text-decoration:none;">{{ _('View all') }} <i class="fas fa-arrow-right fa-sm ms-1"></i></a>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if my_hotels %}
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>{{ _('Property') }}</th>
+                                        <th>{{ _('Type') }}</th>
+                                        <th>{{ _('Location') }}</th>
+                                        <th>{{ _('Rooms') }}</th>
+                                        <th>{{ _('Rating') }}</th>
+                                        <th>{{ _('Price') }}</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for h in my_hotels[:5] %}
+                                    <tr>
+                                        <td><strong style="color:var(--text-light);">{{ h.name }}</strong></td>
+                                        <td><span style="background:var(--bg-input);padding:2px 8px;border-radius:5px;font-size:0.75rem;">{{ h.property_type|title }}</span></td>
+                                        <td style="color:var(--text-subtle);font-size:0.85rem;">{{ h.city }}, {{ h.country }}</td>
+                                        <td>{{ h.rooms|length }}</td>
+                                        <td>{% if h.review_count > 0 %}<span style="color:#fbbf24;">★ {{ "%.1f"|format(h.avg_rating|float) }}</span>{% else %}<span style="color:var(--text-muted);font-size:0.8rem;">{{ _('New') }}</span>{% endif %}</td>
+                                        <td style="font-weight:600;color:var(--text-light);">{% if h.property_type == 'apartment' %}€{{ h.price_per_night|int }}{% else %}{% set min_p = h.rooms|selectattr('price')|map(attribute='price')|min if h.rooms else None %}{% if min_p %}€{{ min_p|int }}+{% else %}—{% endif %}{% endif %}</td>
+                                        <td><a href="{{ url_for('admin.edit_property', property_id=h.id) }}" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="d-flex gap-4">
-                            <div class="overview-stat">
-                                <div class="overview-value" style="color: var(--primary);">{{ total_users }}</div>
-                                <div class="overview-label">{{ _('Total Users') }}</div>
-                            </div>
-                            <div style="width: 1px; background: var(--border);"></div>
-                            <div class="overview-stat">
-                                <div class="overview-value" style="color: var(--secondary);">{{ total_my_hotels }}</div>
-                                <div class="overview-label">{{ _('My Properties') }}</div>
-                            </div>
-                            <div style="width: 1px; background: var(--border);"></div>
-                            <div class="overview-stat">
-                                <div class="overview-value" style="color: var(--warning);">{{ total_my_reservations }}</div>
-                                <div class="overview-label">{{ _('My Bookings') }}</div>
-                            </div>
-                            <div style="width: 1px; background: var(--border);"></div>
-                            <div class="overview-stat">
-                                <div class="overview-value" style="color: var(--success);">€{{ revenue|int }}</div>
-                                <div class="overview-label">{{ _('Revenue') }}</div>
-                            </div>
+                        {% else %}
+                        <div style="padding:2rem;text-align:center;color:var(--text-muted);">
+                            <p class="mb-2">{{ _('No properties yet') }}</p>
+                            <a href="{{ url_for('admin.add_property') }}" class="btn btn-primary btn-sm">{{ _('Add your first property') }}</a>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- QUICK ACTIONS + ACTIVITY -->
+        <!-- QUICK ACTIONS -->
         <div class="row g-3">
-            <!-- Quick Actions -->
-            <div class="col-lg-4">
+            <div class="col-12">
                 <div class="quick-action-card">
                     <div class="card-header">
                         <i class="fas fa-bolt me-2" style="color: var(--primary);"></i>{{ _('Quick actions') }}
                     </div>
-                    <div class="card-body d-flex flex-column gap-2 p-3">
-                        <a href="{{ url_for('admin.add_property') }}" class="quick-action-btn">
-                            <i class="fas fa-plus-circle"></i>{{ _('Add new property') }}
-                        </a>
-                        <a href="{{ url_for('admin.my_rooms') }}" class="quick-action-btn">
-                            <i class="fas fa-door-open"></i>{{ _('Manage rooms') }}
-                        </a>
-                        <a href="{{ url_for('admin.my_reservations') }}" class="quick-action-btn">
-                            <i class="fas fa-calendar-check"></i>{{ _('View bookings') }}
-                        </a>
-                        <a href="{{ url_for('admin.my_properties') }}" class="quick-action-btn">
-                            <i class="fas fa-building"></i>{{ _('My properties') }}
-                        </a>
-                        <a href="{{ url_for('admin.profile') }}" class="quick-action-btn">
-                            <i class="fas fa-user-cog"></i>{{ _('Admin profile') }}
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="col-lg-8">
-                <div class="activity-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-history me-2" style="color: var(--primary);"></i>{{ _('Recent activity') }}</span>
-                        <span style="font-size: 0.75rem; color: var(--text-muted);">{{ _('Last 10 events') }}</span>
-                    </div>
-                    <div class="card-body p-0">
-                        {% if activities %}
-                            <div style="max-height: 320px; overflow-y: auto;">
-                                {% for activity in activities %}
-                                <div class="activity-item">
-                                    <i class="fas fa-circle activity-dot"></i>
-                                    <span>{{ activity.activity }}</span>
-                                </div>
-                                {% endfor %}
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-md col-sm-6">
+                                <a href="{{ url_for('admin.add_property') }}" class="quick-action-btn">
+                                    <i class="fas fa-plus-circle"></i>{{ _('Add new property') }}
+                                </a>
                             </div>
-                        {% else %}
-                            <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
-                                <i class="fas fa-history fa-2x mb-2"></i>
-                                <p class="mb-0">{{ _('No recent activity') }}</p>
+                            <div class="col-md col-sm-6">
+                                <a href="{{ url_for('admin.my_rooms') }}" class="quick-action-btn">
+                                    <i class="fas fa-door-open"></i>{{ _('Manage rooms') }}
+                                </a>
                             </div>
-                        {% endif %}
+                            <div class="col-md col-sm-6">
+                                <a href="{{ url_for('admin.my_reservations') }}" class="quick-action-btn">
+                                    <i class="fas fa-calendar-check"></i>{{ _('View bookings') }}
+                                </a>
+                            </div>
+                            <div class="col-md col-sm-6">
+                                <a href="{{ url_for('admin.my_properties') }}" class="quick-action-btn">
+                                    <i class="fas fa-building"></i>{{ _('My properties') }}
+                                </a>
+                            </div>
+                            <div class="col-md col-sm-6">
+                                <a href="{{ url_for('admin.profile') }}" class="quick-action-btn">
+                                    <i class="fas fa-user-cog"></i>{{ _('Profile') }}
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

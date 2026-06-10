@@ -48,16 +48,12 @@ def dashboard():
                 if room_data.data:
                     revenue += (room_data.data[0].get('price', 0) or 0) * (res.get('nights', 0) or 0)
 
-    total_users = User.count()
-    recent_activities = Activity.get_recent(10)
-
     return render_template('admin/dashboard.html',
+                           my_hotels=my_hotels,
                            total_my_hotels=total_my_hotels,
                            total_my_rooms=total_my_rooms,
                            total_my_reservations=total_my_reservations,
                            revenue=revenue,
-                           total_users=total_users,
-                           activities=recent_activities,
                            now=datetime.now())
 
 
@@ -105,6 +101,14 @@ def add_property():
         'price_per_night': float(price_per_night) if price_per_night and property_type == 'apartment' else None
     }
 
+    amenities_list = request.form.getlist('amenities')
+    custom_amenities = request.form.get('custom_amenities', '').strip()
+    if custom_amenities:
+        for a in [a.strip() for a in custom_amenities.split(',') if a.strip()]:
+            if a not in amenities_list:
+                amenities_list.append(a)
+    hotel_data['amenities'] = ','.join(amenities_list) if amenities_list else None
+
     if 'main_image' in request.files:
         image = request.files['main_image']
         if image and image.filename:
@@ -149,6 +153,15 @@ def edit_property(property_id):
         if val is not None:
             update_data[field] = val
     update_data['stars'] = int(request.form.get('stars', hotel.stars))
+
+    amenities_list = request.form.getlist('amenities')
+    custom_amenities = request.form.get('custom_amenities', '').strip()
+    if custom_amenities:
+        for a in [a.strip() for a in custom_amenities.split(',') if a.strip()]:
+            if a not in amenities_list:
+                amenities_list.append(a)
+    update_data['amenities'] = ','.join(amenities_list) if amenities_list else None
+    update_data['accept_online_payments'] = 1 if request.form.get('accept_online_payments') else 0
 
     if 'main_image' in request.files:
         image = request.files['main_image']
@@ -208,9 +221,7 @@ def add_room():
     hotel_id = request.form.get('hotel_id')
     number = request.form.get('number')
     price = request.form.get('price')
-    room_type = request.form.get('type')
     beds = request.form.get('beds')
-    jacuzzi = request.form.get('jacuzzi')
 
     hotel = Hotel.find_by_id_and_owner(hotel_id, current_user.id)
     if not hotel:
@@ -222,9 +233,8 @@ def add_room():
             'hotel_id': int(hotel_id),
             'number': int(number),
             'price': float(price),
-            'type': room_type,
-            'beds': int(beds) if beds else None,
-            'jacuzzi': (jacuzzi == 'y')
+            'type': 'Standard',
+            'beds': int(beds) if beds else 1
         }
         if 'room_image' in request.files:
             img = request.files['room_image']
@@ -253,8 +263,8 @@ def delete_room(room_id):
         flash('You do not have permission to delete this room!', 'danger')
         return redirect(url_for('admin.my_rooms'))
 
-    if room.reservations:
-        flash(f'Cannot delete Room #{room.number} because it has reservations!', 'danger')
+    if room.has_active_reservations:
+        flash(f'Cannot delete Room #{room.number} because it has active reservations!', 'danger')
         return redirect(url_for('admin.my_rooms'))
 
     try:
@@ -292,18 +302,15 @@ def add_property_room(property_id):
 
     number = request.form.get('number')
     price = request.form.get('price')
-    room_type = request.form.get('type')
     beds = request.form.get('beds')
-    jacuzzi = request.form.get('jacuzzi')
 
     try:
         room_data = {
             'hotel_id': property_id,
             'number': int(number),
             'price': float(price),
-            'type': room_type,
-            'beds': int(beds) if beds else None,
-            'jacuzzi': (jacuzzi == 'y')
+            'type': 'Standard',
+            'beds': int(beds) if beds else 1
         }
         if 'room_image' in request.files:
             img = request.files['room_image']
@@ -332,7 +339,7 @@ def delete_property_room(property_id, room_id):
         flash('Room not found!', 'danger')
         return redirect(url_for('admin.property_rooms', property_id=property_id))
 
-    if room.reservations:
+    if room.has_active_reservations:
         flash(f'Cannot delete Room #{room.number} — it has active reservations!', 'danger')
         return redirect(url_for('admin.property_rooms', property_id=property_id))
 
@@ -384,6 +391,13 @@ def profile():
         if form.profile_image.data:
             update_data['profile_image'] = base64.b64encode(form.profile_image.data.read()).decode('utf-8')
             changes_made = True
+
+        payment_fields = ['stripe_account_id', 'bank_name', 'bank_iban', 'bank_holder']
+        for field in payment_fields:
+            val = request.form.get(field, '').strip()
+            if val != getattr(current_user, field, ''):
+                update_data[field] = val or None
+                changes_made = True
 
         if changes_made:
             try:

@@ -19,7 +19,11 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255),
   phone VARCHAR(20),
   address VARCHAR(500),
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  stripe_account_id VARCHAR(255),
+  bank_name VARCHAR(255),
+  bank_iban VARCHAR(255),
+  bank_holder VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS hotels (
@@ -38,7 +42,8 @@ CREATE TABLE IF NOT EXISTS hotels (
   max_guests INT DEFAULT 2,
   price_per_night FLOAT,
   avg_rating NUMERIC(2,1) DEFAULT 0,
-  review_count INT DEFAULT 0
+  review_count INT DEFAULT 0,
+  amenities TEXT
 );
 
 CREATE TABLE IF NOT EXISTS rooms (

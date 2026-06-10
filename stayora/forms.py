@@ -21,8 +21,7 @@ class RoomForm(FlaskForm):
     price = FloatField('Price per Night (€)', validators=[DataRequired()])
     type = SelectField('Room Type', choices=[('Standard', 'Standard'), ('Luxury', 'Luxury')],
                        validators=[DataRequired()])
-    beds = IntegerField('Number of Beds (for Standard)', validators=[NumberRange(min=0)])
-    jacuzzi = SelectField('Jacuzzi (for Luxury)', choices=[('n', 'No'), ('y', 'Yes')])
+    beds = IntegerField('Number of Beds', validators=[NumberRange(min=0)])
     image = FileField('Room Image', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
 
 

@@ -133,7 +133,7 @@
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
             <div class="sidebar-username">{{ current_user.username }}</div>
-            <div class="sidebar-role">{{ _('Administrator') }}</div>
+            <div class="sidebar-role">{{ _('Property Owner') }}</div>
         </div>
         <nav class="sidebar-nav">
             <a href="{{ url_for('admin.dashboard') }}" class="nav-link">
@@ -168,7 +168,7 @@
     <!-- MAIN -->
     <main class="admin-main">
         <div class="mb-4">
-            <div class="section-label">{{ _('Admin Settings') }}</div>
+            <div class="section-label">                {{ _('Profile Settings') }}</div>
             <h1 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text-light); margin: 0;">
                 {{ _('Profile Settings') }}
             </h1>
@@ -180,7 +180,7 @@
         <!-- Quick Stats -->
         <div class="stats-grid">
             <div class="stat-mini-card">
-                <div class="stat-mini-value">{{ current_user.owned_hotels|length if current_user.owned_hotels else 0 }}</div>
+                <div class="stat-mini-value">{{ current_user.owned_hotels_count }}</div>
                 <div class="stat-mini-label">{{ _('My Properties') }}</div>
             </div>
             <div class="stat-mini-card">
@@ -340,6 +340,47 @@
                             {% else %}
                                 <div class="profile-avatar-placeholder" style="width:80px;height:80px;font-size:1.8rem;">👑</div>
                             {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Details -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <i class="fas fa-credit-card" style="color: var(--primary);"></i>
+                    {{ _('Payment Details') }}
+                </div>
+                <div class="content-card-body">
+                    <div class="info-box" style="margin-bottom:1rem;">
+                        <i class="fas fa-info-circle"></i>
+                        <span>{{ _('Set up how you receive payments from bookings. Guests can pay online and funds will be sent to your account.') }}</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fab fa-stripe me-1"></i>{{ _('Stripe Connect Account ID') }}
+                            </label>
+                            <input type="text" name="stripe_account_id" class="form-control" placeholder="acct_xxxxxxxxxxxxx" value="{{ current_user.stripe_account_id or '' }}">
+                            <div class="form-text">{{ _('Connect your Stripe account to receive online payments. Get your Account ID from your Stripe Dashboard.') }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-building-columns me-1"></i>{{ _('Bank Name') }}
+                            </label>
+                            <input type="text" name="bank_name" class="form-control" placeholder="e.g. Barclays" value="{{ current_user.bank_name or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-hashtag me-1"></i>{{ _('IBAN / Account Number') }}
+                            </label>
+                            <input type="text" name="bank_iban" class="form-control" placeholder="e.g. GB29NWBK60161331926819" value="{{ current_user.bank_iban or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-user me-1"></i>{{ _('Account Holder Name') }}
+                            </label>
+                            <input type="text" name="bank_holder" class="form-control" placeholder="{{ _('Full name on the account') }}" value="{{ current_user.bank_holder or '' }}">
                         </div>
                     </div>
                 </div>

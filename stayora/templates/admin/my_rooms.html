@@ -84,7 +84,6 @@
                                 <th>{{ _('Image') }}</th>
                                 <th>{{ _('Room') }}</th>
                                 <th>{{ _('Property') }}</th>
-                                <th>{{ _('Type') }}</th>
                                 <th>{{ _('Features') }}</th>
                                 <th>{{ _('Price') }}</th>
                                 <th>{{ _('Status') }}</th>
@@ -107,21 +106,12 @@
                                 <td>
                                     <a href="{{ url_for('admin.property_rooms', property_id=room.hotel.id) }}" style="color:var(--text-subtle);text-decoration:none;">{{ room.hotel.name }}</a>
                                 </td>
-                                <td>
-                                    <span style="background:{% if room.type=='Luxury' %}var(--primary-light){% else %}var(--bg-input){% endif %};color:{% if room.type=='Luxury' %}var(--primary){% else %}var(--text-subtle){% endif %};font-size:0.75rem;font-weight:600;padding:3px 8px;border-radius:6px;">
-                                        {{ room.type }}
-                                    </span>
-                                </td>
                                 <td style="font-size:0.82rem;color:var(--text-subtle);">
-                                    {% if room.type == 'Standard' %}
-                                        <i class="fas fa-bed me-1"></i>{{ room.beds }} {{ _('bed') }}{{ 's' if room.beds != 1 }}
-                                    {% else %}
-                                        {% if room.jacuzzi %}<i class="fas fa-hot-tub me-1" style="color:var(--primary);"></i>{{ _('Jacuzzi') }}{% else %}<span style="opacity:0.5;">{{ _('No jacuzzi') }}</span>{% endif %}
-                                    {% endif %}
+                                    <i class="fas fa-bed me-1"></i>{{ room.beds }} {{ _('bed') }}{{ 's' if room.beds != 1 }}
                                 </td>
                                 <td style="font-weight:700;color:var(--text-light);">€{{ room.price }}</td>
                                 <td>
-                                    {% if room.reservations %}
+                                    {% if room.has_active_reservations %}
                                         <span style="color:var(--warning);font-size:0.8rem;font-weight:600;"><span class="status-dot" style="background:var(--warning);"></span>{{ _('Booked') }}</span>
                                     {% else %}
                                         <span style="color:var(--success);font-size:0.8rem;font-weight:600;"><span class="status-dot" style="background:var(--success);"></span>{{ _('Available') }}</span>
@@ -131,7 +121,7 @@
                                     <form action="{{ url_for('admin.delete_room', room_id=room.id) }}" method="POST" class="d-inline"
                                           onsubmit="return confirm('{{ _('Delete Room #') }}{{ room.number }}?')">
                                         <button type="submit" class="btn btn-danger btn-sm"
-                                                {% if room.reservations %}disabled title="{{ _('Has active reservations') }}"{% endif %}>
+                                                {% if room.has_active_reservations %}disabled title="{{ _('Has active reservations') }}"{% endif %}>
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

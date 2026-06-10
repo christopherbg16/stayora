@@ -133,18 +133,15 @@
                                 <span class="text-muted">{{ hotel.max_guests or 2 }}</span>
                             </li>
                             {% endif %}
+                            {% set amenity_list = (hotel.amenities or '').split(',') %}
+                            {% for amenity in amenity_list[:3] %}
+                            {% if amenity %}
                             <li class="mb-2">
-                                <i class="fas fa-wifi me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Free WiFi') }}</span>
+                                <i class="fas fa-check-circle me-2" style="color: var(--primary);"></i>
+                                <span style="color: var(--text-light);">{{ amenity }}</span>
                             </li>
-                            <li class="mb-2">
-                                <i class="fas fa-parking me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Free parking') }}</span>
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-utensils me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Restaurant') }}</span>
-                            </li>
+                            {% endif %}
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
@@ -154,7 +151,7 @@
                         <h5 class="mb-0" style="color: var(--text-light);">{{ _('Check availability') }}</h5>
                     </div>
                     <div class="card-body">
-                        <form method="GET" action="#rooms">
+                        <form method="GET" action="{{ url_for('user.hotel_detail', hotel_id=hotel.id) }}#rooms" id="availabilityForm">
                             <div class="mb-3">
                                 <label class="form-label">{{ _('Check-in') }}</label>
                                 <input type="date" name="check_in" class="form-control"
@@ -169,6 +166,13 @@
                                 <i class="fas fa-search me-2"></i>{{ _('Check Availability') }}
                             </button>
                         </form>
+                        <script>
+                        document.getElementById('availabilityForm')?.addEventListener('submit', function(e) {
+                            setTimeout(function() {
+                                document.getElementById('rooms')?.scrollIntoView({ behavior: 'smooth' });
+                            }, 100);
+                        });
+                        </script>
                     </div>
                 </div>
             </div>
@@ -221,15 +225,10 @@
                                         </div>
                                         <div class="col-md-6">
                                             <h5 class="mb-2" style="color: var(--text-light);">
-                                                Room #{{ item.room.number }} - {{ item.room.type }}
+                                                {{ _('Room') }} #{{ item.room.number }}
                                             </h5>
                                             <p class="mb-1" style="color: var(--text-muted);">
-                                                <i class="fas fa-bed me-2"></i>
-                                                {% if item.room.type == 'Standard' %}
-                                                    {{ item.room.beds }} {{ _('beds') }}
-                                                {% else %}
-                                                    {{ _('Luxury room with jacuzzi') }}
-                                                {% endif %}
+                                                <i class="fas fa-bed me-2"></i>{{ item.room.beds }} {{ _('beds') }}
                                             </p>
                                             <p style="color: var(--text-muted);">
                                                 <i class="fas fa-users me-2"></i>{{ _('Sleeps up to 2 guests') }}
@@ -312,30 +311,19 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <i class="fas fa-wifi me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Free WiFi') }}</span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <i class="fas fa-parking me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Free parking') }}</span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <i class="fas fa-utensils me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Restaurant') }}</span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <i class="fas fa-swimming-pool me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Swimming pool') }}</span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <i class="fas fa-dumbbell me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Fitness center') }}</span>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <i class="fas fa-spa me-2" style="color: var(--primary);"></i>
-                                <span style="color: var(--text-light);">{{ _('Spa') }}</span>
-                            </div>
+                            {% set amenity_list = (hotel.amenities or '').split(',') %}
+                            {% for amenity in amenity_list %}
+                                {% if amenity %}
+                                <div class="col-md-4 mb-3">
+                                    <i class="fas fa-check-circle me-2" style="color: var(--primary);"></i>
+                                    <span style="color: var(--text-light);">{{ amenity }}</span>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="col-12">
+                                    <p class="text-muted mb-0">{{ _('No amenities listed') }}</p>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

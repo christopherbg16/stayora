@@ -74,6 +74,16 @@ class User(UserMixin, BaseModel):
     def delete(self):
         supabase.table('users').delete().eq('id', self.id).execute()
 
+    @property
+    def owned_hotels(self):
+        data = supabase.table('hotels').select('*').eq('owner_id', self.id).execute()
+        return [Hotel(r) for r in (data.data or [])]
+
+    @property
+    def owned_hotels_count(self):
+        data = supabase.table('hotels').select('id', count='exact').eq('owner_id', self.id).execute()
+        return data.count if data.count is not None else len(data.data or [])
+
 
 class Hotel(BaseModel):
     @classmethod
@@ -117,6 +127,11 @@ class Hotel(BaseModel):
             query = query.gte('price_per_night', min_price)
         if max_price:
             query = query.lte('price_per_night', max_price)
+        if stars:
+            if len(stars) == 1:
+                query = query.eq('stars', stars[0])
+            else:
+                query = query.in_('stars', stars)
         if min_rating:
             query = query.gte('avg_rating', min_rating)
         sort_map = {
@@ -279,25 +294,34 @@ class Room(BaseModel):
     def reservations(self, val):
         self._reservations = val
 
+    @property
+    def has_active_reservations(self):
+        today = datetime.now().date()
+        for r in self.reservations:
+            r_start = r.start_date
+            if isinstance(r_start, str):
+                try:
+                    r_start = datetime.fromisoformat(r_start.replace('Z', '+00:00')).date() if 'T' in r_start else datetime.strptime(r_start, '%Y-%m-%d').date()
+                except Exception:
+                    continue
+            r_end = r_start + timedelta(days=getattr(r, 'nights', 0))
+            if r_end >= today:
+                return True
+        return False
+
     def to_dict(self):
         return {
             'id': self.id,
             'number': getattr(self, 'number', None),
             'price': getattr(self, 'price', None),
-            'type': getattr(self, 'type', None),
-            'beds': getattr(self, 'beds', None),
-            'jacuzzi': getattr(self, 'jacuzzi', False)
+            'beds': getattr(self, 'beds', None)
         }
 
     def info(self):
-        rt = getattr(self, 'type', 'Standard')
         price = getattr(self, 'price', 0)
         beds = getattr(self, 'beds', 0)
         num = getattr(self, 'number', 0)
-        if rt == 'Standard':
-            return f'Room #{num} (Standard) - {beds} beds - {price} €'
-        jac = 'Yes' if getattr(self, 'jacuzzi', False) else 'No'
-        return f'Room #{num} (Luxury) - Jacuzzi: {jac} - {price} €'
+        return f'Room #{num} - {beds} beds - {price} €'
 
 
 class HotelImage(BaseModel):
