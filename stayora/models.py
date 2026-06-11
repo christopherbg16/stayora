@@ -120,7 +120,7 @@ class Hotel(BaseModel):
     def search(cls, destination=None, property_type=None, sort_by='recommended', min_price=None, max_price=None, stars=None, min_rating=None):
         query = supabase.table('hotels').select('*')
         if destination:
-            query = query.ilike('city', f'%{destination}%')
+            query = query.or_(f"city.ilike.%{destination}%,country.ilike.%{destination}%")
         if property_type and property_type != 'all':
             query = query.eq('property_type', property_type)
         if min_price:
@@ -466,6 +466,14 @@ class PropertyReservation(BaseModel):
 
 
 class HotelReview(BaseModel):
+    def __init__(self, data=None):
+        super().__init__(data)
+        if hasattr(self, 'created_at') and isinstance(self.created_at, str):
+            try:
+                self.created_at = _parse_dt(self.created_at)
+            except Exception:
+                pass
+
     @classmethod
     def find_by_hotel(cls, hotel_id):
         data = supabase.table('hotel_reviews').select('*').eq('hotel_id', hotel_id).execute()

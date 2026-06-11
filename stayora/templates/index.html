@@ -246,7 +246,7 @@
 <!-- NAV -->
 <nav class="nav" id="nav">
     <a class="logo" href="{{ url_for('index') }}">
-        <div class="logo-icon"><i class="fas fa-compass"></i></div>
+        <div class="logo-icon"><i class="fas fa-gem"></i></div>
         Stay<span>Ora</span>
     </a>
     <div class="nav-right">
@@ -283,12 +283,14 @@
         <p class="hero-sub">{{ _('From boutique city hotels to secluded villas — discover extraordinary spaces crafted for unforgettable experiences.') }}</p>
         <div class="search-box">
             <div class="s-tabs">
-                <button class="s-tab on">🏨 {{ _('Hotels') }}</button>
-                <button class="s-tab">🏠 {{ _('Apartments') }}</button>
-                <button class="s-tab">🌿 {{ _('Villas') }}</button>
-                <button class="s-tab">🏖️ {{ _('Resorts') }}</button>
+                <button class="s-tab on" data-type="">🏨 {{ _('All') }}</button>
+                <button class="s-tab" data-type="hotel">🏨 {{ _('Hotels') }}</button>
+                <button class="s-tab" data-type="apartment">🏠 {{ _('Apartments') }}</button>
+                <button class="s-tab" data-type="villa">🌿 {{ _('Villas') }}</button>
+                <button class="s-tab" data-type="resort">🏖️ {{ _('Resorts') }}</button>
             </div>
-            <form action="{{ url_for('user.search_stays') }}" method="GET">
+            <form action="{{ url_for('user.search_stays') }}" method="GET" id="heroSearchForm">
+                <input type="hidden" name="property_type" id="heroPropertyType" value="">
                 <div class="s-grid">
                     <div class="s-field"><label>{{ _('Where are you going?') }}</label><input type="text" name="destination" placeholder="{{ _('City, property or destination') }}" autocomplete="off"></div>
                     <div class="s-field"><label>{{ _('Check in') }}</label><input type="date" name="check_in" id="ci"></div>
@@ -532,7 +534,7 @@
     <div class="container">
         <div class="row g-5">
             <div class="col-lg-4">
-                <div class="f-logo">Stay<span>Ora</span></div>
+                <div class="f-logo"><i class="fas fa-gem me-2" style="color: var(--gold);"></i>Stay<span>Ora</span></div>
                 <p class="f-desc">{{ _('Discover extraordinary places to stay — from boutique hotels to private villas worldwide.') }}</p>
                 <div class="f-social">
                     <a href="#"><i class="fab fa-instagram"></i></a>
@@ -580,6 +582,8 @@
     document.querySelectorAll('.s-tab').forEach(t => t.addEventListener('click', () => {
         document.querySelectorAll('.s-tab').forEach(x => x.classList.remove('on'));
         t.classList.add('on');
+        const ptype = t.getAttribute('data-type') || '';
+        document.getElementById('heroPropertyType').value = ptype;
     }));
 
     // ── SCROLL REVEAL ──

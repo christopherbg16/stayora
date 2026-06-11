@@ -18,7 +18,7 @@
     padding: 0.8rem 1rem;
 }
 
-.results-search form { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 0.6rem; align-items: end; }
+.results-search form { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr auto; gap: 0.6rem; align-items: end; }
 
 .results-search input, .results-search select {
     background: var(--bg-dark) !important;
@@ -65,6 +65,27 @@
 
 .results-count { font-size: 0.9rem; color: var(--text-subtle); }
 .results-count strong { color: var(--text-light); }
+
+/* Quick type filter buttons */
+.type-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-subtle);
+    border-radius: 100px;
+    padding: 0.35rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.type-filter-btn:hover, .type-filter-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #0a0e1a;
+}
 
 /* Sort select */
 .sort-select {
@@ -253,10 +274,15 @@
                     <input type="date" name="check_in" value="{{ check_in }}">
                 </div>
                 <div>
-                    <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ _('Check-out') }}</label>
-                    <input type="date" name="check_out" value="{{ check_out }}">
+                    <label class="form-label mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted);">{{ _('Type') }}</label>
+                    <select name="property_type" style="background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;color:var(--text-light);padding:0.5rem 0.75rem;font-size:0.88rem;width:100%;">
+                        <option value="all" {% if property_type == 'all' %}selected{% endif %}>{{ _('All types') }}</option>
+                        <option value="hotel" {% if property_type == 'hotel' %}selected{% endif %}>{{ _('Hotels') }}</option>
+                        <option value="apartment" {% if property_type == 'apartment' %}selected{% endif %}>{{ _('Apartments') }}</option>
+                        <option value="villa" {% if property_type == 'villa' %}selected{% endif %}>{{ _('Villas') }}</option>
+                        <option value="resort" {% if property_type == 'resort' %}selected{% endif %}>{{ _('Resorts') }}</option>
+                    </select>
                 </div>
-                <input type="hidden" name="property_type" value="{{ property_type }}">
                 <input type="hidden" name="sort_by" value="{{ sort_by }}">
                 {% if min_rating %}<input type="hidden" name="min_rating" value="{{ min_rating }}">{% endif %}
                 {% for star in stars %}<input type="hidden" name="stars" value="{{ star }}">{% endfor %}
@@ -302,7 +328,7 @@
 
                 <div class="filter-section">
                     <div class="filter-title">{{ _('Guest rating') }}</div>
-                    {% for rating, label in [('9.0','Superb: 9+'),('8.0','Very good: 8+'),('7.0','Good: 7+')] %}
+                    {% for rating, label in [('4.5','Superb: 4.5+'),('4.0','Very good: 4.0+'),('3.5','Good: 3.5+')] %}
                     <label class="filter-check">
                         <input type="checkbox" onchange="toggleFilter('min_rating','{{ rating }}')"
                                {% if min_rating and min_rating == rating|float %}checked{% endif %}>
@@ -319,6 +345,15 @@
 
         <!-- ══ RESULTS ═══════════════════════════════════════════════ -->
         <div class="col-lg-9">
+            <!-- Quick type filters -->
+            <div class="d-flex gap-2 mb-3 flex-wrap">
+                <a href="?{% if sort_by %}sort_by={{ sort_by }}{% endif %}" class="type-filter-btn {% if property_type == 'all' or not property_type %}active{% endif %}">{{ _('All') }}</a>
+                <a href="?property_type=hotel{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="type-filter-btn {% if property_type == 'hotel' %}active{% endif %}"><i class="fas fa-hotel fa-sm"></i> {{ _('Hotels') }}</a>
+                <a href="?property_type=apartment{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="type-filter-btn {% if property_type == 'apartment' %}active{% endif %}"><i class="fas fa-building fa-sm"></i> {{ _('Apartments') }}</a>
+                <a href="?property_type=villa{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="type-filter-btn {% if property_type == 'villa' %}active{% endif %}"><i class="fas fa-home fa-sm"></i> {{ _('Villas') }}</a>
+                <a href="?property_type=resort{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="type-filter-btn {% if property_type == 'resort' %}active{% endif %}"><i class="fas fa-umbrella-beach fa-sm"></i> {{ _('Resorts') }}</a>
+            </div>
+
             <!-- Sort bar -->
             <div class="sort-bar">
                 <div class="results-count">
