@@ -254,23 +254,80 @@
   let sessionData = null;
   let sessionId = localStorage.getItem('staya_session_id') || crypto.randomUUID();
   let isTyping = false;
+  let chatHistory = [];
+  const chatStorageKey = 'staya_chat_history';
 
   if (!localStorage.getItem('staya_session_id')) {
     localStorage.setItem('staya_session_id', sessionId);
   }
 
+  function saveChatHistory() {
+    try {
+      localStorage.setItem(chatStorageKey, JSON.stringify(chatHistory));
+    } catch (err) {
+      console.warn('Could not save chat history', err);
+    }
+  }
+
+  function loadChatHistory() {
+    const raw = localStorage.getItem(chatStorageKey);
+    if (!raw) return false;
+    try {
+      const data = JSON.parse(raw);
+      if (!Array.isArray(data)) return false;
+      chatHistory = data;
+      return true;
+    } catch (err) {
+      console.warn('Could not load chat history', err);
+      return false;
+    }
+  }
+
+  function clearChatHistory() {
+    chatHistory = [];
+    localStorage.removeItem(chatStorageKey);
+  }
+
+  function createMessageElement(text, type, time) {
+    const div = document.createElement('div');
+    div.className = `staya-msg staya-msg-${type}`;
+    const t = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    div.innerHTML = `<div class="staya-msg-text">${escapeHtml(text)}</div><div class="staya-msg-time">${t}</div>`;
+    return div;
+  }
+
+  function renderChatHistory() {
+    messagesEl.innerHTML = '';
+    chatHistory.forEach(entry => {
+      if (entry.type === 'user') {
+        const msgEl = createMessageElement(entry.text, 'user', entry.time);
+        messagesEl.appendChild(msgEl);
+      } else if (entry.type === 'bot') {
+        addBotResponse(entry.response, { animate: false, remember: false, restore: true, time: entry.time });
+      }
+    });
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
   function init() {
+    const restored = loadChatHistory();
+    if (restored && chatHistory.length > 0) {
+      renderChatHistory();
+    }
+
     fetch('/api/chat/session')
       .then(r => r.json())
       .then(data => {
         sessionData = data;
-        if (data.authenticated) {
+        if (!restored && data.authenticated) {
           const greeting = document.querySelector('.staya-msg-bot .staya-msg-text');
           if (greeting) {
             greeting.setAttribute('data-text', 'Welcome back! How can I help you today?');
             greeting.innerHTML = '<span class="cursor">|</span>';
             typeWriter(greeting, 10);
           }
+        }
+        if (data.authenticated) {
           notifDot.style.display = 'none';
         }
       })
@@ -298,12 +355,20 @@
   }
 
   function addMessage(text, type, time) {
-    const div = document.createElement('div');
-    div.className = `staya-msg staya-msg-${type}`;
-    const t = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    div.innerHTML = `<div class="staya-msg-text">${text}</div><div class="staya-msg-time">${t}</div>`;
-    messagesEl.appendChild(div);
+    const msgEl = createMessageElement(text, type, time);
+    messagesEl.appendChild(msgEl);
     messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function saveUserMessage(text) {
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    chatHistory.push({ type: 'user', text, time });
+    saveChatHistory();
+  }
+
+  function saveBotMessage(response, time) {
+    chatHistory.push({ type: 'bot', response, time });
+    saveChatHistory();
   }
 
   function addTypingDots() {
@@ -351,114 +416,120 @@
     type();
   }
 
-  function addBotResponse(response) {
-    const text = response.text || 'How can I help you?';
-    const div = document.createElement('div');
-    div.className = 'staya-msg staya-msg-bot';
-    const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+function addBotResponse(response, options = {}) {
+      const { animate = true, remember = true, restore = false, time = null } = options;
+      const text = response.text || 'How can I help you?';
+      const div = document.createElement('div');
+      div.className = 'staya-msg staya-msg-bot';
+      const t = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Create the text container with typewriter data
-    const textEl = document.createElement('div');
-    textEl.className = 'staya-msg-text typewriter';
-    textEl.setAttribute('data-text', text);
-    textEl.innerHTML = '<span class="cursor">|</span>';
-    div.appendChild(textEl);
-
-    // Extra content container (hidden until typing finishes)
-    const extraContainer = document.createElement('div');
-    extraContainer.id = 'staya-extra-' + Date.now();
-    extraContainer.style.display = 'none';
-    div.appendChild(extraContainer);
-
-    const timeEl = document.createElement('div');
-    timeEl.className = 'staya-msg-time';
-    timeEl.textContent = t;
-    div.appendChild(timeEl);
-
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-
-    // Start typewriter
-    typeWriter(textEl, 8);
-
-    // After typing finishes, show extras
-    const checkDone = setInterval(() => {
-      if (!isTyping) {
-        clearInterval(checkDone);
-
-        let html = '';
-
-        if (response.booking_summary) {
-          html += `<div class="staya-booking-summary"><strong>You have ${response.booking_summary.total} active booking${response.booking_summary.total > 1 ? 's' : ''}.</strong></div>`;
-        }
-
-        if (response.destinations) {
-          html += `<div class="staya-destinations">`;
-          response.destinations.forEach(d => {
-            const url = `/user/stays/search?destination=${encodeURIComponent(d.name)}`;
-            html += `<a href="${url}" class="staya-dest-chip">${escapeHtml(d.name)}, ${escapeHtml(d.country)}</a>`;
-          });
-          html += `</div>`;
-        }
-
-        if (response.promotions) {
-          response.promotions.forEach(p => {
-            html += `<div class="staya-promo"><strong>${escapeHtml(p.name)}</strong><br>${escapeHtml(p.description)}</div>`;
-          });
-        }
-
-        if (response.recommendations) {
-          response.recommendations.forEach(r => {
-            const url = `/user/hotel/${r.id}`;
-            html += `<a href="${url}" class="staya-recommendation">
-              <div class="staya-rec-info">
-                <div class="staya-rec-name">${escapeHtml(r.name)}</div>
-                <div class="staya-rec-city">${escapeHtml(r.city || '')}</div>
-              </div>
-              <div style="text-align:right">
-                <div class="staya-rec-price">€${r.price || 0}</div>
-                <div class="staya-rec-rating">${r.rating ? r.rating + '/5' : 'New'}</div>
-              </div>
-            </a>`;
-          });
-        }
-
-        if (response.actions && response.actions.length > 0) {
-          html += `<div class="staya-msg-actions">`;
-          response.actions.forEach(a => {
-            html += `<a href="${a.url}" class="staya-action-btn ${a.primary ? 'primary' : 'secondary'}">${escapeHtml(a.label)}</a>`;
-          });
-          html += `</div>`;
-        }
-
-        if (html) {
-          extraContainer.style.display = 'block';
-          extraContainer.innerHTML = html;
-          messagesEl.scrollTop = messagesEl.scrollHeight;
-        }
-
-        if (response.quick_replies && response.quick_replies.length > 0) {
-          showQuickReplies(response.quick_replies);
-        } else {
-          clearQuickReplies();
-        }
+      // Create the text container with typewriter data
+      const textEl = document.createElement('div');
+      textEl.className = 'staya-msg-text typewriter';
+      textEl.setAttribute('data-text', text);
+      if (!animate) {
+        textEl.textContent = text;
+      } else {
+        textEl.innerHTML = '<span class="cursor">|</span>';
       }
-    }, 50);
-  }
+      div.appendChild(textEl);
 
-  function showQuickReplies(replies) {
-    quickRepliesEl.innerHTML = '';
-    replies.forEach(r => {
-      const btn = document.createElement('button');
-      btn.className = 'staya-quick-reply';
-      btn.textContent = r;
-      btn.addEventListener('click', () => {
-        inputEl.value = r;
-        sendMessage();
-      });
-      quickRepliesEl.appendChild(btn);
-    });
-  }
+      const timeEl = document.createElement('div');
+      timeEl.className = 'staya-msg-time';
+      timeEl.textContent = t;
+      div.appendChild(timeEl);
+
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      if (animate) {
+        typeWriter(textEl, 8);
+      } else {
+        isTyping = false;
+      }
+
+      const checkDone = setInterval(() => {
+        if (!isTyping) {
+          clearInterval(checkDone);
+
+          let html = '';
+
+          if (response.booking_summary) {
+            html += `<div class="staya-booking-summary"><strong>You have ${response.booking_summary.total} active booking${response.booking_summary.total > 1 ? 's' : ''}.</strong></div>`;
+          }
+
+          if (response.destinations) {
+            html += `<div class="staya-destinations">`;
+            response.destinations.forEach(d => {
+              const url = `/user/stays/search?destination=${encodeURIComponent(d.name)}`;
+              html += `<a href="${url}" class="staya-dest-chip">${escapeHtml(d.name)}, ${escapeHtml(d.country)}</a>`;
+            });
+            html += `</div>`;
+          }
+
+          if (response.promotions) {
+            response.promotions.forEach(p => {
+              html += `<div class="staya-promo"><strong>${escapeHtml(p.name)}</strong><br>${escapeHtml(p.description)}</div>`;
+            });
+          }
+
+          if (response.recommendations) {
+            response.recommendations.forEach(r => {
+              const url = `/user/hotel/${r.id}`;
+              html += `<a href="${url}" class="staya-recommendation">
+                <div class="staya-rec-info">
+                  <div class="staya-rec-name">${escapeHtml(r.name)}</div>
+                  <div class="staya-rec-city">${escapeHtml(r.city || '')}</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="staya-rec-price">€${r.price || 0}</div>
+                  <div class="staya-rec-rating">${r.rating ? r.rating + '/5' : 'New'}</div>
+                </div>
+              </a>`;
+            });
+          }
+
+          if (response.properties) {
+            html += `<div class="staya-properties">`;
+            response.properties.forEach(p => {
+              const url = `/user/hotel/${p.id}`;
+              html += `<a href="${url}" class="staya-property-card">
+                <div class="staya-property-name">${escapeHtml(p.name)}</div>
+                <div class="staya-property-meta">${escapeHtml(p.city || '')} · ${escapeHtml(p.property_type || '')}</div>
+                <div class="staya-property-details">€${p.price_per_night || p.price || 0}/night · ${p.avg_rating ? p.avg_rating + '/5' : 'New'}</div>
+              </a>`;
+            });
+            html += `</div>`;
+          }
+
+          if (response.navigate) {
+            response.actions = response.actions || [];
+            response.actions.unshift({ label: 'Show results', url: response.navigate, primary: true });
+          }
+
+          if (response.actions && response.actions.length > 0) {
+            html += `<div class="staya-msg-actions">`;
+            response.actions.forEach(a => {
+              html += `<a href="${a.url}" class="staya-action-btn ${a.primary ? 'primary' : 'secondary'}">${escapeHtml(a.label)}</a>`;
+            });
+            html += `</div>`;
+          }
+          if (response.navigate && !restore) {
+            html += `<div class="staya-msg-actions"><a href="${response.navigate}" class="staya-action-btn primary">Show results</a></div>`;
+          }
+
+          if (response.quick_replies && response.quick_replies.length > 0) {
+            showQuickReplies(response.quick_replies);
+          } else {
+            clearQuickReplies();
+          }
+        }
+      }, 50);
+
+      if (remember && !restore) {
+        saveBotMessage(response, t);
+      }
+    }
 
   function clearQuickReplies() {
     quickRepliesEl.innerHTML = '';
@@ -469,6 +540,7 @@
     if (!msg) return;
 
     addMessage(escapeHtml(msg), 'user');
+    saveUserMessage(msg);
     inputEl.value = '';
     sendBtn.disabled = true;
     clearQuickReplies();
@@ -488,11 +560,13 @@
           addMessage('Sorry, something went wrong. Please try again.', 'bot');
           return;
         }
-        if (data.navigate) {
-          window.location.href = data.navigate;
-          return;
-        }
         addBotResponse(data);
+        if (data.navigate) {
+          setTimeout(() => {
+            saveChatHistory();
+            window.location.href = data.navigate;
+          }, 1200);
+        }
       })
       .catch(err => {
         removeTypingDots();
