@@ -270,8 +270,9 @@ def chat_api():
     if not message:
         return jsonify({'error': 'Message cannot be empty'}), 400
     session_id = data.get('session_id')
+    lang = data.get('lang') or request.cookies.get('site_lang', 'en')
     try:
-        response = process_message(message, session_id=session_id)
+        response = process_message(message, session_id=session_id, lang=lang)
         return jsonify(response)
     except Exception as e:
         return jsonify({'error': str(e), 'text': 'Sorry, something went wrong.'}), 500

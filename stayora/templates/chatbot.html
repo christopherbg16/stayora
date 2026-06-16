@@ -21,15 +21,15 @@
 
     <div id="staya-messages" class="staya-messages">
       <div class="staya-msg staya-msg-bot">
-        <div class="staya-msg-text typewriter" data-text="Hi there! I'm Staya, your travel assistant. How can I help you today?"><span class="cursor">|</span></div>
-        <div class="staya-msg-time">Just now</div>
+        <div class="staya-msg-text typewriter" id="staya-initial-greeting" data-text="Hi there! I'm Staya, your travel assistant. How can I help you today?"><span class="cursor">|</span></div>
+        <div class="staya-msg-time" id="staya-initial-time">Just now</div>
       </div>
     </div>
 
     <div id="staya-quick-replies" class="staya-quick-replies"></div>
 
     <div class="staya-input-area">
-      <input type="text" id="staya-input" placeholder="Type a message..." autocomplete="off">
+      <input type="text" id="staya-input" placeholder="Type a message..." autocomplete="off" lang="en">
       <button id="staya-send" class="staya-send-btn" aria-label="Send message">
         <i class="fas fa-paper-plane"></i>
       </button>
@@ -249,80 +249,84 @@
   const sendBtn = document.getElementById('staya-send');
   const quickRepliesEl = document.getElementById('staya-quick-replies');
   const notifDot = document.querySelector('.staya-notif-dot');
+  const statusEl = document.querySelector('.staya-status');
+  const initialGreeting = document.getElementById('staya-initial-greeting');
+  const initialTime = document.getElementById('staya-initial-time');
+
+  function getCookie(name) {
+    const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return match ? match.pop() : 'en';
+  }
+
+  const siteLang = getCookie('site_lang');
+
+  const CHAT_TRANSLATIONS = {
+    en: {
+      greeting: "Hi there! I'm Staya, your travel assistant. How can I help you today?",
+      placeholder: "Type a message...",
+      status: "Online",
+      justNow: "Just now",
+      welcomeBack: "Welcome back! How can I help you today?",
+      error: "Sorry, something went wrong. Please try again.",
+      serverError: "Sorry, I could not reach the server. Please try again."
+    },
+    bg: {
+      greeting: "Здравейте! Аз съм Стая, вашият туристически асистент. Как мога да ви помогна днес?",
+      placeholder: "Напишете съобщение...",
+      status: "На линия",
+      justNow: "Току що",
+      welcomeBack: "Добре дошли отново! Как мога да ви помогна днес?",
+      error: "Съжалявам, нещо се обърка. Моля, опитайте отново.",
+      serverError: "Съжалявам, не можах да се свържа със сървъра. Моля, опитайте отново."
+    },
+    es: {
+      greeting: "Hola! Soy Staya, tu asistente de viajes. Como puedo ayudarte hoy?",
+      placeholder: "Escribe un mensaje...",
+      status: "En linea",
+      justNow: "Ahora mismo",
+      welcomeBack: "Bienvenido de nuevo! Como puedo ayudarte hoy?",
+      error: "Lo siento, algo salio mal. Por favor, intentalo de nuevo.",
+      serverError: "Lo siento, no pude conectar con el servidor. Por favor, intentalo de nuevo."
+    },
+    de: {
+      greeting: "Hallo! Ich bin Staya, deine Reiseassistentin. Wie kann ich dir heute helfen?",
+      placeholder: "Gib eine Nachricht ein...",
+      status: "Online",
+      justNow: "Gerade eben",
+      welcomeBack: "Willkommen zurueck! Wie kann ich dir heute helfen?",
+      error: "Entschuldigung, etwas ist schiefgelaufen. Bitte versuche es erneut.",
+      serverError: "Entschuldigung, ich konnte den Server nicht erreichen. Bitte versuche es erneut."
+    }
+  };
+
+  const t = CHAT_TRANSLATIONS[siteLang] || CHAT_TRANSLATIONS.en;
+
+  if (initialGreeting) {
+    initialGreeting.setAttribute('data-text', t.greeting);
+  }
+  if (initialTime) {
+    initialTime.textContent = t.justNow;
+  }
+  if (statusEl) {
+    statusEl.innerHTML = '<span class="status-dot"></span> ' + t.status;
+  }
+  inputEl.placeholder = t.placeholder;
+  inputEl.lang = siteLang;
 
   let isOpen = false;
   let sessionData = null;
-  let sessionId = localStorage.getItem('staya_session_id') || crypto.randomUUID();
+  let sessionId = crypto.randomUUID();
   let isTyping = false;
-  let chatHistory = [];
-  const chatStorageKey = 'staya_chat_history';
-
-  if (!localStorage.getItem('staya_session_id')) {
-    localStorage.setItem('staya_session_id', sessionId);
-  }
-
-  function saveChatHistory() {
-    try {
-      localStorage.setItem(chatStorageKey, JSON.stringify(chatHistory));
-    } catch (err) {
-      console.warn('Could not save chat history', err);
-    }
-  }
-
-  function loadChatHistory() {
-    const raw = localStorage.getItem(chatStorageKey);
-    if (!raw) return false;
-    try {
-      const data = JSON.parse(raw);
-      if (!Array.isArray(data)) return false;
-      chatHistory = data;
-      return true;
-    } catch (err) {
-      console.warn('Could not load chat history', err);
-      return false;
-    }
-  }
-
-  function clearChatHistory() {
-    chatHistory = [];
-    localStorage.removeItem(chatStorageKey);
-  }
-
-  function createMessageElement(text, type, time) {
-    const div = document.createElement('div');
-    div.className = `staya-msg staya-msg-${type}`;
-    const t = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    div.innerHTML = `<div class="staya-msg-text">${escapeHtml(text)}</div><div class="staya-msg-time">${t}</div>`;
-    return div;
-  }
-
-  function renderChatHistory() {
-    messagesEl.innerHTML = '';
-    chatHistory.forEach(entry => {
-      if (entry.type === 'user') {
-        const msgEl = createMessageElement(entry.text, 'user', entry.time);
-        messagesEl.appendChild(msgEl);
-      } else if (entry.type === 'bot') {
-        addBotResponse(entry.response, { animate: false, remember: false, restore: true, time: entry.time });
-      }
-    });
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
 
   function init() {
-    const restored = loadChatHistory();
-    if (restored && chatHistory.length > 0) {
-      renderChatHistory();
-    }
-
     fetch('/api/chat/session')
       .then(r => r.json())
       .then(data => {
         sessionData = data;
-        if (!restored && data.authenticated) {
+        if (data.authenticated) {
           const greeting = document.querySelector('.staya-msg-bot .staya-msg-text');
           if (greeting) {
-            greeting.setAttribute('data-text', 'Welcome back! How can I help you today?');
+            greeting.setAttribute('data-text', t.welcomeBack);
             greeting.innerHTML = '<span class="cursor">|</span>';
             typeWriter(greeting, 10);
           }
@@ -355,20 +359,12 @@
   }
 
   function addMessage(text, type, time) {
-    const msgEl = createMessageElement(text, type, time);
-    messagesEl.appendChild(msgEl);
+    const div = document.createElement('div');
+    div.className = `staya-msg staya-msg-${type}`;
+    const t = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    div.innerHTML = `<div class="staya-msg-text">${escapeHtml(text)}</div><div class="staya-msg-time">${t}</div>`;
+    messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  function saveUserMessage(text) {
-    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    chatHistory.push({ type: 'user', text, time });
-    saveChatHistory();
-  }
-
-  function saveBotMessage(response, time) {
-    chatHistory.push({ type: 'bot', response, time });
-    saveChatHistory();
   }
 
   function addTypingDots() {
@@ -416,8 +412,8 @@
     type();
   }
 
-function addBotResponse(response, options = {}) {
-      const { animate = true, remember = true, restore = false, time = null } = options;
+  function addBotResponse(response, options = {}) {
+      const { animate = true, time = null } = options;
       const text = response.text || 'How can I help you?';
       const div = document.createElement('div');
       div.className = 'staya-msg staya-msg-bot';
@@ -525,10 +521,6 @@ function addBotResponse(response, options = {}) {
           }
         }
       }, 50);
-
-      if (remember && !restore) {
-        saveBotMessage(response, t);
-      }
     }
 
   function clearQuickReplies() {
@@ -540,7 +532,6 @@ function addBotResponse(response, options = {}) {
     if (!msg) return;
 
     addMessage(escapeHtml(msg), 'user');
-    saveUserMessage(msg);
     inputEl.value = '';
     sendBtn.disabled = true;
     clearQuickReplies();
@@ -550,20 +541,19 @@ function addBotResponse(response, options = {}) {
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg, session_id: sessionId }),
+      body: JSON.stringify({ message: msg, session_id: sessionId, lang: siteLang }),
     })
       .then(r => r.json())
       .then(data => {
         removeTypingDots();
         sendBtn.disabled = false;
         if (data.error) {
-          addMessage('Sorry, something went wrong. Please try again.', 'bot');
+          addMessage(t.error, 'bot');
           return;
         }
         addBotResponse(data);
         if (data.navigate) {
           setTimeout(() => {
-            saveChatHistory();
             window.location.href = data.navigate;
           }, 1200);
         }
@@ -571,7 +561,7 @@ function addBotResponse(response, options = {}) {
       .catch(err => {
         removeTypingDots();
         sendBtn.disabled = false;
-        addMessage('Sorry, I could not reach the server. Please try again.', 'bot');
+        addMessage(t.serverError, 'bot');
       });
   }
 

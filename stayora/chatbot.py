@@ -32,8 +32,44 @@ def _get_user_context():
     return {"authenticated": False}
 
 
-def _build_system_prompt():
+LANG_NAMES = {'en': 'English', 'bg': 'Български', 'es': 'Español', 'de': 'Deutsch'}
+
+def _detect_lang(text):
+    import re
+    cyrillic = re.search(r'[а-яА-Я]', text)
+    if cyrillic:
+        return 'bg'
+    spanish = re.search(r'[áéíóúñÁÉÍÓÚÑ¿¡]', text)
+    if spanish:
+        return 'es'
+    german = re.search(r'[äöüßÄÖÜ]', text)
+    if german:
+        return 'de'
+    return 'en'
+
+_translations_cache = {}
+def _load_translations(lang):
+    if lang == 'en':
+        return {}
+    if lang not in _translations_cache:
+        import json, os
+        path = os.path.join(os.path.dirname(__file__), 'translations', f'{lang}.json')
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                _translations_cache[lang] = json.load(f)
+        except:
+            _translations_cache[lang] = {}
+    return _translations_cache[lang]
+
+def _t(text, lang):
+    if lang == 'en':
+        return text
+    translations = _load_translations(lang)
+    return translations.get(text, text)
+
+def _build_system_prompt(lang='en'):
     ctx = _get_user_context()
+    lang_name = LANG_NAMES.get(lang, 'English')
     return f"""You are Staya, a friendly travel assistant for StayOra, a property booking platform.
 
 YOUR ROLE:
@@ -45,8 +81,9 @@ YOUR ROLE:
 
 RULES:
 - Be natural and conversational, don't repeat yourself
+- You MUST respond in {lang_name} ({lang}). The user is writing in {lang_name} and you MUST reply in {lang_name}.
 - When asked about properties in a city -> use search_hotels() to find them
-- After presenting results, ALWAYS ask "Would you like to see them?" or similar
+- After presenting results, ALWAYS ask if they want to see them
 - When user agrees to see properties -> use navigate_to() to take them there
 - When asked about what to buy/sell -> search trending + property counts, give specific advice
 - NEVER invent property data, always use search_hotels()
@@ -185,19 +222,24 @@ TOOL_IMPL = {
 MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
 
 
-def process_message(message, session_id=None):
+def process_message(message, session_id=None, lang='en'):
     if _openai_available and client is not None:
-        result = _try_openai(message, session_id)
+        result = _try_openai(message, session_id, lang)
         if result is not None:
             return result
 
-    return _db_response(message, session_id)
+    return _db_response(message, session_id, lang)
 
 
-def _try_openai(message, session_id=None):
+def _try_openai(message, session_id=None, lang='en'):
+    detected = _detect_lang(message)
+    if detected != 'en':
+        lang = detected
     conv_id = session_id or "default"
     if conv_id not in conversations:
-        conversations[conv_id] = [{"role": "system", "content": _build_system_prompt()}]
+        conversations[conv_id] = [{"role": "system", "content": _build_system_prompt(lang)}]
+    else:
+        conversations[conv_id][0]["content"] = _build_system_prompt(lang)
 
     history = conversations[conv_id]
     history.append({"role": "user", "content": message})
@@ -275,6 +317,14 @@ CITIES = {
     "paris": "Paris", "venice": "Venice", "tokyo": "Tokyo", "santorini": "Santorini",
     "new york": "New York", "london": "London", "dubai": "Dubai", "barcelona": "Barcelona",
     "bali": "Bali", "samokov": "Samokov", "burgas": "Burgas", "ubud": "Ubud",
+    # Bulgarian
+    "софия": "Sofia", "банско": "Bansko", "пловдив": "Plovdiv", "варна": "Varna",
+    "бургас": "Burgas", "самоков": "Samokov",
+    # Spanish
+    "londres": "London", "parís": "Paris", "nueva york": "New York", "venecia": "Venice",
+    "barcelona": "Barcelona",
+    # German
+    "paris": "Paris", "venedig": "Venice", "london": "London", "barcelona": "Barcelona",
 }
 
 COUNTRIES = {
@@ -282,14 +332,46 @@ COUNTRIES = {
     "spain": "Spain", "indonesia": "Indonesia", "bulgaria": "Bulgaria",
     "england": "United Kingdom", "uk": "United Kingdom", "britain": "United Kingdom",
     "uae": "United Arab Emirates", "usa": "USA", "america": "USA", "united states": "USA",
+    # Bulgarian
+    "италия": "Italy", "франция": "France", "япония": "Japan", "гърция": "Greece",
+    "испания": "Spain", "индонезия": "Indonesia", "българия": "Bulgaria",
+    "англия": "United Kingdom", "съединени щати": "USA",
+    # Spanish
+    "italia": "Italy", "francia": "France", "españa": "Spain", "grecia": "Greece",
+    "inglaterra": "United Kingdom", "reino unido": "United Kingdom",
+    "estados unidos": "USA",
+    # German
+    "italien": "Italy", "frankreich": "France", "griechenland": "Greece",
+    "spanien": "Spain", "england": "United Kingdom", "vereinigtes königreich": "United Kingdom",
 }
 
 TYPES = {"apartment": "apartment", "apartments": "apartment",
          "hotel": "hotel", "hotels": "hotel",
          "villa": "villa", "villas": "villa",
-         "resort": "resort", "resorts": "resort"}
+         "resort": "resort", "resorts": "resort",
+         # Bulgarian
+         "апартамент": "apartment", "апартаменти": "apartment",
+         "хотел": "hotel", "хотели": "hotel",
+         "вила": "villa", "вили": "villa",
+         "курорт": "resort", "курорти": "resort",
+         # Spanish
+         "apartamento": "apartment", "apartamentos": "apartment",
+         "hotel": "hotel", "hoteles": "hotel",
+         "villa": "villa", "villas": "villa",
+         # German
+         "wohnung": "apartment", "wohnungen": "apartment",
+         "hotel": "hotel", "hotels": "hotel",
+         "villa": "villa", "villen": "villa",
+         "resort": "resort", "resorts": "resort",
+}
 
-GREET_WORDS = ("hi", "hello", "hey", "zdravei", "good morning", "good evening", "morning", "evening")
+GREET_WORDS = ("hi", "hello", "hey", "zdravei", "good morning", "good evening", "morning", "evening",
+               # Bulgarian
+               "здравей", "здравейте", "здрасти", "добро утро", "добър ден", "добър вечер",
+               # Spanish
+               "hola", "buenos días", "buenas tardes", "buenas noches", "buen día",
+               # German
+               "hallo", "guten morgen", "guten tag", "guten abend", "servus", "moin")
 BOOKING_WORDS = ("booking", "reservation", "my trip", "my bookings", "my reservation", "my reservations")
 TRENDING_WORDS = ("trending", "popular", "destination", "best place", "recommend", "where to go", "top rated", "best")
 AVAILABILITY_WORDS = ("available", "availability", "book", "check availability", "availability for", "available from", "available until")
@@ -588,41 +670,46 @@ def _load_context(session_id):
 # ── INTENT EXECUTORS ─────────────────────────────────────────────
 
 def _exec_greeting(e, session_id=None):
+    lang = e.get("_lang", "en")
     if current_user.is_authenticated:
         return _make_response(
-            f"Welcome back, {current_user.username}. Systems online. How can I assist with your travels?",
-            ["Search Hotels", "My Bookings", "Popular Destinations", "Deals"]
+            f"{_t('Welcome back', lang)}, {current_user.username}. {_t('Systems online. How can I assist with your travels?', lang)}",
+            [_t("Search Hotels", lang), _t("My Bookings", lang), _t("Popular Destinations", lang), _t("Deals", lang)]
         )
     return _make_response(
-        "Good day. I'm Staya, your travel intelligence system. Looking for a place to stay?",
-        ["Search Hotels", "Popular Destinations", "Sign In", "Deals"]
+        _t("Good day. I'm Staya, your travel intelligence system. Looking for a place to stay?", lang),
+        [_t("Search Hotels", lang), _t("Popular Destinations", lang), _t("Sign In", lang), _t("Deals", lang)]
     )
 
 def _exec_search_city(e, session_id):
+    lang = e.get("_lang", "en")
     ctx = _load_context(session_id)
     city = e["cities"][0]
     if not city:
         city = _extract_city_from_context(ctx)
     if not city:
-        return _make_response("Which city are you interested in?", ["Popular Destinations", "Browse All Properties"])
+        return _make_response(
+            _t("Which city are you interested in?", lang),
+            [_t("Popular Destinations", lang), _t("Browse All Properties", lang)]
+        )
 
     hotels = _search_hotels(destination=city)
     if not isinstance(hotels, list) or not hotels:
         return _make_response(
-            f"Scanned {city} — no properties found. Try a different city?",
-            ["Browse All Properties", "Popular Destinations"]
+            _t("Scanned {city} — no properties found. Try a different city?", lang).format(city=city),
+            [_t("Browse All Properties", lang), _t("Popular Destinations", lang)]
         )
     _store_session_properties(session_id, hotels)
 
-    lines = [f"Here are **{len(hotels)} properties** found in {city}."]
+    lines = [_t("Here are **{count} properties** found in {city}.", lang).format(count=len(hotels), city=city)]
     for h in hotels[:4]:
         stars = "★" * h.get("stars", 3)
         lines.append(f"> {stars} **{h['name']}** — EUR{h['price_per_night']}/night — ⭐ {h['avg_rating']}/5")
     if len(hotels) > 4:
-        lines.append(f"\n{len(hotels) - 4} more available.")
-    lines.append("\nWould you like me to check availability for these?")
+        lines.append("\n" + _t("{count} more available.", lang).format(count=len(hotels) - 4))
+    lines.append("\n" + _t("Would you like me to check availability for these?", lang))
 
-    qr = ["Check dates", "Show all", "Popular Destinations"]
+    qr = [_t("Check dates", lang), _t("Show all", lang), _t("Popular Destinations", lang)]
     nav = f"/user/stays/search?destination={city}"
     if e.get("price_intent") == "budget":
         nav += "&sort_by=price_asc"
@@ -631,44 +718,49 @@ def _exec_search_city(e, session_id):
     return _make_response("\n".join(lines), qr, navigate=nav, properties=_props_for(hotels))
 
 def _exec_search_country(e, session_id):
+    lang = e.get("_lang", "en")
     ctx = _load_context(session_id)
     country = e["countries"][0] if e["countries"] else None
     if not country:
         country = _extract_country_from_context(ctx)
     if not country:
-        return _make_response("Which country are you looking at?", ["Popular Destinations", "Browse All Properties"])
+        return _make_response(
+            _t("Which country are you looking at?", lang),
+            [_t("Popular Destinations", lang), _t("Browse All Properties", lang)]
+        )
 
     hotels = _search_hotels(destination=country)
     if not isinstance(hotels, list) or not hotels:
         return _make_response(
-            f"No properties found in {country} yet. Try a nearby destination?",
-            ["Browse All Properties", "Popular Destinations"]
+            _t("No properties found in {country} yet. Try a nearby destination?", lang).format(country=country),
+            [_t("Browse All Properties", lang), _t("Popular Destinations", lang)]
         )
     _store_session_properties(session_id, hotels)
 
     cities_list = list(dict.fromkeys(h["city"] for h in hotels if h.get("city")))
-    cities_line = f" Spread across **{', '.join(cities_list[:5])}**." if cities_list else ""
+    cities_line = f" {_t('Spread across', lang)} **{', '.join(cities_list[:5])}**." if cities_list else ""
 
     price_range = f"EUR{min(h['price_per_night'] for h in hotels)}–EUR{max(h['price_per_night'] for h in hotels)}/night"
     avg_rating = round(sum(h["avg_rating"] for h in hotels) / len(hotels), 1)
 
-    lines = [f"Here are **{len(hotels)} properties** in {country}.{cities_line}"]
-    lines.append(f"Price range: {price_range} | Avg rating: {avg_rating}/5\n")
+    lines = [_t("Here are **{count} properties** in {country}.", lang).format(count=len(hotels), country=country) + cities_line]
+    lines.append(_t("Price range: {range} | Avg rating: {rating}/5", lang).format(range=price_range, rating=avg_rating) + "\n")
     for h in hotels[:3]:
         lines.append(f"> **{h['name']}** — {h['city']} — EUR{h['price_per_night']}/night — ⭐ {h['avg_rating']}/5")
     if len(hotels) > 3:
-        lines.append(f"\n+ {len(hotels) - 3} more properties.")
-    lines.append("\nWould you like me to check availability for these?")
+        lines.append("\n" + _t("+ {count} more properties.", lang).format(count=len(hotels) - 3))
+    lines.append("\n" + _t("Would you like me to check availability for these?", lang))
 
     nav = f"/user/stays/search?destination={country}"
     if e.get("price_intent") == "budget":
         nav += "&sort_by=price_asc"
     elif e.get("price_intent") == "luxury":
         nav += "&sort_by=price_desc"
-    return _make_response("\n".join(lines), ["Show all", "Filter by type", "Popular Destinations"],
+    return _make_response("\n".join(lines), [_t("Show all", lang), _t("Filter by type", lang), _t("Popular Destinations", lang)],
                           navigate=nav, properties=_props_for(hotels))
 
 def _exec_search_type(e, session_id):
+    lang = e.get("_lang", "en")
     ctx = _load_context(session_id)
     ptypes = e["property_types"]
     if not ptypes:
@@ -678,10 +770,15 @@ def _exec_search_type(e, session_id):
         counts = _get_property_counts()
         if isinstance(counts, dict):
             return _make_response(
-                f"What type? We have {counts.get('hotels', 0)} hotels, {counts.get('apartments', 0)} apartments, {counts.get('villas', 0)} villas, {counts.get('resorts', 0)} resorts.",
-                ["Hotels", "Apartments", "Villas", "Resorts"]
+                _t("What type? We have {h} hotels, {a} apartments, {v} villas, {r} resorts.", lang).format(
+                    h=counts.get('hotels', 0), a=counts.get('apartments', 0),
+                    v=counts.get('villas', 0), r=counts.get('resorts', 0)),
+                [_t("Hotels", lang), _t("Apartments", lang), _t("Villas", lang), _t("Resorts", lang)]
             )
-        return _make_response("Which type? Hotels, apartments, villas, or resorts?", ["Hotels", "Apartments", "Villas", "Resorts"])
+        return _make_response(
+            _t("Which type? Hotels, apartments, villas, or resorts?", lang),
+            [_t("Hotels", lang), _t("Apartments", lang), _t("Villas", lang), _t("Resorts", lang)]
+        )
 
     ptype = next(iter(ptypes))
     dest = None
@@ -706,111 +803,112 @@ def _exec_search_type(e, session_id):
     if not isinstance(hotels, list) or not hotels:
         filters = []
         if e.get("price_max"):
-            filters.append(f"under EUR{e['price_max']}")
+            filters.append(_t("under EUR{max}", lang).format(max=e['price_max']))
         if e.get("price_min"):
-            filters.append(f"over EUR{e['price_min']}")
+            filters.append(_t("over EUR{min}", lang).format(min=e['price_min']))
         if e.get("stars"):
-            filters.append(f"{e['stars'][0]}-star")
+            filters.append(_t("{star}-star", lang).format(star=e['stars'][0]))
         filter_str = f" ({', '.join(filters)})" if filters else ""
 
-        # Check if the location exists with other types
         all_in_loc = _search_hotels(destination=dest) if dest else []
         if isinstance(all_in_loc, list) and all_in_loc:
             other_types = list(dict.fromkeys(h["property_type"] for h in all_in_loc if h.get("property_type") != ptype))
-            msg = f"No {ptype}s in {dest}{filter_str}. "
+            msg = _t("No {ptype}s in {dest}{filters}.", lang).format(ptype=ptype, dest=dest, filters=filter_str) + " "
             if other_types:
                 other_plural = [t + "s" for t in other_types[:3]]
-                msg += f"However, there are {', '.join(other_plural)} available in {dest}. Want to try those?"
+                msg += _t("However, there are {types} available in {dest}. Want to try those?", lang).format(types=', '.join(other_plural), dest=dest)
             else:
-                msg += f"The properties in {dest} start from EUR{min(h['price_per_night'] for h in all_in_loc)}/night. Try a higher budget?"
+                msg += _t("The properties in {dest} start from EUR{min_price}/night. Try a higher budget?", lang).format(dest=dest, min_price=min(h['price_per_night'] for h in all_in_loc))
             nav = f"/user/stays/search?destination={dest}" if dest else "/user/stays/search"
-            return _make_response(msg, ["Adjust Filters", "Browse All"], navigate=nav, properties=_props_for(all_in_loc))
+            return _make_response(msg, [_t("Adjust Filters", lang), _t("Browse All", lang)], navigate=nav, properties=_props_for(all_in_loc))
 
-        # No results at all in this location
-        loc_str = f" in {dest}" if dest else ""
+        loc_str = f" {_t('in', lang)} {dest}" if dest else ""
         return _make_response(
-            f"No {ptype}s found{loc_str}{filter_str}. Try a different location or property type?",
-            ["Browse All Properties", "Popular Destinations"], navigate="/user/stays/search",
+            _t("No {ptype}s found{location}{filters}. Try a different location or property type?", lang).format(ptype=ptype, location=loc_str, filters=filter_str),
+            [_t("Browse All Properties", lang), _t("Popular Destinations", lang)], navigate="/user/stays/search",
             properties=_props_for([])
         )
 
-    loc_str = f" in {dest}" if dest else ""
     type_label = ptype if len(hotels) == 1 else f"{ptype}s"
-    lines = [f"Here are **{len(hotels)} {type_label}{loc_str}** matching your criteria:\n"]
+    if dest:
+        lines = [_t("Here are **{count} {type}** in {dest}:", lang).format(count=len(hotels), type=type_label, dest=dest) + "\n"]
+    else:
+        lines = [_t("Here are **{count} {type}**:", lang).format(count=len(hotels), type=type_label) + "\n"]
     for h in hotels[:4]:
         star_str = "★" * h.get("stars", 3) if h.get("stars") else ""
         lines.append(f"> {star_str} **{h['name']}** — {h['city']} — EUR{h['price_per_night']}/night — ⭐ {h['avg_rating']}/5")
     if len(hotels) > 4:
-        lines.append(f"\n+ {len(hotels) - 4} more.")
-    lines.append(f"\nHere are the results. Would you like me to check availability?")
+        lines.append("\n" + _t("+ {count} more.", lang).format(count=len(hotels) - 4))
+    lines.append("\n" + _t("Would you like me to check availability?", lang))
     _store_session_properties(session_id, hotels)
 
-    # Build a navigate URL that always includes the property type and applicable sorting/filters
     nav = f"/user/stays/search?property_type={ptype}"
     if dest:
         nav += f"&destination={dest}"
 
-    # Add sorting based on price intent (show cheapest/luxury first)
     if e.get("price_intent") == "budget":
         nav += "&sort_by=price_asc"
     elif e.get("price_intent") == "luxury":
         nav += "&sort_by=price_desc"
 
-    # Add explicit price filters if the user provided numeric values
     if e.get("price_min"):
         nav += f"&min_price={e['price_min']}"
     if e.get("price_max"):
         nav += f"&max_price={e['price_max']}"
 
-    qr = ["Check dates", "Show all results"]
+    qr = [_t("Check dates", lang), _t("Show all results", lang)]
     if not dest:
-        qr.append("Search by City")
+        qr.append(_t("Search by City", lang))
     return _make_response("\n".join(lines), qr, navigate=nav, properties=_props_for(hotels))
 
 def _exec_budget(e, session_id):
+    lang = e.get("_lang", "en")
     max_p = e.get("price_max") or 100
     hotels = _search_hotels(max_price=max_p)
     if not isinstance(hotels, list) or not hotels:
         return _make_response(
-            f"Nothing under EUR{max_p}/night right now. Try a higher budget?",
-            ["Browse All Properties", "Popular Destinations"]
+            _t("Nothing under EUR{max}/night right now. Try a higher budget?", lang).format(max=max_p),
+            [_t("Browse All Properties", lang), _t("Popular Destinations", lang)]
         )
     _store_session_properties(session_id, hotels)
-    lines = [f"**Budget picks — under EUR{max_p}/night:**\n"]
+    lines = [_t("**Budget picks — under EUR{max}/night:**", lang).format(max=max_p) + "\n"]
     for h in hotels[:5]:
         lines.append(f"> **{h['name']}** — {h['city']}, {h['country']} — EUR{h['price_per_night']}/night")
-    lines.append(f"\nGreat value options. Ready to explore more?")
-    return _make_response("\n".join(lines), ["Show All Budget", "Search Hotels"], navigate=f"/user/stays/search?max_price={max_p}&sort_by=price_asc", properties=_props_for(hotels))
+    lines.append("\n" + _t("Great value options. Ready to explore more?", lang))
+    return _make_response("\n".join(lines), [_t("Show All Budget", lang), _t("Search Hotels", lang)], navigate=f"/user/stays/search?max_price={max_p}&sort_by=price_asc", properties=_props_for(hotels))
 
 def _exec_luxury(e, session_id):
+    lang = e.get("_lang", "en")
     min_p = e.get("price_min") or 200
     hotels = _search_hotels(min_price=min_p)
     if not isinstance(hotels, list) or not hotels:
         return _make_response(
-            f"Nothing over EUR{min_p}/night currently. Try a different range?",
-            ["Browse All Properties", "Popular Destinations"]
+            _t("Nothing over EUR{min}/night currently. Try a different range?", lang).format(min=min_p),
+            [_t("Browse All Properties", lang), _t("Popular Destinations", lang)]
         )
     _store_session_properties(session_id, hotels)
-    lines = [f"**Premium selection — EUR{min_p}+/night:**\n"]
+    lines = [_t("**Premium selection — EUR{min}+/night:**", lang).format(min=min_p) + "\n"]
     for h in hotels[:5]:
         star_str = "★" * h.get("stars", 3)
         lines.append(f"> {star_str} **{h['name']}** — {h['city']} — EUR{h['price_per_night']}/night — ⭐ {h['avg_rating']}/5")
-    lines.append("\nExperience the finest. Ready to book?")
-    return _make_response("\n".join(lines), ["Show All Luxury", "Search Hotels"], navigate=f"/user/stays/search?min_price={min_p}&sort_by=price_desc", properties=_props_for(hotels))
+    lines.append("\n" + _t("Experience the finest. Ready to book?", lang))
+    return _make_response("\n".join(lines), [_t("Show All Luxury", lang), _t("Search Hotels", lang)], navigate=f"/user/stays/search?min_price={min_p}&sort_by=price_desc", properties=_props_for(hotels))
 
 def _exec_trending(e, session_id):
+    lang = e.get("_lang", "en")
     all_h = _search_hotels()
     if not isinstance(all_h, list) or not all_h:
-        return _make_response("No properties available to recommend right now.", ["Browse Later"])
+        return _make_response(_t("No properties available to recommend right now.", lang), [_t("Browse Later", lang)])
     top = sorted(all_h, key=lambda h: h.get("avg_rating", 0), reverse=True)[:6]
     _store_session_properties(session_id, top)
-    lines = ["**Trending destinations — top rated right now:**\n"]
+    lines = [_t("**Trending destinations — top rated right now:**", lang) + "\n"]
     for h in top:
         lines.append(f"> ⭐ **{h['name']}** — {h['city']}, {h['country']} — {h['avg_rating']}/5 — EUR{h['price_per_night']}/night")
-    lines.append("\nAny of these catch your eye?")
-    return _make_response("\n".join(lines), ["Browse All", "Cheapest First", "Top Rated"], navigate="/user/stays/search?sort_by=rating_desc", properties=_props_for(top))
+    lines.append("\n" + _t("Any of these catch your eye?", lang))
+    return _make_response("\n".join(lines), [_t("Browse All", lang), _t("Cheapest First", lang), _t("Top Rated", lang)], navigate="/user/stays/search?sort_by=rating_desc", properties=_props_for(top))
 
 def _exec_cheapest_type(e, session_id):
+    lang = e.get("_lang", "en")
     ctx = _load_context(session_id)
     ptypes = e["property_types"]
     if not ptypes:
@@ -818,8 +916,8 @@ def _exec_cheapest_type(e, session_id):
         ptypes = {pt} if pt else set()
     if not ptypes:
         return _make_response(
-            "Which type? We have hotels, apartments, villas, and resorts.",
-            ["Hotels", "Apartments", "Villas", "Resorts"]
+            _t("Which type? We have hotels, apartments, villas, and resorts.", lang),
+            [_t("Hotels", lang), _t("Apartments", lang), _t("Villas", lang), _t("Resorts", lang)]
         )
 
     ptype = next(iter(ptypes))
@@ -827,28 +925,28 @@ def _exec_cheapest_type(e, session_id):
     
     if not isinstance(hotels, list) or not hotels:
         return _make_response(
-            f"No {ptype}s available right now. Try a different type?",
-            ["Hotels", "Apartments", "Villas", "Resorts"], navigate="/user/stays/search"
+            _t("No {ptype}s available right now. Try a different type?", lang).format(ptype=ptype),
+            [_t("Hotels", lang), _t("Apartments", lang), _t("Villas", lang), _t("Resorts", lang)], navigate="/user/stays/search"
         )
     
-    # Sort by price (lowest first)
     hotels_sorted = sorted(hotels, key=lambda h: h.get("price_per_night", 0))
     
-    lines = [f"Here are the **cheapest {ptype}s** — sorted by price:\n"]
+    lines = [_t("Here are the **cheapest {ptype}s** — sorted by price:", lang).format(ptype=ptype) + "\n"]
     for h in hotels_sorted[:5]:
         stars = "★" * h.get("stars", 3) if h.get("stars") else ""
         lines.append(f"> {stars} **{h['name']}** — {h['city']} — EUR{h['price_per_night']}/night — ⭐ {h['avg_rating']}/5")
     
     if len(hotels_sorted) > 5:
-        lines.append(f"\n+ {len(hotels_sorted) - 5} more affordable options.")
+        lines.append("\n" + _t("+ {count} more affordable options.", lang).format(count=len(hotels_sorted) - 5))
     
-    lines.append(f"\nHere are the best bargains. Would you like me to check availability?")
+    lines.append("\n" + _t("Here are the best bargains. Would you like me to check availability?", lang))
     
-    return _make_response("\n".join(lines), ["Show All", "Filter by City", "Other Types"], 
+    return _make_response("\n".join(lines), [_t("Show All", lang), _t("Filter by City", lang), _t("Other Types", lang)], 
                           navigate=f"/user/stays/search?property_type={ptype}&sort_by=price_asc",
                           properties=_props_for(hotels_sorted))
 
 def _exec_toprated_type(e, session_id):
+    lang = e.get("_lang", "en")
     ctx = _load_context(session_id)
     ptypes = e["property_types"]
     if not ptypes:
@@ -856,8 +954,8 @@ def _exec_toprated_type(e, session_id):
         ptypes = {pt} if pt else set()
     if not ptypes:
         return _make_response(
-            "Which type? We have hotels, apartments, villas, and resorts.",
-            ["Hotels", "Apartments", "Villas", "Resorts"]
+            _t("Which type? We have hotels, apartments, villas, and resorts.", lang),
+            [_t("Hotels", lang), _t("Apartments", lang), _t("Villas", lang), _t("Resorts", lang)]
         )
 
     ptype = next(iter(ptypes))
@@ -865,29 +963,29 @@ def _exec_toprated_type(e, session_id):
     
     if not isinstance(hotels, list) or not hotels:
         return _make_response(
-            f"No {ptype}s available right now. Try a different type?",
-            ["Hotels", "Apartments", "Villas", "Resorts"], navigate="/user/stays/search"
+            _t("No {ptype}s available right now. Try a different type?", lang).format(ptype=ptype),
+            [_t("Hotels", lang), _t("Apartments", lang), _t("Villas", lang), _t("Resorts", lang)], navigate="/user/stays/search"
         )
     
-    # Sort by rating (highest first)
     hotels_sorted = sorted(hotels, key=lambda h: h.get("avg_rating", 0), reverse=True)
     
-    lines = [f"Here are the **top rated {ptype}s** — highest guest ratings:\n"]
+    lines = [_t("Here are the **top rated {ptype}s** — highest guest ratings:", lang).format(ptype=ptype) + "\n"]
     for h in hotels_sorted[:5]:
         stars = "★" * h.get("stars", 3) if h.get("stars") else ""
         lines.append(f"> {stars} **{h['name']}** — {h['city']} — ⭐ {h['avg_rating']}/5 — EUR{h['price_per_night']}/night")
     
     if len(hotels_sorted) > 5:
-        lines.append(f"\n+ {len(hotels_sorted) - 5} more excellent options.")
+        lines.append("\n" + _t("+ {count} more excellent options.", lang).format(count=len(hotels_sorted) - 5))
     
-    lines.append(f"\nHere are the top rated stays. Would you like me to check availability?")
+    lines.append("\n" + _t("Here are the top rated stays. Would you like me to check availability?", lang))
     _store_session_properties(session_id, hotels_sorted)
-    return _make_response("\n".join(lines), ["Show All", "Filter by City", "Other Types"], 
+    return _make_response("\n".join(lines), [_t("Show All", lang), _t("Filter by City", lang), _t("Other Types", lang)], 
                           navigate=f"/user/stays/search?property_type={ptype}&sort_by=rating_desc",
                           properties=_props_for(hotels_sorted))
 
 
 def _exec_availability(e, session_id):
+    lang = e.get("_lang", "en")
     property_selected = _find_property_in_session(session_id, e["raw"]) if session_id else None
     if not property_selected and session_id:
         cached = _get_session_properties(session_id)
@@ -896,76 +994,75 @@ def _exec_availability(e, session_id):
 
     if not property_selected:
         return _make_response(
-            "Which property would you like to check availability for? Say 'first property', 'second hotel', or mention the hotel name.",
-            ["First property", "Second hotel", "Search Hotels"]
+            _t("Which property would you like to check availability for? Say 'first property', 'second hotel', or mention the hotel name.", lang),
+            [_t("First property", lang), _t("Second hotel", lang), _t("Search Hotels", lang)]
         )
 
     if not e["check_in"] or not e["check_out"]:
         return _make_response(
-            f"What dates should I check for {property_selected['name']}? Please use a range like 12.08.2026 to 14.08.2026.",
-            ["12.08.2026 to 14.08.2026", "Next weekend", "Search Hotels"]
+            _t("What dates should I check for {name}? Please use a range like 12.08.2026 to 14.08.2026.", lang).format(name=property_selected['name']),
+            [_t("12.08.2026 to 14.08.2026", lang), _t("Next weekend", lang), _t("Search Hotels", lang)]
         )
 
     url = f"/user/hotel/{property_selected['id']}?check_in={e['check_in']}&check_out={e['check_out']}"
     return _make_response(
-        f"I found availability for {property_selected['name']} from {e['check_in']} to {e['check_out']}. Redirecting you to the property page.",
-        ["View Property", "Browse More Stays"], navigate=url,
+        _t("I found availability for {name} from {check_in} to {check_out}. Redirecting you to the property page.", lang).format(name=property_selected['name'], check_in=e['check_in'], check_out=e['check_out']),
+        [_t("View Property", lang), _t("Browse More Stays", lang)], navigate=url,
         properties=[property_selected]
     )
 
 
 def _exec_booking(e, session_id):
+    lang = e.get("_lang", "en")
     if not current_user.is_authenticated:
         return _make_response(
-            "You need to sign in to access your bookings.",
-            ["Sign In", "Create Account"], navigate="/auth/login"
+            _t("You need to sign in to access your bookings.", lang),
+            [_t("Sign In", lang), _t("Create Account", lang)], navigate="/auth/login"
         )
     info = _get_bookings_info()
     if isinstance(info, dict) and info.get("total", 0) > 0:
         return _make_response(
-            f"You have **{info['total']} active booking{'s' if info['total'] > 1 else ''}** on your account. Need details or changes?",
-            ["My Bookings", "Browse Stays"], navigate="/user/my-reservations"
+            _t("You have **{count} active booking(s)** on your account. Need details or changes?", lang).format(count=info['total']),
+            [_t("My Bookings", lang), _t("Browse Stays", lang)], navigate="/user/my-reservations"
         )
     return _make_response(
-        "No active bookings found. Ready to plan your next trip?",
-        ["Search Hotels", "Popular Destinations"], navigate="/user/stays/search"
+        _t("No active bookings found. Ready to plan your next trip?", lang),
+        [_t("Search Hotels", lang), _t("Popular Destinations", lang)], navigate="/user/stays/search"
     )
 
 def _exec_help(e, session_id):
+    lang = e.get("_lang", "en")
     return _make_response(
-        "**Staya — Command Reference**\n\n"
-        "> **Find stays** — \"hotels in Paris\", \"apartments in Bulgaria\"\n"
-        "> **By budget** — \"cheap villas\", \"luxury resorts\"\n"
-        "> **By rating** — \"5-star hotels\", \"top rated\"\n"
-        "> **Bookings** — \"my bookings\", \"my reservations\"\n"
-        "> **Explore** — \"trending destinations\", \"everything available\"\n\n"
-        "What are you looking for?",
-        ["Search Hotels", "Popular Destinations", "My Bookings", "Deals"]
+        _t("How can I help you? Try asking about hotels, apartments, or destinations.", lang),
+        [_t("Search Hotels", lang), _t("Popular Destinations", lang), _t("My Bookings", lang), _t("Deals", lang)]
     )
 
 def _exec_thanks(e, session_id):
+    lang = e.get("_lang", "en")
     return _make_response(
-        "Happy to help. Let me know if you need anything else.",
-        ["Search Hotels", "My Bookings", "Popular Destinations"]
+        _t("Happy to help. Let me know if you need anything else.", lang),
+        [_t("Search Hotels", lang), _t("My Bookings", lang), _t("Popular Destinations", lang)]
     )
 
 def _exec_count(e, session_id):
+    lang = e.get("_lang", "en")
     counts = _get_property_counts()
     if not isinstance(counts, dict) or "total" not in counts:
-        return _make_response("Could not retrieve property counts.", ["Browse All"])
+        return _make_response(_t("Could not retrieve property counts.", lang), [_t("Browse All", lang)])
     all_h = _search_hotels(limit=50)
     prices = [h["price_per_night"] for h in all_h] if isinstance(all_h, list) else []
     price_str = ""
     if prices:
         price_str = f" | EUR{min(prices)}–EUR{max(prices)}/night"
     return _make_response(
-        f"**{counts['total']} properties** worldwide: {counts['hotels']} hotels, "
-        f"{counts['apartments']} apartments, {counts['villas']} villas, "
-        f"{counts['resorts']} resorts across 12 countries.{price_str}\n\nReady to browse?",
-        ["Browse All", "Cheapest First", "Search by City"], navigate="/user/stays/search?sort_by=recommended"
+        _t("**{total} properties** worldwide: {h} hotels, {a} apartments, {v} villas, {r} resorts across 12 countries.{price}", lang).format(
+            total=counts['total'], h=counts['hotels'], a=counts['apartments'],
+            v=counts['villas'], r=counts['resorts'], price=price_str) + "\n\n" + _t("Ready to browse?", lang),
+        [_t("Browse All", lang), _t("Cheapest First", lang), _t("Search by City", lang)], navigate="/user/stays/search?sort_by=recommended"
     )
 
 def _exec_fallback(e, session_id):
+    lang = e.get("_lang", "en")
     all_h = _search_hotels(limit=50)
     counts = _get_property_counts()
     total = counts.get("total", len(all_h)) if isinstance(counts, dict) else len(all_h)
@@ -973,16 +1070,16 @@ def _exec_fallback(e, session_id):
         cheap_h = min(all_h, key=lambda h: h.get("price_per_night", 0))
         top_h = max(all_h, key=lambda h: h.get("avg_rating", 0))
         return _make_response(
-            f"I'm not sure I understood that. Here's what's happening on StayOra:\n\n"
-            f"✨ **Best rated**: {top_h['name']} in {top_h['city']} (⭐ {top_h['avg_rating']}/5, EUR{top_h['price_per_night']}/night)\n"
-            f"💰 **Best value**: {cheap_h['name']} from EUR{cheap_h['price_per_night']}/night\n"
-            f"🌍 **{total} properties** across 12 countries\n\n"
-            f"Try: 'Hotels in Paris', 'cheap apartments', or 'my bookings'",
-            ["Browse All", "Popular Destinations", "Search by City", "Help"]
+            _t("I'm not sure I understood that. Here's what's happening on StayOra:", lang) +
+            f"\n\n✨ **{_t('Best rated', lang)}**: {top_h['name']} in {top_h['city']} (⭐ {top_h['avg_rating']}/5, EUR{top_h['price_per_night']}/night)\n"
+            f"💰 **{_t('Best value', lang)}**: {cheap_h['name']} from EUR{cheap_h['price_per_night']}/night\n"
+            f"🌍 **{total} {_t('properties', lang)}** {_t('across 12 countries', lang)}\n\n"
+            + _t("Try: 'Hotels in Paris', 'cheap apartments', or 'my bookings'", lang),
+            [_t("Browse All", lang), _t("Popular Destinations", lang), _t("Search by City", lang), _t("Help", lang)]
         )
     return _make_response(
-        "I'm Staya. Ask me about hotels, destinations, or your bookings.",
-        ["Search Hotels", "Popular Destinations", "Help"]
+        _t("I'm Staya. Ask me about hotels, destinations, or your bookings.", lang),
+        [_t("Search Hotels", lang), _t("Popular Destinations", lang), _t("Help", lang)]
     )
 
 # ── CONTEXT HELPERS ──────────────────────────────────────────────
@@ -1034,10 +1131,12 @@ INTENT_MAP = {
     "count": _exec_count,
 }
 
-def _db_response(message, session_id=None):
+def _db_response(message, session_id=None, lang='en'):
     _save_context(session_id, message)
     m = message.lower().strip()
     e = _extract_entities(m)
+    detected = _detect_lang(message)
+    e["_lang"] = detected if detected != 'en' else lang
 
     intents = _score_intents(e)
     if intents:
