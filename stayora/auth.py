@@ -109,6 +109,8 @@ def google_login():
     if next_page and is_safe_url(next_page):
         session['next'] = next_page
     redirect_uri = url_for('auth.google_callback', _external=True)
+    import re
+    redirect_uri = re.sub(r'://\d+\.\d+\.\d+\.\d+', '://localhost', redirect_uri)
     return oauth.google.authorize_redirect(redirect_uri)
 
 
@@ -116,11 +118,9 @@ def google_login():
 def google_callback():
     try:
         token = oauth.google.authorize_access_token()
-        user_info = oauth.google.parse_id_token(token)
-
-        if not user_info:
-            resp = oauth.google.get('userinfo')
-            user_info = resp.json()
+        resp = oauth.google.get('userinfo')
+        resp.raise_for_status()
+        user_info = resp.json()
 
         google_id = user_info.get('sub') or user_info.get('id')
         email = user_info.get('email')

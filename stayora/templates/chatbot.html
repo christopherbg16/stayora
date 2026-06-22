@@ -548,16 +548,44 @@
           return;
         }
         addBotResponse(data);
+        // Fallback: detect theme/language from bot text if model didn't call the function
+        if (!data.theme) {
+          var textLower = (data.text || '').toLowerCase();
+          if (/\b(?:dark mode|dark theme|switch to dark|go dark|turn on dark)\b/.test(textLower)) {
+            data.theme = 'dark';
+          } else if (/\b(?:light mode|light theme|switch to light|go light|turn on light)\b/.test(textLower)) {
+            data.theme = 'light';
+          }
+        }
+        if (!data.language && !data.navigate) {
+          var textLower = (data.text || '').toLowerCase();
+          var langMatch = textLower.match(/\b(?:change|switch)\s+(?:the\s+)?language\s+to\s+(\w+)\b/);
+          if (langMatch) {
+            var langNames = {english: 'en', bulgarian: 'bg', spanish: 'es', german: 'de'};
+            if (langNames[langMatch[1]]) {
+              data.language = langNames[langMatch[1]];
+            }
+          }
+        }
+        if (data.language && !data.navigate) {
+          data.navigate = '/set-language/' + data.language;
+        }
         if (data.navigate) {
           setTimeout(() => {
             window.location.href = data.navigate;
           }, 1200);
         }
+        if (data.theme) {
+          var curTheme = localStorage.getItem('theme') || 'light';
+          if (curTheme !== data.theme && typeof toggleTheme === 'function') {
+            toggleTheme();
+          }
+        }
         if (data.rename_username) {
-          const rn = data.rename_username;
+          var rn = data.rename_username;
           if (rn.new_username) {
             document.querySelector('.staya-header-info .staya-name') &&
-              (document.querySelector('.staya-header-info .staya-name').textContent = 'Staya');
+              (document.querySelector('.staya-header-info .staya-name').textContent = rn.new_username);
           }
         }
       })

@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 from flask import url_for
 from flask_login import current_user
-from models import Hotel, Reservation, PropertyReservation, supabase, TrendingDestination, Promotion
+from models import User, Hotel, Reservation, PropertyReservation, supabase, TrendingDestination, Promotion
 
 # ── Gemini (primary AI) ──
 from google.genai import types as genai_types
@@ -97,6 +97,7 @@ RULES:
 - You can see the user's name and role ONLY. You CANNOT access, view, or reveal any other personal information including: email, phone number, address, bank accounts, bank IBAN, bank holder name, payment details, password, or any financial data.
 - If a user asks you to look up or change personal/financial information (like bank details), politely refuse and say you cannot access that information.
 - Keep responses concise but informative
+- When the user asks to change the language, theme, or username you MUST use the provided function (change_language, change_theme, rename_username) — do NOT just say you did it without calling the function.
 
 USER CONTEXT: {"Authenticated as " + ctx.get("username","") + " (" + ctx.get("role","") + ")" if ctx["authenticated"] else "Not authenticated"}
 Today: {datetime.now().strftime('%Y-%m-%d')}"""
@@ -261,6 +262,38 @@ TOOLS = [
         },
     },
 ]
+
+def _change_language(target):
+    supported = {'en', 'bg', 'es', 'de'}
+    if target not in supported:
+        return {"success": False, "supported": list(supported), "error": f"Unsupported language '{target}'"}
+    try:
+        redirect_url = url_for('set_language', lang=target)
+        return {"success": True, "lang": target, "redirect": redirect_url}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+def _change_theme(mode):
+    if mode not in ("light", "dark"):
+        return {"success": False, "error": f"Unsupported theme '{mode}'"}
+    return {"success": True, "theme": mode}
+
+def _rename_username(new_username):
+    if not current_user.is_authenticated:
+        return {"success": False, "error": "You must be logged in to change your username."}
+    new_username = new_username.strip()
+    if not new_username or len(new_username) < 2:
+        return {"success": False, "error": "Username must be at least 2 characters."}
+    if len(new_username) > 30:
+        return {"success": False, "error": "Username must be 30 characters or less."}
+    try:
+        existing = User.find_by_username(new_username)
+        if existing and existing.id != current_user.id:
+            return {"success": False, "error": f"Username '{new_username}' is already taken."}
+        current_user.update(username=new_username)
+        return {"success": True, "message": f"Your username has been changed to '{new_username}'.", "new_username": new_username}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 TOOL_IMPL = {
     "search_hotels": _search_hotels,
@@ -536,9 +569,19 @@ LUXURY_WORDS = ("luxury", "luxurious", "premium", "high end", "fancy", "exclusiv
 HELP_WORDS = ("help", "what can you", "what do you", "how", "?", "capabilities")
 THANKS_WORDS = ("thanks", "thank you", "thanks a lot", "appreciate", "thx")
 COUNT_WORDS = ("how many", "count", "total", "available", "all properties", "everything")
-THEME_WORDS = ("dark mode", "light mode", "switch to dark", "switch to light", "change theme", "toggle theme", "dark theme", "light theme", "enable dark", "enable light", "turn on dark", "turn on light", "go dark", "go light")
-LANG_WORDS = ("change language", "switch language", "change to english", "change to bulgarian", "change to spanish", "change to german", "switch to english", "switch to bulgarian", "switch to spanish", "switch to german")
-RENAME_WORDS = ("rename me", "rename my account", "change my name", "change username", "new username", "rename my username", "rename username", "change my username", "i want a new name", "change account name")
+THEME_WORDS = ("dark mode", "light mode", "switch to dark", "switch to light", "change theme", "toggle theme", "dark theme", "light theme", "enable dark", "enable light", "turn on dark", "turn on light", "go dark", "go light",
+               # Bulgarian
+               "светла тема", "тъмна тема", "светъл режим", "тъмен режим",
+               "смени на светла", "смени на тъмна", "смениш на светла", "смениш на тъмна",
+               "превключи на светла", "превключи на тъмна", "превключиш на светла", "превключиш на тъмна",
+               "промени темата", "промениш темата",
+               "включи светла", "включи тъмна", "включиш светла", "включиш тъмна")
+LANG_WORDS = ("change language", "switch language", "change to english", "change to bulgarian", "change to spanish", "change to german", "switch to english", "switch to bulgarian", "switch to spanish", "switch to german",
+              # Bulgarian
+              "смени езика", "смениш езика", "промени езика", "промениш езика", "смени на български", "смениш на български", "смени на английски", "смениш на английски", "смени на испански", "смениш на испански", "смени на немски", "смениш на немски", "на български език", "на английски език", "говори на български", "говори на английски", "превключи езика")
+RENAME_WORDS = ("rename me", "rename my account", "change my name", "change username", "change the username", "new username", "rename my username", "rename username", "change my username", "i want a new name", "change account name", "can you change", "i want to change",
+                # Bulgarian
+                "промени името", "смени името", "смени моето име", "ново потребителско име", "искам ново име", "преименувай ме", "смени потребителското име")
 CHEAPEST_WORDS = ("cheapest", "lowest price", "most affordable")
 TOPRATED_WORDS = ("top rated", "highest rated", "best rated", "highest rating", "best reviews")
 STAR_WORDS = {"5 star": 5, "5-star": 5, "five star": 5, "5 stars": 5,
@@ -655,16 +698,16 @@ def _extract_entities(m):
     for w in THEME_WORDS:
         if re.search(r"\b" + re.escape(w) + r"\b", m.lower()):
             entities["wants_theme"] = True
-            if re.search(r"\bdark\b", m.lower()):
+            if re.search(r"\b(?:dark|тъмн)", m.lower()):
                 entities["_theme_mode"] = "dark"
-            elif re.search(r"\blight\b", m.lower()):
+            elif re.search(r"\b(?:light|светл)", m.lower()):
                 entities["_theme_mode"] = "light"
             break
 
     for w in LANG_WORDS:
         if re.search(r"\b" + re.escape(w) + r"\b", m.lower()):
             entities["wants_language"] = True
-            lang_names = {'english': 'en', 'bulgarian': 'bg', 'bălgarski': 'bg', 'български': 'bg', 'spanish': 'es', 'español': 'es', 'espanol': 'es', 'german': 'de', 'deutsch': 'de'}
+            lang_names = {'english': 'en', 'bulgarian': 'bg', 'bălgarski': 'bg', 'български': 'bg', 'английски': 'en', 'spanish': 'es', 'español': 'es', 'espanol': 'es', 'испански': 'es', 'german': 'de', 'deutsch': 'de', 'немски': 'de'}
             for name, code in lang_names.items():
                 if re.search(r"\b" + re.escape(name) + r"\b", m.lower()):
                     entities["_language_target"] = code
@@ -681,14 +724,14 @@ def _extract_entities(m):
             entities["wants_rename"] = True
             parts = m.lower().split()
             for i, p in enumerate(parts):
-                if p in ("to", "as") and i + 1 < len(parts):
+                if p in ("to", "as", "на") and i + 1 < len(parts):
                     entities["_rename_target"] = parts[i + 1].strip(",.!?")
                     break
             else:
                 for i, p in enumerate(parts):
-                    if p in ("rename", "name", "username", "call") and i + 1 < len(parts):
+                    if p in ("rename", "name", "username", "call", "име", "името", "преименувай") and i + 1 < len(parts):
                         candidate = parts[i + 1].strip(",.!?")
-                        if candidate not in ("to", "as", "my", "me", "the", "new"):
+                        if candidate not in ("to", "as", "my", "me", "the", "new", "на", "моето"):
                             entities["_rename_target"] = candidate
                             break
             break
@@ -1321,7 +1364,8 @@ def _exec_theme(e, session_id):
     mode = e.get("_theme_mode") or "dark"
     result = _change_theme(mode)
     if result.get("success"):
-        return {"text": _t("Switching to {mode} mode.", lang).format(mode=mode), "intent": "db", "theme": mode, "actions": _actions("")}
+        mode_label = _t(mode, lang) if lang != 'en' else mode
+        return {"text": _t("Switching to {mode} mode.", lang).format(mode=mode_label), "intent": "db", "theme": mode, "actions": _actions("")}
     return {"text": _t("Could not change theme.", lang), "intent": "db"}
 
 def _exec_language(e, session_id):

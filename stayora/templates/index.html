@@ -72,10 +72,10 @@
         }
         .logo { font-family: var(--display); font-size: 1.9rem; font-weight: 600; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; }
         [data-theme="light"] .nav.solid .logo { color: #1e293b; }
-        .theme-toggle-btn { background: none; border: none; color: #fff; font-size: 1rem; padding: 6px 8px; border-radius: 6px; cursor: pointer; transition: all .2s; display: flex; align-items: center; opacity: .75; }
-        .theme-toggle-btn:hover { opacity: 1; color: var(--gold); background: var(--gold-dim); }
-        [data-theme="light"] .nav.solid .theme-toggle-btn { color: #1e293b; opacity: .7; }
-        [data-theme="light"] .nav.solid .theme-toggle-btn:hover { opacity: 1; color: var(--gold); background: var(--gold-dim); }
+        .theme-toggle-btn { background: none; border: none; color: #fff; font-size: 1rem; padding: 6px 8px; border-radius: 6px; cursor: pointer; transition: all .2s; display: flex; align-items: center; }
+        .theme-toggle-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
+        [data-theme="light"] .nav.solid .theme-toggle-btn { color: #1e293b; }
+        [data-theme="light"] .nav.solid .theme-toggle-btn:hover { color: var(--gold); background: var(--gold-dim); }
         .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg,var(--gold),var(--gold-hover)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: .9rem; color: #07090f; }
         .logo span { color: var(--gold); }
         .nav-right { display: flex; align-items: center; gap: .25rem; }
@@ -298,7 +298,7 @@
             <a href="{{ url_for('set_language', lang=code) }}" class="lang-btn {% if code == current_language %}on{% endif %}" title="{{ name }}"><img src="https://flagcdn.com/16x12/{{ flag_codes[code] }}.png" srcset="https://flagcdn.com/24x18/{{ flag_codes[code] }}.png 2x" alt="{{ code }}" class="flag-icon"></a>
             {% endfor %}
         </div>
-        <button class="theme-toggle-btn" onclick="toggleTheme()" title="{{ _('Toggle light/dark mode') }}" style="background:none;border:none;color:var(--muted);font-size:1rem;padding:6px 8px;border-radius:6px;cursor:pointer;transition:all .2s;display:flex;align-items:center"><i id="theme-toggle-icon" class="fas fa-moon"></i></button>
+        <button class="theme-toggle-btn" onclick="toggleTheme()" title="{{ _('Toggle light/dark mode') }}"><i id="theme-toggle-icon" class="fas fa-moon"></i></button>
         {% if current_user.is_authenticated %}
             {% if current_user.role == 'admin' %}
                 <a href="{{ url_for('admin.dashboard') }}" class="nav-link">{{ _('Dashboard') }}</a>

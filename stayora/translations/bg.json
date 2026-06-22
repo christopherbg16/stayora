@@ -522,5 +522,12 @@
   "🏨 Hotel": "🏨 Хотел",
   "💰 Set competitive pricing": "💰 Определете конкурентни цени",
   "📸 Great photos matter": "📸 Важни са страхотните снимки",
-  "vs last month": "спрямо миналия месец"
+   "vs last month": "спрямо миналия месец",
+   "Switching to {mode} mode.": "Превключвам към {mode} режим.",
+   "Could not change theme.": "Не можах да сменя темата.",
+   "Switching language to {name}.": "Превключвам езика на {name}.",
+   "Unsupported language. Choose from: {list}": "Неподдържан език. Изберете от: {list}",
+   "What username would you like? Say something like 'rename me to John'.": "Какво потребителско име искате? Кажете нещо като 'преименувай ме на Иван'.",
+   "dark": "тъмен",
+   "light": "светъл"
 }
