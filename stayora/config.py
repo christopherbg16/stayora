@@ -16,5 +16,5 @@ class Config:
     STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY') or 'pk_test_XXXXXXXXXXXXXXXXXXXXX'
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY') or 'sk_test_XXXXXXXXXXXXXXXXXXXXX'
 
-    # OpenAI
-    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY') or ''
+    # Gemini
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or ''

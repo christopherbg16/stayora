@@ -510,10 +510,6 @@
             });
             html += `</div>`;
           }
-          if (response.navigate && !restore) {
-            html += `<div class="staya-msg-actions"><a href="${response.navigate}" class="staya-action-btn primary">Show results</a></div>`;
-          }
-
           if (response.quick_replies && response.quick_replies.length > 0) {
             showQuickReplies(response.quick_replies);
           } else {
@@ -556,6 +552,13 @@
           setTimeout(() => {
             window.location.href = data.navigate;
           }, 1200);
+        }
+        if (data.rename_username) {
+          const rn = data.rename_username;
+          if (rn.new_username) {
+            document.querySelector('.staya-header-info .staya-name') &&
+              (document.querySelector('.staya-header-info .staya-name').textContent = 'Staya');
+          }
         }
       })
       .catch(err => {

@@ -1,19 +1,25 @@
 import json
 import os
 import re
+import sys
 from datetime import datetime
 from flask import url_for
 from flask_login import current_user
 from models import Hotel, Reservation, PropertyReservation, supabase, TrendingDestination, Promotion
 
-api_key = os.environ.get("OPENAI_API_KEY")
-_openai_available = bool(api_key) and api_key != "your-openai-api-key-here"
+# ── Gemini (primary AI) ──
+from google.genai import types as genai_types
+from google.genai import Client
 
-if _openai_available:
-    from openai import OpenAI
-    client = OpenAI(api_key=api_key)
+gemini_api_key = os.environ.get("GEMINI_API_KEY")
+_gemini_available = bool(gemini_api_key) and gemini_api_key not in ("", "your-gemini-api-key-here")
+if _gemini_available:
+    _gemini_client = Client(api_key=gemini_api_key)
 else:
-    client = None
+    _gemini_client = None
+    print("[Staya Gemini] No valid GEMINI_API_KEY found. AI mode disabled.", file=sys.stderr)
+
+GEMINI_MODEL_NAME = "gemini-2.5-flash"
 
 conversations: dict = {}
 MAX_HISTORY = 30
@@ -32,7 +38,8 @@ def _get_user_context():
     return {"authenticated": False}
 
 
-LANG_NAMES = {'en': 'English', 'bg': 'Български', 'es': 'Español', 'de': 'Deutsch'}
+LANGUAGES = {'en': 'English', 'bg': 'Български', 'es': 'Español', 'de': 'Deutsch'}
+LANG_NAMES = LANGUAGES
 
 def _detect_lang(text):
     import re
@@ -87,6 +94,8 @@ RULES:
 - When user agrees to see properties -> use navigate_to() to take them there
 - When asked about what to buy/sell -> search trending + property counts, give specific advice
 - NEVER invent property data, always use search_hotels()
+- You can see the user's name and role ONLY. You CANNOT access, view, or reveal any other personal information including: email, phone number, address, bank accounts, bank IBAN, bank holder name, payment details, password, or any financial data.
+- If a user asks you to look up or change personal/financial information (like bank details), politely refuse and say you cannot access that information.
 - Keep responses concise but informative
 
 USER CONTEXT: {"Authenticated as " + ctx.get("username","") + " (" + ctx.get("role","") + ")" if ctx["authenticated"] else "Not authenticated"}
@@ -209,6 +218,48 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "change_language",
+            "description": "Change the site language and return a redirect URL.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "lang": {"type": "string", "enum": ["en", "bg", "es", "de"], "description": "Target language code"},
+                },
+                "required": ["lang"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "change_theme",
+            "description": "Switch the UI theme between light and dark mode.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "mode": {"type": "string", "enum": ["light", "dark"], "description": "Theme mode to apply"},
+                },
+                "required": ["mode"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "rename_username",
+            "description": "Rename the authenticated user's username.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "new_username": {"type": "string", "description": "New username for the current account"},
+                },
+                "required": ["new_username"],
+            },
+        },
+    },
 ]
 
 TOOL_IMPL = {
@@ -217,85 +268,190 @@ TOOL_IMPL = {
     "get_active_promotions": _get_promotions,
     "get_user_bookings_info": _get_bookings_info,
     "get_property_type_counts": _get_property_counts,
+    "change_language": lambda lang: _change_language(lang),
+    "change_theme": lambda mode: _change_theme(mode),
+    "rename_username": lambda new_username: _rename_username(new_username),
 }
 
-MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
+
+def _openai_to_gemini_tools():
+    """Convert OpenAI-style TOOLS to Gemini FunctionDeclaration list."""
+    type_map = {
+        "string": genai_types.Type.STRING,
+        "number": genai_types.Type.NUMBER,
+        "integer": genai_types.Type.INTEGER,
+        "boolean": genai_types.Type.BOOLEAN,
+        "object": genai_types.Type.OBJECT,
+        "array": genai_types.Type.ARRAY,
+    }
+    declarations = []
+    for tool_def in TOOLS:
+        func = tool_def["function"]
+        params = func.get("parameters", {})
+        properties = params.get("properties", {})
+        required = params.get("required", [])
+
+        gemini_props = {}
+        for name, prop in properties.items():
+            prop_type = prop.get("type", "string")
+            gemini_props[name] = genai_types.Schema(
+                type=type_map.get(prop_type, genai_types.Type.STRING),
+                description=prop.get("description", ""),
+            )
+
+        declarations.append(genai_types.FunctionDeclaration(
+            name=func["name"],
+            description=func.get("description", ""),
+            parameters=genai_types.Schema(
+                type=genai_types.Type.OBJECT,
+                properties=gemini_props,
+                required=required,
+            ),
+        ))
+    return [genai_types.Tool(function_declarations=declarations)]
 
 
 def process_message(message, session_id=None, lang='en'):
-    if _openai_available and client is not None:
-        result = _try_openai(message, session_id, lang)
+    if _gemini_available:
+        result = _try_gemini(message, session_id, lang)
         if result is not None:
             return result
 
     return _db_response(message, session_id, lang)
 
 
-def _try_openai(message, session_id=None, lang='en'):
+def _try_gemini(message, session_id=None, lang='en'):
     detected = _detect_lang(message)
     if detected != 'en':
         lang = detected
     conv_id = session_id or "default"
+    system_prompt = _build_system_prompt(lang)
+    gemini_tools = _openai_to_gemini_tools()
+
     if conv_id not in conversations:
-        conversations[conv_id] = [{"role": "system", "content": _build_system_prompt(lang)}]
-    else:
-        conversations[conv_id][0]["content"] = _build_system_prompt(lang)
+        conversations[conv_id] = []
 
     history = conversations[conv_id]
-    history.append({"role": "user", "content": message})
-    _trim(conv_id)
+
+    contents = []
+    for msg in history:
+        role = msg["role"]
+        if role == "system":
+            continue
+        if role == "assistant":
+            parts = []
+            if msg.get("content"):
+                parts.append({"text": msg["content"]})
+            if msg.get("tool_calls"):
+                for tc in msg["tool_calls"]:
+                    parts.append({
+                        "function_call": {
+                            "name": tc["function"]["name"],
+                            "args": json.loads(tc["function"]["arguments"]) if isinstance(tc["function"]["arguments"], str) else tc["function"]["arguments"],
+                        }
+                    })
+            contents.append({"role": "model", "parts": parts})
+        elif role == "tool":
+            try:
+                resp_data = json.loads(msg["content"]) if isinstance(msg["content"], str) else msg["content"]
+            except Exception:
+                resp_data = {"result": msg["content"]}
+            contents.append({
+                "role": "function",
+                "parts": [{
+                    "function_response": {
+                        "name": msg.get("name", ""),
+                        "response": resp_data,
+                    }
+                }],
+            })
+        else:
+            content = msg.get("content", "")
+            contents.append({"role": role, "parts": [{"text": content}]})
+
+    contents.append({"role": "user", "parts": [{"text": message}]})
 
     navigate_target = None
-    last_err = None
+    tool_results = []
 
-    for model in MODELS:
-        for _ in range(2):
-            try:
-                resp = client.chat.completions.create(
-                    model=model,
-                    messages=history,
-                    tools=TOOLS,
-                    tool_choice="auto",
+    for round_num in range(5):
+        try:
+            response = _gemini_client.models.generate_content(
+                model=GEMINI_MODEL_NAME,
+                contents=contents,
+                config=genai_types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    tools=gemini_tools,
                     temperature=0.7,
-                    max_tokens=600,
-                )
-            except Exception as e:
-                last_err = e
-                break
+                    max_output_tokens=600,
+                ),
+            )
+        except Exception as e:
+            print(f"[Staya Gemini] {type(e).__name__}: {e}", file=sys.stderr)
+            return None
 
-            choice = resp.choices[0]
-            msg = choice.message
+        candidate = response.candidates[0]
 
-            if choice.finish_reason == "tool_calls" and msg.tool_calls:
-                history.append(msg)
-                for tc in msg.tool_calls:
-                    fn = tc.function.name
-                    try:
-                        args = json.loads(tc.function.arguments)
-                    except json.JSONDecodeError:
-                        args = {}
-                    if fn == "navigate_to":
-                        navigate_target = args.get("url", "/")
-                        result = json.dumps({"ok": True})
-                    elif fn in TOOL_IMPL:
-                        try:
-                            result = json.dumps(TOOL_IMPL[fn](**args), default=str)
-                        except Exception as ex:
-                            result = json.dumps({"error": str(ex)})
-                    else:
-                        result = json.dumps({"error": "unknown function"})
-                    history.append({"role": "tool", "tool_call_id": tc.id, "content": result})
-                _trim(conv_id)
+        has_function_call = False
+        for part in candidate.content.parts:
+            fc = part.function_call
+            if fc is None:
                 continue
+            has_function_call = True
+            fn = fc.name
+            args = {k: v for k, v in fc.args.items()}
 
-            elif choice.finish_reason == "stop":
-                text = msg.content or ""
-                history.append({"role": "assistant", "content": text})
-                _trim(conv_id)
-                out = {"text": text, "intent": "openai", "quick_replies": _quick_replies(text), "actions": _actions(text)}
-                if navigate_target:
-                    out["navigate"] = navigate_target
-                return out
+            if fn == "navigate_to":
+                navigate_target = args.get("url", "/")
+                result_data = {"success": True, "url": navigate_target}
+            elif fn in TOOL_IMPL:
+                try:
+                    result_data = TOOL_IMPL[fn](**args)
+                except Exception as ex:
+                    result_data = {"success": False, "error": str(ex)}
+            else:
+                result_data = {"success": False, "error": "unknown function"}
+
+            tool_results.append({"name": fn, "args": args, "result": result_data})
+            contents.append(candidate.content)
+            contents.append({
+                "role": "function",
+                "parts": [{
+                    "function_response": {
+                        "name": fn,
+                        "response": result_data,
+                    }
+                }],
+            })
+
+        if has_function_call:
+            continue
+
+        text = ""
+        for part in candidate.content.parts:
+            if part.text:
+                text += part.text
+
+        conversations[conv_id].append({"role": "user", "content": message})
+        conversations[conv_id].append({"role": "assistant", "content": text})
+        _trim(conv_id)
+
+        out = {"text": text, "intent": "gemini", "quick_replies": _quick_replies(text), "actions": _actions(text)}
+        if navigate_target:
+            out["navigate"] = navigate_target
+
+        for tool_call in tool_results:
+            name = tool_call.get("name")
+            result = tool_call.get("result") or {}
+            if name == "change_language" and result.get("success"):
+                out["navigate"] = result.get("redirect")
+                out["language"] = result.get("lang")
+            if name == "change_theme" and result.get("success"):
+                out["theme"] = result.get("theme")
+            if name == "rename_username":
+                out["rename_username"] = result
+
+        return out
 
     return None
 
@@ -380,6 +536,9 @@ LUXURY_WORDS = ("luxury", "luxurious", "premium", "high end", "fancy", "exclusiv
 HELP_WORDS = ("help", "what can you", "what do you", "how", "?", "capabilities")
 THANKS_WORDS = ("thanks", "thank you", "thanks a lot", "appreciate", "thx")
 COUNT_WORDS = ("how many", "count", "total", "available", "all properties", "everything")
+THEME_WORDS = ("dark mode", "light mode", "switch to dark", "switch to light", "change theme", "toggle theme", "dark theme", "light theme", "enable dark", "enable light", "turn on dark", "turn on light", "go dark", "go light")
+LANG_WORDS = ("change language", "switch language", "change to english", "change to bulgarian", "change to spanish", "change to german", "switch to english", "switch to bulgarian", "switch to spanish", "switch to german")
+RENAME_WORDS = ("rename me", "rename my account", "change my name", "change username", "new username", "rename my username", "rename username", "change my username", "i want a new name", "change account name")
 CHEAPEST_WORDS = ("cheapest", "lowest price", "most affordable")
 TOPRATED_WORDS = ("top rated", "highest rated", "best rated", "highest rating", "best reviews")
 STAR_WORDS = {"5 star": 5, "5-star": 5, "five star": 5, "5 stars": 5,
@@ -413,7 +572,9 @@ def _extract_entities(m):
         "price_min": None, "price_max": None, "stars": [], "wants_booking": False,
         "wants_trending": False, "wants_help": False, "wants_thanks": False,
         "wants_count": False, "price_intent": None, "wants_cheapest": False, "wants_toprated": False,
-        "check_in": None, "check_out": None, "wants_availability": False, "raw": m,
+        "check_in": None, "check_out": None, "wants_availability": False,
+        "wants_theme": False, "wants_language": False, "wants_rename": False,
+        "_theme_mode": None, "_language_target": None, "_rename_target": None, "raw": m,
     }
     import re
 
@@ -489,6 +650,47 @@ def _extract_entities(m):
     for w in AVAILABILITY_WORDS:
         if re.search(r"\b" + re.escape(w) + r"\b", m):
             entities["wants_availability"] = True
+            break
+
+    for w in THEME_WORDS:
+        if re.search(r"\b" + re.escape(w) + r"\b", m.lower()):
+            entities["wants_theme"] = True
+            if re.search(r"\bdark\b", m.lower()):
+                entities["_theme_mode"] = "dark"
+            elif re.search(r"\blight\b", m.lower()):
+                entities["_theme_mode"] = "light"
+            break
+
+    for w in LANG_WORDS:
+        if re.search(r"\b" + re.escape(w) + r"\b", m.lower()):
+            entities["wants_language"] = True
+            lang_names = {'english': 'en', 'bulgarian': 'bg', 'bălgarski': 'bg', 'български': 'bg', 'spanish': 'es', 'español': 'es', 'espanol': 'es', 'german': 'de', 'deutsch': 'de'}
+            for name, code in lang_names.items():
+                if re.search(r"\b" + re.escape(name) + r"\b", m.lower()):
+                    entities["_language_target"] = code
+                    break
+            if not entities["_language_target"]:
+                for code in LANGUAGES:
+                    if re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", m.lower()):
+                        entities["_language_target"] = code
+                        break
+            break
+
+    for w in RENAME_WORDS:
+        if re.search(r"\b" + re.escape(w) + r"\b", m.lower()):
+            entities["wants_rename"] = True
+            parts = m.lower().split()
+            for i, p in enumerate(parts):
+                if p in ("to", "as") and i + 1 < len(parts):
+                    entities["_rename_target"] = parts[i + 1].strip(",.!?")
+                    break
+            else:
+                for i, p in enumerate(parts):
+                    if p in ("rename", "name", "username", "call") and i + 1 < len(parts):
+                        candidate = parts[i + 1].strip(",.!?")
+                        if candidate not in ("to", "as", "my", "me", "the", "new"):
+                            entities["_rename_target"] = candidate
+                            break
             break
 
     date_range = re.search(r'(\d{1,2}[./]\d{1,2}[./]\d{2,4})\s*(?:until|to|through|thru|-)\s*(\d{1,2}[./]\d{1,2}[./]\d{2,4})', m)
@@ -593,7 +795,16 @@ def _score_intents(e):
     if e["wants_thanks"]:
         intents.append(("thanks", 20, e))
 
-    if e["has_greeting"] and not any(e[k] for k in ("cities", "countries", "property_types") if e[k]) and not e["wants_booking"] and not e["wants_help"] and not e["wants_trending"] and not e["wants_count"]:
+    if e["wants_theme"]:
+        intents.append(("theme", 65, e))
+
+    if e["wants_language"]:
+        intents.append(("language", 65, e))
+
+    if e["wants_rename"]:
+        intents.append(("rename", 65, e))
+
+    if e["has_greeting"] and not any(e[k] for k in ("cities", "countries", "property_types") if e[k]) and not e["wants_booking"] and not e["wants_help"] and not e["wants_trending"] and not e["wants_count"] and not e["wants_theme"] and not e["wants_language"] and not e["wants_rename"]:
         intents.append(("greeting", 5, e))
 
     intents.sort(key=lambda x: -x[1])
@@ -1105,6 +1316,34 @@ def _extract_type_from_context(ctx):
             return next(iter(e["property_types"]))
     return None
 
+def _exec_theme(e, session_id):
+    lang = e.get("_lang", "en")
+    mode = e.get("_theme_mode") or "dark"
+    result = _change_theme(mode)
+    if result.get("success"):
+        return {"text": _t("Switching to {mode} mode.", lang).format(mode=mode), "intent": "db", "theme": mode, "actions": _actions("")}
+    return {"text": _t("Could not change theme.", lang), "intent": "db"}
+
+def _exec_language(e, session_id):
+    lang = e.get("_lang", "en")
+    target = e.get("_language_target") or "en"
+    result = _change_language(target)
+    if result.get("success"):
+        name = LANGUAGES.get(target, target)
+        return {"text": _t("Switching language to {name}.", lang).format(name=name), "intent": "db", "language": target, "actions": _actions("")}
+    supported = ", ".join(result.get("supported", []))
+    return {"text": _t("Unsupported language. Choose from: {list}", lang).format(list=supported), "intent": "db"}
+
+def _exec_rename(e, session_id):
+    lang = e.get("_lang", "en")
+    new_name = e.get("_rename_target") or ""
+    if not new_name:
+        return {"text": _t("What username would you like? Say something like 'rename me to John'.", lang), "intent": "db"}
+    result = _rename_username(new_name)
+    if result.get("success"):
+        return {"text": result.get("message", "Username updated."), "intent": "db", "rename_username": result}
+    return {"text": result.get("error", "Could not rename."), "intent": "db", "rename_username": result}
+
 # ── MAIN DB RESPONSE ENGINE ──────────────────────────────────────
 
 INTENT_MAP = {
@@ -1129,6 +1368,9 @@ INTENT_MAP = {
     "help": _exec_help,
     "thanks": _exec_thanks,
     "count": _exec_count,
+    "theme": _exec_theme,
+    "language": _exec_language,
+    "rename": _exec_rename,
 }
 
 def _db_response(message, session_id=None, lang='en'):
@@ -1197,7 +1439,7 @@ def _props_for(hotels, limit=8):
     return out
 
 def detect_intent(message):
-    return "openai"
+    return "gemini"
 
 def get_response_for_intent(intent, message=None):
     return {"text": "How can I help you?", "intent": "openai"}

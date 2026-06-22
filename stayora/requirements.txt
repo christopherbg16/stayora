@@ -9,4 +9,4 @@ stripe
 authlib
 psycopg2-binary
 email-validator
-openai>=1.0.0
+google-genai
