@@ -85,6 +85,9 @@ YOUR ROLE:
 - Answer questions about destinations, pricing, availability
 - Help with bookings and reservations
 - Guide users to pages on the platform
+- When user asks to log in, sign in, or access their account -> use navigate_to() with /auth/login
+- When user asks to register, sign up, or create an account -> use navigate_to() with /auth/register
+- If user is already authenticated and asks to log in, tell them they are already logged in
 
 RULES:
 - Be natural and conversational, don't repeat yourself
@@ -588,6 +591,24 @@ STAR_WORDS = {"5 star": 5, "5-star": 5, "five star": 5, "5 stars": 5,
               "4 star": 4, "4-star": 4, "four star": 4, "4 stars": 4,
               "3 star": 3, "3-star": 3, "three star": 3, "3 stars": 3}
 
+LOGIN_WORDS = ("login", "log in", "sign in", "signin", "sign into", "log into", "i want to log in",
+               "i want to sign in", "i want to login", "take me to login", "go to login",
+               "open login", "login page", "sign in page",
+               # Bulgarian
+               "вход", "влезна", "искам да вляза", "отиди на вход", "отвори вход",
+               "логване", "логни ме", "искам да се логна", "страница за вход",
+               "към входа", "отвори страницата за вход", "искам да се впиша",
+               "влез в акаунта", "акаунта си", "моя акаунт")
+
+REGISTER_WORDS = ("register", "sign up", "signup", "create account", "i want to register",
+                  "i want to sign up", "i want to create an account", "make an account",
+                  "new account", "registration", "go to register", "go to sign up",
+                  "take me to register", "register page", "sign up page",
+                  # Bulgarian
+                  "регистрация", "регистрирай ме", "искам да се регистрирам",
+                  "създай акаунт", "нов акаунт", "създаване на акаунт",
+                  "страница за регистрация", "регистриране", "отиди на регистрация")
+
 conversations_db: dict = {}
 session_property_cache: dict = {}
 
@@ -617,6 +638,7 @@ def _extract_entities(m):
         "wants_count": False, "price_intent": None, "wants_cheapest": False, "wants_toprated": False,
         "check_in": None, "check_out": None, "wants_availability": False,
         "wants_theme": False, "wants_language": False, "wants_rename": False,
+        "wants_login": False, "wants_register": False,
         "_theme_mode": None, "_language_target": None, "_rename_target": None, "raw": m,
     }
     import re
@@ -736,6 +758,16 @@ def _extract_entities(m):
                             break
             break
 
+    for w in LOGIN_WORDS:
+        if re.search(r"\b" + re.escape(w) + r"\b", m.lower()):
+            entities["wants_login"] = True
+            break
+
+    for w in REGISTER_WORDS:
+        if re.search(r"\b" + re.escape(w) + r"\b", m.lower()):
+            entities["wants_register"] = True
+            break
+
     date_range = re.search(r'(\d{1,2}[./]\d{1,2}[./]\d{2,4})\s*(?:until|to|through|thru|-)\s*(\d{1,2}[./]\d{1,2}[./]\d{2,4})', m)
     if date_range:
         start = _normalize_date_string(date_range.group(1))
@@ -779,6 +811,12 @@ def _extract_entities(m):
 
 def _score_intents(e):
     intents = []
+
+    if e["wants_login"]:
+        intents.append(("login", 130, e))
+
+    if e["wants_register"]:
+        intents.append(("register", 130, e))
 
     if e["wants_cheapest"] and e["property_types"]:
         intents.append(("cheapest_type", 115, e))
@@ -1388,6 +1426,23 @@ def _exec_rename(e, session_id):
         return {"text": result.get("message", "Username updated."), "intent": "db", "rename_username": result}
     return {"text": result.get("error", "Could not rename."), "intent": "db", "rename_username": result}
 
+def _exec_login(e, session_id):
+    lang = e.get("_lang", "en")
+    if current_user.is_authenticated:
+        return {"text": _t("You are already logged in.", lang), "intent": "db", "navigate": url_for('user.dashboard'),
+                "quick_replies": [_t("Dashboard", lang), _t("Browse Stays", lang), _t("My Bookings", lang)]}
+    return {"text": _t("Taking you to the login page.", lang), "intent": "db", "navigate": url_for('auth.login'),
+            "quick_replies": [_t("Create Account", lang), _t("Browse Stays", lang)]}
+
+def _exec_register(e, session_id):
+    lang = e.get("_lang", "en")
+    if current_user.is_authenticated:
+        return {"text": _t("You already have an account. Would you like to go to your dashboard?", lang), "intent": "db",
+                "navigate": url_for('user.dashboard'),
+                "quick_replies": [_t("Dashboard", lang), _t("Browse Stays", lang)]}
+    return {"text": _t("Taking you to the registration page.", lang), "intent": "db", "navigate": url_for('auth.register'),
+            "quick_replies": [_t("Sign In", lang), _t("Browse Stays", lang)]}
+
 # ── MAIN DB RESPONSE ENGINE ──────────────────────────────────────
 
 INTENT_MAP = {
@@ -1415,6 +1470,8 @@ INTENT_MAP = {
     "theme": _exec_theme,
     "language": _exec_language,
     "rename": _exec_rename,
+    "login": _exec_login,
+    "register": _exec_register,
 }
 
 def _db_response(message, session_id=None, lang='en'):
