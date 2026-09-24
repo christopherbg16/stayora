@@ -1,8 +1,18 @@
 // Smooth scroll behavior
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        // Skip bare "#" links (dropdown/modal toggles, placeholders) - there's
+        // nothing to scroll to and querySelector('#') throws a syntax error.
+        if (!href || href === '#') {
+            return;
+        }
+        const target = document.querySelector(href);
+        if (!target) {
+            return;
+        }
         e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
+        target.scrollIntoView({
             behavior: 'smooth'
         });
     });
@@ -40,17 +50,22 @@ window.addEventListener('scroll', function() {
 // Theme toggle functionality
 function toggleTheme() {
     const htmlElement = document.documentElement;
+    const icon = document.getElementById('theme-toggle-icon');
     const isDark = htmlElement.getAttribute('data-theme') === 'dark';
-    
+
     if (isDark) {
         htmlElement.removeAttribute('data-theme');
-        document.getElementById('theme-toggle-icon').classList.remove('fa-sun');
-        document.getElementById('theme-toggle-icon').classList.add('fa-moon');
+        if (icon) {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
         localStorage.setItem('theme', 'light');
     } else {
         htmlElement.setAttribute('data-theme', 'dark');
-        document.getElementById('theme-toggle-icon').classList.remove('fa-moon');
-        document.getElementById('theme-toggle-icon').classList.add('fa-sun');
+        if (icon) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
         localStorage.setItem('theme', 'dark');
     }
 }
@@ -59,19 +74,18 @@ function toggleTheme() {
 document.addEventListener('DOMContentLoaded', function() {
     const savedTheme = localStorage.getItem('theme');
     const htmlElement = document.documentElement;
-    
-    if (savedTheme === 'dark') {
+    const icon = document.getElementById('theme-toggle-icon');
+    const isDark = savedTheme === 'dark';
+
+    if (isDark) {
         htmlElement.setAttribute('data-theme', 'dark');
-        document.getElementById('theme-toggle-icon').classList.remove('fa-moon');
-        document.getElementById('theme-toggle-icon').classList.add('fa-sun');
-    } else if (savedTheme === 'light') {
-        htmlElement.removeAttribute('data-theme');
-        document.getElementById('theme-toggle-icon').classList.remove('fa-sun');
-        document.getElementById('theme-toggle-icon').classList.add('fa-moon');
     } else {
         // Default to light theme if no preference saved
         htmlElement.removeAttribute('data-theme');
-        document.getElementById('theme-toggle-icon').classList.remove('fa-sun');
-        document.getElementById('theme-toggle-icon').classList.add('fa-moon');
+    }
+
+    if (icon) {
+        icon.classList.toggle('fa-sun', isDark);
+        icon.classList.toggle('fa-moon', !isDark);
     }
 });

@@ -101,6 +101,12 @@ def index():
 
 @app.route('/test-db')
 def test_db():
+    # This endpoint creates a throwaway user row on every visit, which used to
+    # be public and would inflate the live "total users" stat shown on the
+    # homepage/dashboard (and clutter the users table) whenever it was hit by
+    # a bot, crawler, or link preview. It's now restricted to debug/dev runs.
+    if not app.debug:
+        return jsonify({'error': 'Not available'}), 404
     try:
         user_count = User.count()
         test_username = f"test_user_{datetime.now().strftime('%Y%m%d%H%M%S')}"

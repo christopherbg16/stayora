@@ -355,6 +355,13 @@ class Reservation(BaseModel):
         return cls(data.data[0]) if data.data else None
 
     @classmethod
+    def find_by_payment_id(cls, payment_id):
+        if not payment_id:
+            return None
+        data = supabase.table('reservations').select('*').eq('payment_id', payment_id).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
     def find_by_guest(cls, guest):
         data = supabase.table('reservations').select('*').eq('guest', guest).execute()
         return [cls(r) for r in (data.data or [])]
@@ -425,6 +432,13 @@ class PropertyReservation(BaseModel):
     @classmethod
     def get(cls, reservation_id):
         data = supabase.table('property_reservations').select('*').eq('id', reservation_id).execute()
+        return cls(data.data[0]) if data.data else None
+
+    @classmethod
+    def find_by_payment_id(cls, payment_id):
+        if not payment_id:
+            return None
+        data = supabase.table('property_reservations').select('*').eq('payment_id', payment_id).execute()
         return cls(data.data[0]) if data.data else None
 
     @classmethod

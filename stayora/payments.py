@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from models import Reservation, PropertyReservation, Room, Hotel, log_activity
+from models import Reservation, PropertyReservation, Room, Hotel, log_activity, \
+    check_room_conflict, check_property_conflict
 from supabase_client import supabase
 from config import Config
 import stripe
@@ -28,6 +29,10 @@ def checkout_room(room_id):
         check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
         check_out_date = datetime.strptime(check_out, '%Y-%m-%d').date()
         nights = (check_out_date - check_in_date).days
+
+        if check_room_conflict(room.id, check_in_date, check_out_date):
+            flash('Sorry, this room is no longer available for the selected dates.', 'danger')
+            return redirect(url_for('user.hotel_detail', hotel_id=hotel.id))
     elif not nights:
         nights = 1
 
@@ -92,6 +97,10 @@ def checkout_property(property_id):
         check_out_date = datetime.strptime(check_out, '%Y-%m-%d').date()
         nights = (check_out_date - check_in_date).days
 
+        if check_property_conflict(property_id, check_in_date, check_out_date):
+            flash('Sorry, this property is no longer available for the selected dates.', 'danger')
+            return redirect(url_for('user.hotel_detail', hotel_id=property_id))
+
     total_price = (hotel.price_per_night or 0) * nights
     total_cents = int(total_price * 100)
 
@@ -136,12 +145,19 @@ def checkout_property(property_id):
 
 
 @payments_bp.route('/success')
+@login_required
 def success():
     session_id = request.args.get('session_id')
 
     if session_id:
         try:
             session = stripe.checkout.Session.retrieve(session_id)
+
+            # Guard against a cancelled/unpaid Stripe session reaching this page
+            if session.payment_status != 'paid':
+                flash('Your payment was not completed, so no booking was made.', 'warning')
+                return redirect(url_for('user.dashboard'))
+
             metadata = session.metadata
 
             if metadata.get('type') == 'room':
@@ -149,18 +165,22 @@ def success():
                 check_in = metadata.get('check_in')
                 nights = int(metadata.get('nights'))
 
-                room = Room.get(room_id)
-
-                Reservation.create(
-                    room_id=room_id,
-                    guest=current_user.username,
-                    user_id=current_user.id,
-                    start_date=check_in,
-                    nights=nights,
-                    total_price=room.price * nights,
-                    payment_status='paid',
-                    payment_id=session_id
-                )
+                # Idempotency: refreshing/revisiting this page must not create
+                # a second reservation for the same Stripe session.
+                existing = Reservation.find_by_payment_id(session_id)
+                if not existing:
+                    room = Room.get(room_id)
+                    Reservation.create(
+                        room_id=room_id,
+                        guest=current_user.username,
+                        user_id=current_user.id,
+                        start_date=check_in,
+                        nights=nights,
+                        total_price=room.price * nights,
+                        payment_status='paid',
+                        payment_id=session_id
+                    )
+                    log_activity(f"User '{current_user.username}' booked Room #{room.number} (Card payment)")
 
                 flash('Payment successful! Your room has been booked.', 'success')
 
@@ -169,18 +189,20 @@ def success():
                 check_in = metadata.get('check_in')
                 nights = int(metadata.get('nights'))
 
-                hotel = Hotel.get(property_id)
-
-                PropertyReservation.create(
-                    property_id=property_id,
-                    guest=current_user.username,
-                    user_id=current_user.id,
-                    start_date=check_in,
-                    nights=nights,
-                    total_price=(hotel.price_per_night or 0) * nights,
-                    payment_status='paid',
-                    payment_id=session_id
-                )
+                existing = PropertyReservation.find_by_payment_id(session_id)
+                if not existing:
+                    hotel = Hotel.get(property_id)
+                    PropertyReservation.create(
+                        property_id=property_id,
+                        guest=current_user.username,
+                        user_id=current_user.id,
+                        start_date=check_in,
+                        nights=nights,
+                        total_price=(hotel.price_per_night or 0) * nights,
+                        payment_status='paid',
+                        payment_id=session_id
+                    )
+                    log_activity(f"User '{current_user.username}' booked '{hotel.name}' (Card payment)")
 
                 flash('Payment successful! Your property has been booked.', 'success')
 
@@ -272,6 +294,15 @@ def process_payment():
                 return redirect(checkout_session.url, code=303)
 
             else:
+                try:
+                    check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
+                    check_out_date = check_in_date + timedelta(days=nights)
+                    if check_room_conflict(booking_id, check_in_date, check_out_date):
+                        flash('Sorry, this room was just booked for those dates. Please pick another room or dates.', 'danger')
+                        return redirect(url_for('user.hotel_detail', hotel_id=room.hotel_id))
+                except ValueError:
+                    pass
+
                 Reservation.create(
                     room_id=booking_id,
                     guest=current_user.username,
@@ -326,6 +357,15 @@ def process_payment():
                 return redirect(checkout_session.url, code=303)
 
             else:
+                try:
+                    check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
+                    check_out_date = check_in_date + timedelta(days=nights)
+                    if check_property_conflict(booking_id, check_in_date, check_out_date):
+                        flash('Sorry, this property was just booked for those dates. Please pick different dates.', 'danger')
+                        return redirect(url_for('user.hotel_detail', hotel_id=booking_id))
+                except ValueError:
+                    pass
+
                 PropertyReservation.create(
                     property_id=booking_id,
                     guest=current_user.username,
@@ -340,6 +380,9 @@ def process_payment():
                 log_activity(f"User '{current_user.username}' booked '{hotel.name}' (Cash payment)")
                 flash('Booking confirmed! Please pay €{:.2f} in cash at the property.'.format(total_price), 'success')
                 return redirect(url_for('user.my_reservations'))
+
+        flash('Invalid booking request.', 'danger')
+        return redirect(url_for('user.browse_stays'))
 
     except Exception as e:
         flash(f'Error processing booking: {str(e)}', 'danger')
