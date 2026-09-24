@@ -85,6 +85,7 @@ YOUR ROLE:
 - Answer questions about destinations, pricing, availability
 - Help with bookings and reservations
 - Guide users to pages on the platform
+- Personalize recommendations for returning, authenticated users using their real booking history
 - When user asks to log in, sign in, or access their account -> use navigate_to() with /auth/login
 - When user asks to register, sign up, or create an account -> use navigate_to() with /auth/register
 - If user is already authenticated and asks to log in, tell them they are already logged in
@@ -97,7 +98,8 @@ RULES:
 - When user agrees to see properties -> use navigate_to() to take them there
 - When asked about what to buy/sell -> search trending + property counts, give specific advice
 - NEVER invent property data, always use search_hotels()
-- You can see the user's name and role ONLY. You CANNOT access, view, or reveal any other personal information including: email, phone number, address, bank accounts, bank IBAN, bank holder name, payment details, password, or any financial data.
+- PERSONALIZATION: if the user is authenticated and asks for a recommendation "for me", "based on my trips/history", or asks something vague like "what should I book?" or "surprise me" -> call get_user_preferences() first, then use its favorite_cities/preferred_property_types/avg_price_per_night as inputs to search_hotels() rather than guessing. If has_history is false, ask 1-2 quick questions about budget/style instead of calling it again. Don't call get_user_preferences() for unrelated questions.
+- You can see the user's name, role, and (only when relevant to personalization) their own aggregated booking preferences. You CANNOT access, view, or reveal any other personal information including: email, phone number, address, bank accounts, bank IBAN, bank holder name, payment details, password, or any financial data.
 - If a user asks you to look up or change personal/financial information (like bank details), politely refuse and say you cannot access that information.
 - Keep responses concise but informative
 - When the user asks to change the language, theme, or username you MUST use the provided function (change_language, change_theme, rename_username) — do NOT just say you did it without calling the function.
@@ -149,6 +151,74 @@ def _get_bookings_info():
         return {"error": str(e)}
 
 
+def _get_user_preferences():
+    """Summarize the authenticated user's booking history into a compact
+    profile the model can use to personalize recommendations: favorite
+    cities/countries, preferred property types, typical price range and
+    star rating, and how many trips they've taken. Returns a small, cheap
+    payload rather than raw reservation rows."""
+    if not current_user.is_authenticated:
+        return {"authenticated": False}
+    try:
+        from collections import Counter
+
+        username = current_user.username
+        room_res = Reservation.find_by_guest(username)
+        prop_res = PropertyReservation.find_by_guest(username)
+
+        if not room_res and not prop_res:
+            return {"authenticated": True, "has_history": False,
+                    "note": "No past bookings yet — ask about their travel style/budget instead."}
+
+        cities, countries, types, stars_list, prices = [], [], [], [], []
+
+        for r in room_res:
+            room = r.room
+            hotel = room.hotel if room else None
+            if hotel:
+                if getattr(hotel, "city", None):
+                    cities.append(hotel.city)
+                if getattr(hotel, "country", None):
+                    countries.append(hotel.country)
+                if getattr(hotel, "property_type", None):
+                    types.append(hotel.property_type)
+                if getattr(hotel, "stars", None):
+                    stars_list.append(hotel.stars)
+            if room and getattr(room, "price", None):
+                prices.append(room.price)
+
+        for r in prop_res:
+            hotel = r.hotel
+            if hotel:
+                if getattr(hotel, "city", None):
+                    cities.append(hotel.city)
+                if getattr(hotel, "country", None):
+                    countries.append(hotel.country)
+                if getattr(hotel, "property_type", None):
+                    types.append(hotel.property_type)
+                if getattr(hotel, "stars", None):
+                    stars_list.append(hotel.stars)
+            if getattr(hotel, "price_per_night", None):
+                prices.append(hotel.price_per_night)
+
+        top_cities = [c for c, _ in Counter(cities).most_common(3)]
+        top_countries = [c for c, _ in Counter(countries).most_common(2)]
+        top_types = [t for t, _ in Counter(types).most_common(2)]
+
+        return {
+            "authenticated": True,
+            "has_history": True,
+            "total_trips": len(room_res) + len(prop_res),
+            "favorite_cities": top_cities,
+            "favorite_countries": top_countries,
+            "preferred_property_types": top_types,
+            "avg_price_per_night": round(sum(prices) / len(prices), 2) if prices else None,
+            "avg_stars": round(sum(stars_list) / len(stars_list), 1) if stars_list else None,
+        }
+    except Exception as e:
+        return {"authenticated": True, "error": str(e)}
+
+
 def _get_property_counts():
     try:
         return {"total": Hotel.count(), "hotels": Hotel.count_by_type("hotel"),
@@ -196,6 +266,14 @@ TOOLS = [
         "function": {
             "name": "get_user_bookings_info",
             "description": "Get current user's booking count (requires authentication)",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_user_preferences",
+            "description": "Get the authenticated user's travel profile derived from their past bookings: favorite cities/countries, preferred property types, typical price range and star rating. Use this before recommending properties 'for them' or personalizing suggestions.",
             "parameters": {"type": "object", "properties": {}},
         },
     },
@@ -303,6 +381,7 @@ TOOL_IMPL = {
     "get_trending_destinations": _get_trending,
     "get_active_promotions": _get_promotions,
     "get_user_bookings_info": _get_bookings_info,
+    "get_user_preferences": _get_user_preferences,
     "get_property_type_counts": _get_property_counts,
     "change_language": lambda lang: _change_language(lang),
     "change_theme": lambda mode: _change_theme(mode),
