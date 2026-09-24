@@ -2,7 +2,6 @@
 <div id="staya-chatbot">
   <button id="staya-toggle" class="staya-toggle-btn" aria-label="Open Staya chat">
     <i class="fas fa-comment-dots"></i>
-    <span class="staya-notif-dot"></span>
   </button>
 
   <div id="staya-window" class="staya-window hidden">
@@ -19,12 +18,7 @@
       </button>
     </div>
 
-    <div id="staya-messages" class="staya-messages">
-      <div class="staya-msg staya-msg-bot">
-        <div class="staya-msg-text typewriter" id="staya-initial-greeting" data-text="Hi there! I'm Staya, your travel assistant. How can I help you today?"><span class="cursor">|</span></div>
-        <div class="staya-msg-time" id="staya-initial-time">Just now</div>
-      </div>
-    </div>
+    <div id="staya-messages" class="staya-messages"></div>
 
     <div id="staya-quick-replies" class="staya-quick-replies"></div>
 
@@ -47,11 +41,6 @@
   transition: all .3s ease; display: flex; align-items: center; justify-content: center;
 }
 .staya-toggle-btn:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(201,169,110,.55); }
-.staya-notif-dot {
-  position: absolute; top: 2px; right: 2px;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: #ef4444; border: 2px solid #07090f;
-}
 .staya-window {
   position: fixed; bottom: 5.5rem; right: 1.5rem; z-index: 9998;
   width: 380px; height: 560px; border-radius: 18px;
@@ -248,10 +237,7 @@
   const inputEl = document.getElementById('staya-input');
   const sendBtn = document.getElementById('staya-send');
   const quickRepliesEl = document.getElementById('staya-quick-replies');
-  const notifDot = document.querySelector('.staya-notif-dot');
   const statusEl = document.querySelector('.staya-status');
-  const initialGreeting = document.getElementById('staya-initial-greeting');
-  const initialTime = document.getElementById('staya-initial-time');
 
   function getCookie(name) {
     const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
@@ -301,12 +287,6 @@
 
   const t = CHAT_TRANSLATIONS[siteLang] || CHAT_TRANSLATIONS.en;
 
-  if (initialGreeting) {
-    initialGreeting.setAttribute('data-text', t.greeting);
-  }
-  if (initialTime) {
-    initialTime.textContent = t.justNow;
-  }
   if (statusEl) {
     statusEl.innerHTML = '<span class="status-dot"></span> ' + t.status;
   }
@@ -323,17 +303,6 @@
       .then(r => r.json())
       .then(data => {
         sessionData = data;
-        if (data.authenticated) {
-          const greeting = document.querySelector('.staya-msg-bot .staya-msg-text');
-          if (greeting) {
-            greeting.setAttribute('data-text', t.welcomeBack);
-            greeting.innerHTML = '<span class="cursor">|</span>';
-            typeWriter(greeting, 10);
-          }
-        }
-        if (data.authenticated) {
-          notifDot.style.display = 'none';
-        }
       })
       .catch(() => {});
   }
@@ -600,14 +569,6 @@
   inputEl.addEventListener('keydown', e => {
     if (e.key === 'Enter') sendMessage();
   });
-
-  // Auto-type the initial greeting
-  setTimeout(() => {
-    const greeting = document.querySelector('.staya-msg-bot .staya-msg-text');
-    if (greeting && greeting.getAttribute('data-text')) {
-      typeWriter(greeting, 10);
-    }
-  }, 300);
 
   init();
 })();

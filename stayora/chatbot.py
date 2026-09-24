@@ -83,7 +83,7 @@ YOUR ROLE:
 - Help users find properties (hotels, apartments, villas, resorts)
 - Recommend popular properties and profitable investment opportunities
 - Answer questions about destinations, pricing, availability
-- Help with bookings and reservations
+- Explain existing reservations and hand users off to the human-operated checkout flow
 - Guide users to pages on the platform
 - Personalize recommendations for returning, authenticated users using their real booking history
 - When user asks to log in, sign in, or access their account -> use navigate_to() with /auth/login
@@ -96,6 +96,8 @@ RULES:
 - When asked about properties in a city -> use search_hotels() to find them
 - After presenting results, ALWAYS ask if they want to see them
 - When user agrees to see properties -> use navigate_to() to take them there
+- You cannot book a room or property, create a reservation, charge a card, or approve a payment. Never claim that you completed any of those actions. You may only search, recommend, check availability, show existing reservations, and navigate the user to the existing checkout page so the user can review and approve payment themselves.
+- Do not send reminders, messages, or re-booking suggestions unless the user explicitly asks a question first.
 - When asked about what to buy/sell -> search trending + property counts, give specific advice
 - NEVER invent property data, always use search_hotels()
 - PERSONALIZATION: if the user is authenticated and asks for a recommendation "for me", "based on my trips/history", or asks something vague like "what should I book?" or "surprise me" -> call get_user_preferences() first, then use its favorite_cities/preferred_property_types/avg_price_per_night as inputs to search_hotels() rather than guessing. If has_history is false, ask 1-2 quick questions about budget/style instead of calling it again. Don't call get_user_preferences() for unrelated questions.
@@ -439,14 +441,15 @@ def _try_gemini(message, session_id=None, lang='en'):
     detected = _detect_lang(message)
     if detected != 'en':
         lang = detected
-    conv_id = session_id or "default"
+    # Without a client session, do not share conversation state between requests.
+    conv_id = session_id
     system_prompt = _build_system_prompt(lang)
     gemini_tools = _openai_to_gemini_tools()
 
-    if conv_id not in conversations:
+    if conv_id and conv_id not in conversations:
         conversations[conv_id] = []
 
-    history = conversations[conv_id]
+    history = conversations.get(conv_id, [])
 
     contents = []
     for msg in history:
@@ -516,7 +519,12 @@ def _try_gemini(message, session_id=None, lang='en'):
             fn = fc.name
             args = {k: v for k, v in fc.args.items()}
 
-            if fn == "navigate_to":
+            if fn in {"book_room", "book_property", "create_reservation", "charge_card", "process_payment", "checkout"}:
+                result_data = {
+                    "success": False,
+                    "error": "Staya cannot book, charge cards, or approve payments. The user must review and approve payment in the existing checkout flow.",
+                }
+            elif fn == "navigate_to":
                 navigate_target = args.get("url", "/")
                 result_data = {"success": True, "url": navigate_target}
             elif fn in TOOL_IMPL:
@@ -547,9 +555,10 @@ def _try_gemini(message, session_id=None, lang='en'):
             if part.text:
                 text += part.text
 
-        conversations[conv_id].append({"role": "user", "content": message})
-        conversations[conv_id].append({"role": "assistant", "content": text})
-        _trim(conv_id)
+        if conv_id:
+            conversations[conv_id].append({"role": "user", "content": message})
+            conversations[conv_id].append({"role": "assistant", "content": text})
+            _trim(conv_id)
 
         out = {"text": text, "intent": "gemini", "quick_replies": _quick_replies(text), "actions": _actions(text)}
         if navigate_target:
