@@ -303,11 +303,11 @@
 
                 <div class="payment-methods">
                     <!-- Card Payment -->
-                    <label class="payment-method-option" id="optionCard" onclick="selectPayment('card', this)">
-                        <input type="radio" name="payment_method" value="card">
+                    <label class="payment-method-option {% if not stripe_enabled %}disabled{% endif %}" id="optionCard" {% if stripe_enabled %}onclick="selectPayment('card', this)"{% endif %}>
+                        <input type="radio" name="payment_method" value="card" {% if not stripe_enabled %}disabled{% endif %}>
                         <span class="payment-method-icon">💳</span>
                         <span class="payment-method-title">{{ _('Pay with Card') }}</span>
-                        <span class="payment-method-desc">{{ _('Secure online payment via Stripe') }}</span>
+                        <span class="payment-method-desc">{% if stripe_enabled %}{{ _('Secure online payment via Stripe') }}{% else %}{{ _('Stripe is not configured') }}{% endif %}</span>
                     </label>
 
                     <!-- Cash Payment -->
@@ -319,35 +319,17 @@
                     </label>
                 </div>
 
-                <!-- Card Payment Form (hidden by default) -->
+                <!-- Stripe Checkout collects card details on Stripe's secure page. -->
                 <div class="card-form" id="cardForm">
                     <h5 style="color: var(--text-light); font-weight: 600; margin-bottom: 1rem;">
                         <i class="fas fa-credit-card me-2" style="color: var(--primary);"></i>{{ _('Card Details') }}
                     </h5>
-
-                    <div class="mb-3">
-                        <label class="form-label">{{ _('Cardholder Name') }}</label>
-                        <input type="text" name="card_name" class="form-control" placeholder="{{ _('John Doe') }}" id="cardName">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">{{ _('Card Number') }}</label>
-                        <input type="text" name="card_number" class="form-control" placeholder="1234 5678 9012 3456" id="cardNumber" maxlength="19" oninput="formatCardNumber(this)">
-                    </div>
-
-                    <div class="card-row">
-                        <div class="mb-3">
-                            <label class="form-label">{{ _('Expiry Date') }}</label>
-                            <input type="text" name="card_expiry" class="form-control" placeholder="MM/YY" id="cardExpiry" maxlength="5" oninput="formatExpiry(this)">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">{{ _('CVC') }}</label>
-                            <input type="text" name="card_cvc" class="form-control" placeholder="123" id="cardCvc" maxlength="4">
-                        </div>
-                    </div>
-
-                    <div id="card-errors" role="alert"></div>
+                    <p>{{ _('You will enter your card details on Stripe Checkout after continuing.') }}</p>
                 </div>
+
+                {% if not stripe_enabled %}
+                <p class="text-muted">{{ _('Card payments are unavailable until Stripe is configured. You can still choose cash payment.') }}</p>
+                {% endif %}
 
                 <!-- Submit Buttons -->
                 <div id="buttonCard" style="display: none;">
@@ -404,88 +386,11 @@ function selectPayment(type, element) {
         cardForm.classList.add('active');
         buttonCard.style.display = 'block';
         buttonCash.style.display = 'none';
-        // Make card fields required
-        document.getElementById('cardName').required = true;
-        document.getElementById('cardNumber').required = true;
-        document.getElementById('cardExpiry').required = true;
-        document.getElementById('cardCvc').required = true;
     } else {
         cardForm.classList.remove('active');
         buttonCard.style.display = 'none';
         buttonCash.style.display = 'block';
-        // Remove required from card fields
-        document.getElementById('cardName').required = false;
-        document.getElementById('cardNumber').required = false;
-        document.getElementById('cardExpiry').required = false;
-        document.getElementById('cardCvc').required = false;
     }
 }
-
-function formatCardNumber(input) {
-    let value = input.value.replace(/\D/g, '');
-    value = value.substring(0, 16);
-    let formatted = '';
-    for (let i = 0; i < value.length; i++) {
-        if (i > 0 && i % 4 === 0) formatted += ' ';
-        formatted += value[i];
-    }
-    input.value = formatted;
-}
-
-function formatExpiry(input) {
-    let value = input.value.replace(/\D/g, '');
-    value = value.substring(0, 4);
-    if (value.length >= 2) {
-        input.value = value.substring(0, 2) + '/' + value.substring(2);
-    } else {
-        input.value = value;
-    }
-}
-
-// Validate card before submit
-document.getElementById('paymentForm').addEventListener('submit', function(e) {
-    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-
-    if (paymentMethod === 'card') {
-        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-        const cardExpiry = document.getElementById('cardExpiry').value;
-        const cardCvc = document.getElementById('cardCvc').value;
-        const cardName = document.getElementById('cardName').value;
-        const errors = document.getElementById('card-errors');
-
-        errors.textContent = '';
-
-        if (!cardName) {
-            errors.textContent = '{{ _('Please enter the cardholder name') }}';
-            e.preventDefault();
-            return;
-        }
-        if (cardNumber.length < 16) {
-            errors.textContent = '{{ _('Please enter a valid 16-digit card number') }}';
-            e.preventDefault();
-            return;
-        }
-        if (!cardExpiry.match(/^\d{2}\/\d{2}$/)) {
-            errors.textContent = '{{ _('Please enter a valid expiry date (MM/YY)') }}';
-            e.preventDefault();
-            return;
-        }
-        // Check expiry is in the future
-        const [month, year] = cardExpiry.split('/');
-        const now = new Date();
-        const currentYear = now.getFullYear() % 100;
-        const currentMonth = now.getMonth() + 1;
-        if (parseInt(year) < currentYear || (parseInt(year) === currentYear && parseInt(month) < currentMonth)) {
-            errors.textContent = '{{ _('Card has expired') }}';
-            e.preventDefault();
-            return;
-        }
-        if (cardCvc.length < 3) {
-            errors.textContent = '{{ _('Please enter a valid CVC') }}';
-            e.preventDefault();
-            return;
-        }
-    }
-});
 </script>
 {% endblock %}

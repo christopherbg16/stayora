@@ -198,7 +198,7 @@
             <div class="form-group">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <label class="form-label mb-0">{{ _('Password') }}</label>
-                    <a href="#" style="font-size: 0.78rem; color: var(--primary); text-decoration: none;">{{ _('Forgot password?') }}</a>
+                    <a href="{{ url_for('auth.forgot_password') }}" style="font-size: 0.78rem; color: var(--primary); text-decoration: none;">{{ _('Forgot password?') }}</a>
                 </div>
                 <div class="input-wrapper">
                     <i class="fas fa-lock input-icon"></i>

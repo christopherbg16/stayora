@@ -2,10 +2,10 @@ import json
 import os
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, date
 from flask import url_for
 from flask_login import current_user
-from models import User, Hotel, Reservation, PropertyReservation, supabase, TrendingDestination, Promotion
+from models import User, Hotel, Reservation, PropertyReservation, supabase, TrendingDestination, Promotion, check_property_conflict
 
 # ── Gemini (primary AI) ──
 from google.genai import types as genai_types
@@ -84,10 +84,11 @@ YOUR ROLE:
 - Recommend popular properties and profitable investment opportunities
 - Answer questions about destinations, pricing, availability
 - Help with bookings and reservations
+- For a request to book a stay with destination, property type, and dates, use find_booking_options() to verify availability. Present its options and checkout links; never claim a reservation is complete until checkout succeeds.
 - Guide users to pages on the platform
 - Personalize recommendations for returning, authenticated users using their real booking history
-- When user asks to log in, sign in, or access their account -> use navigate_to() with /auth/login
-- When user asks to register, sign up, or create an account -> use navigate_to() with /auth/register
+- When user asks to log in, sign in, or access their account -> use navigate_to() with /login
+- When user asks to register, sign up, or create an account -> use navigate_to() with /register
 - If user is already authenticated and asks to log in, tell them they are already logged in
 
 RULES:
@@ -121,6 +122,54 @@ def _search_hotels(destination=None, property_type=None, min_price=None, max_pri
         ]
     except Exception as e:
         return {"error": str(e)}
+
+
+def _find_booking_options(destination, property_type, check_in, check_out):
+    if not destination or property_type not in {"hotel", "apartment", "villa", "resort"}:
+        return {"success": False, "error": "A destination and valid property type are required."}
+    try:
+        start_date = datetime.strptime(check_in, "%Y-%m-%d").date()
+        end_date = datetime.strptime(check_out, "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return {"success": False, "error": "Dates must use YYYY-MM-DD format."}
+    nights = (end_date - start_date).days
+    if nights < 1 or start_date < date.today():
+        return {"success": False, "error": "Choose future dates with at least one night."}
+
+    try:
+        hotels = Hotel.search(destination=destination, property_type=property_type)
+        options = []
+        for hotel in hotels:
+            if check_property_conflict(hotel.id, start_date, end_date):
+                continue
+            options.append({
+                "id": hotel.id,
+                "name": hotel.name,
+                "city": hotel.city,
+                "country": hotel.country,
+                "property_type": hotel.property_type,
+                "price_per_night": getattr(hotel, "price_per_night", 0) or 0,
+                "avg_rating": float(getattr(hotel, "avg_rating", 0) or 0),
+                "stars": getattr(hotel, "stars", 0) or 0,
+                "booking_url": url_for(
+                    "payments.checkout_property",
+                    property_id=hotel.id,
+                    check_in=start_date.isoformat(),
+                    check_out=end_date.isoformat(),
+                    nights=nights,
+                ),
+            })
+        return {
+            "success": True,
+            "destination": destination,
+            "property_type": property_type,
+            "check_in": start_date.isoformat(),
+            "check_out": end_date.isoformat(),
+            "nights": nights,
+            "options": options[:8],
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
 def _get_trending():
@@ -242,6 +291,23 @@ TOOLS = [
                     "min_price": {"type": "number", "description": "Min price per night EUR"},
                     "max_price": {"type": "number", "description": "Max price per night EUR"},
                 },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "find_booking_options",
+            "description": "Find properties of a requested type that are available for a destination and date range. The user completes the reservation through the returned checkout link.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "destination": {"type": "string", "description": "City or country name"},
+                    "property_type": {"type": "string", "enum": ["hotel", "apartment", "villa", "resort"]},
+                    "check_in": {"type": "string", "description": "Check-in date in YYYY-MM-DD format"},
+                    "check_out": {"type": "string", "description": "Check-out date in YYYY-MM-DD format"},
+                },
+                "required": ["destination", "property_type", "check_in", "check_out"],
             },
         },
     },
@@ -378,6 +444,7 @@ def _rename_username(new_username):
 
 TOOL_IMPL = {
     "search_hotels": _search_hotels,
+    "find_booking_options": _find_booking_options,
     "get_trending_destinations": _get_trending,
     "get_active_promotions": _get_promotions,
     "get_user_bookings_info": _get_bookings_info,
@@ -427,6 +494,11 @@ def _openai_to_gemini_tools():
 
 
 def process_message(message, session_id=None, lang='en'):
+    entities = _extract_entities(message.lower())
+    if (entities["wants_booking"] and entities["check_in"] and entities["check_out"]
+            and (entities["cities"] or entities["countries"]) and entities["property_types"]):
+        return _db_response(message, session_id, lang)
+
     if _gemini_available:
         result = _try_gemini(message, session_id, lang)
         if result is not None:
@@ -558,6 +630,20 @@ def _try_gemini(message, session_id=None, lang='en'):
         for tool_call in tool_results:
             name = tool_call.get("name")
             result = tool_call.get("result") or {}
+            if name == "find_booking_options" and result.get("success"):
+                options = result.get("options", [])
+                for option in options:
+                    option["booking_label"] = "Продължи към резервацията" if lang == "bg" else "Continue to checkout"
+                out["properties"] = options
+                if lang == "bg":
+                    if options:
+                        count_text = "1 свободен вариант" if len(options) == 1 else f"{len(options)} свободни варианта"
+                        destination = "във Венеция" if result.get("destination", "").lower() == "venice" else f"в {result.get('destination')}"
+                        out["text"] = f"Намерих {count_text} за {result.get('nights')} нощувки {destination} ({result.get('check_in')} – {result.get('check_out')}). Изберете вариант, за да продължите към потвърждение и плащане."
+                    else:
+                        out["text"] = f"Не открих свободни {result.get('property_type', 'имоти')} в {result.get('destination')} от {result.get('check_in')} до {result.get('check_out')}. Опитайте с други дати или дестинация."
+                elif not options:
+                    out["text"] = f"No {result.get('property_type', 'properties')} are available in {result.get('destination')} for {result.get('check_in')} to {result.get('check_out')}. Try different dates or another destination."
             if name == "change_language" and result.get("success"):
                 out["navigate"] = result.get("redirect")
                 out["language"] = result.get("lang")
@@ -590,7 +676,7 @@ CITIES = {
     "bali": "Bali", "samokov": "Samokov", "burgas": "Burgas", "ubud": "Ubud",
     # Bulgarian
     "софия": "Sofia", "банско": "Bansko", "пловдив": "Plovdiv", "варна": "Varna",
-    "бургас": "Burgas", "самоков": "Samokov",
+    "бургас": "Burgas", "самоков": "Samokov", "венеция": "Venice",
     # Spanish
     "londres": "London", "parís": "Paris", "nueva york": "New York", "venecia": "Venice",
     "barcelona": "Barcelona",
@@ -621,7 +707,7 @@ TYPES = {"apartment": "apartment", "apartments": "apartment",
          "villa": "villa", "villas": "villa",
          "resort": "resort", "resorts": "resort",
          # Bulgarian
-         "апартамент": "apartment", "апартаменти": "apartment",
+         "апартамент": "apartment", "апартаменти": "apartment", "апартманет": "apartment",
          "хотел": "hotel", "хотели": "hotel",
          "вила": "villa", "вили": "villa",
          "курорт": "resort", "курорти": "resort",
@@ -643,7 +729,8 @@ GREET_WORDS = ("hi", "hello", "hey", "zdravei", "good morning", "good evening", 
                "hola", "buenos días", "buenas tardes", "buenas noches", "buen día",
                # German
                "hallo", "guten morgen", "guten tag", "guten abend", "servus", "moin")
-BOOKING_WORDS = ("booking", "reservation", "my trip", "my bookings", "my reservation", "my reservations")
+BOOKING_WORDS = ("booking", "reservation", "my trip", "my bookings", "my reservation", "my reservations",
+                 "резервация", "резервации", "резервирам", "резервирай", "запазя", "запазиш", "запази")
 TRENDING_WORDS = ("trending", "popular", "destination", "best place", "recommend", "where to go", "top rated", "best")
 AVAILABILITY_WORDS = ("available", "availability", "book", "check availability", "availability for", "available from", "available until")
 BUDGET_WORDS = ("cheap", "budget", "affordable", "cheapest", "low price", "under", "economy", "inexpensive", "low cost")
@@ -690,6 +777,39 @@ REGISTER_WORDS = ("register", "sign up", "signup", "create account", "i want to 
 
 conversations_db: dict = {}
 session_property_cache: dict = {}
+
+_MONTH_NAMES = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
+    "януари": 1, "февруари": 2, "март": 3, "април": 4, "май": 5, "юни": 6,
+    "юли": 7, "август": 8, "септември": 9, "октомври": 10, "ноември": 11, "декември": 12,
+}
+
+
+def _extract_month_date_range(message):
+    month_pattern = "|".join(sorted((re.escape(name) for name in _MONTH_NAMES), key=len, reverse=True))
+    match = re.search(
+        rf"(?:от\s*)?(\d{{1,2}})\s+({month_pattern})\s+(?:до|to|until|through|-)\s*(\d{{1,2}})(?:\s+({month_pattern}))?(?:\s+(\d{{4}}))?",
+        message.lower(),
+    )
+    if not match:
+        return None, None
+    start_day, start_month_name, end_day, end_month_name, year_text = match.groups()
+    start_month = _MONTH_NAMES[start_month_name]
+    end_month = _MONTH_NAMES.get(end_month_name, start_month)
+    year = int(year_text) if year_text else datetime.now().year
+    try:
+        start = date(year, start_month, int(start_day))
+        end = date(year, end_month, int(end_day))
+        if not year_text and start < date.today():
+            start = date(year + 1, start_month, int(start_day))
+            end = date(year + 1, end_month, int(end_day))
+        if end <= start:
+            end = date(start.year + (end_month < start_month), end_month, int(end_day))
+        return start.isoformat(), end.isoformat()
+    except ValueError:
+        return None, None
+
 
 def _normalize_date_string(date_str):
     from datetime import datetime
@@ -847,7 +967,7 @@ def _extract_entities(m):
             entities["wants_register"] = True
             break
 
-    date_range = re.search(r'(\d{1,2}[./]\d{1,2}[./]\d{2,4})\s*(?:until|to|through|thru|-)\s*(\d{1,2}[./]\d{1,2}[./]\d{2,4})', m)
+    date_range = re.search(r'(\d{1,2}[./]\d{1,2}[./]\d{2,4})\s*(?:until|to|through|thru|до|-)\s*(\d{1,2}[./]\d{1,2}[./]\d{2,4})', m)
     if date_range:
         start = _normalize_date_string(date_range.group(1))
         end = _normalize_date_string(date_range.group(2))
@@ -863,6 +983,9 @@ def _extract_entities(m):
             if start and end:
                 entities["check_in"] = start
                 entities["check_out"] = end
+
+    if not entities["check_in"] or not entities["check_out"]:
+        entities["check_in"], entities["check_out"] = _extract_month_date_range(m)
 
     return entities
     price_pattern = re.findall(r'(?:under|below|less than|max|up to)\s*(\d+)', m)
@@ -913,6 +1036,8 @@ def _score_intents(e):
         intents.append(("search_full", 110, e))
 
     if e["check_in"] and e["check_out"]:
+        if e["wants_booking"] and (e["cities"] or e["countries"]) and e["property_types"]:
+            intents.append(("booking_search", 135, e))
         intents.append(("availability", 120, e))
     elif e["wants_availability"]:
         intents.append(("availability", 90, e))
@@ -1382,13 +1507,43 @@ def _exec_availability(e, session_id):
         properties=[property_selected]
     )
 
+def _exec_booking_search(e, session_id):
+    lang = e.get("_lang", "en")
+    destination = e["cities"][0] if e["cities"] else e["countries"][0]
+    property_type = next(iter(e["property_types"]))
+    result = _find_booking_options(destination, property_type, e["check_in"], e["check_out"])
+    if not result.get("success"):
+        return _make_response(
+            _t("I couldn't check those dates. Please give me a future check-in and check-out date.", lang),
+            [_t("Search Stays", lang), _t("My Bookings", lang)],
+        )
+
+    options = result["options"]
+    for option in options:
+        option["booking_label"] = "Продължи към резервацията" if lang == "bg" else "Continue to checkout"
+    _store_session_properties(session_id, options)
+    if not options:
+        if lang == "bg":
+            text = f"Не открих свободни {property_type} във {destination} от {result['check_in']} до {result['check_out']}. Може да опитате с други дати или дестинация."
+        else:
+            text = f"I couldn't find available {property_type}s in {destination} from {result['check_in']} to {result['check_out']}. Try different dates or another destination."
+        return _make_response(text, [_t("Change dates", lang), _t("Search Stays", lang)])
+
+    if lang == "bg":
+        count_text = "1 свободен вариант" if len(options) == 1 else f"{len(options)} свободни варианта"
+        destination_label = "във Венеция" if destination.lower() == "venice" else f"в {destination}"
+        text = f"Намерих {count_text} за {result['nights']} нощувки {destination_label} ({result['check_in']} – {result['check_out']}). Изберете вариант, за да продължите към потвърждение и плащане."
+    else:
+        text = f"I found {len(options)} available {property_type}(s) in {destination} for {result['nights']} nights ({result['check_in']} to {result['check_out']}). Choose an option to continue to confirmation and payment."
+    return _make_response(text, properties=options)
+
 
 def _exec_booking(e, session_id):
     lang = e.get("_lang", "en")
     if not current_user.is_authenticated:
         return _make_response(
             _t("You need to sign in to access your bookings.", lang),
-            [_t("Sign In", lang), _t("Create Account", lang)], navigate="/auth/login"
+            [_t("Sign In", lang), _t("Create Account", lang)], navigate="/login"
         )
     info = _get_bookings_info()
     if isinstance(info, dict) and info.get("total", 0) > 0:
@@ -1542,6 +1697,7 @@ INTENT_MAP = {
     "cheapest_type": _exec_cheapest_type,
     "toprated_type": _exec_toprated_type,
     "booking": _exec_booking,
+    "booking_search": _exec_booking_search,
     "availability": _exec_availability,
     "help": _exec_help,
     "thanks": _exec_thanks,

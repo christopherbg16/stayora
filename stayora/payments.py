@@ -9,7 +9,19 @@ from datetime import datetime, timedelta
 
 payments_bp = Blueprint('payments', __name__, url_prefix='/payments')
 
-stripe.api_key = Config.STRIPE_SECRET_KEY
+
+def _stripe_enabled():
+    secret = (Config.STRIPE_SECRET_KEY or '').strip()
+    placeholder_values = {
+        'sk_test_XXXXXXXXXXXXXXXXXXXXX',
+        'pk_test_XXXXXXXXXXXXXXXXXXXXX',
+        'sk_live_XXXXXXXXXXXXXXXXXXXXX',
+        'pk_live_XXXXXXXXXXXXXXXXXXXXX',
+    }
+    return bool(secret) and secret not in placeholder_values
+
+
+stripe.api_key = Config.STRIPE_SECRET_KEY if _stripe_enabled() else ''
 
 
 @payments_bp.route('/checkout/room/<int:room_id>', methods=['GET', 'POST'])
@@ -40,6 +52,9 @@ def checkout_room(room_id):
     total_cents = int(total_price * 100)
 
     if request.method == 'POST':
+        if not _stripe_enabled():
+            flash('Card payments are currently in demo mode. Please choose cash payment or add real Stripe keys to enable card checkout.', 'info')
+            return redirect(url_for('payments.checkout_room', room_id=room_id, check_in=check_in, check_out=check_out, nights=nights))
         try:
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
@@ -77,7 +92,8 @@ def checkout_room(room_id):
                            check_out=check_out,
                            nights=nights,
                            total_price=total_price,
-                           stripe_public_key=Config.STRIPE_PUBLIC_KEY)
+                           stripe_public_key=Config.STRIPE_PUBLIC_KEY,
+                           stripe_enabled=_stripe_enabled())
 
 
 @payments_bp.route('/checkout/property/<int:property_id>', methods=['GET', 'POST'])
@@ -105,6 +121,9 @@ def checkout_property(property_id):
     total_cents = int(total_price * 100)
 
     if request.method == 'POST':
+        if not _stripe_enabled():
+            flash('Card payments are currently in demo mode. Please choose cash payment or add real Stripe keys to enable card checkout.', 'info')
+            return redirect(url_for('payments.checkout_property', property_id=property_id, check_in=check_in, check_out=check_out, nights=nights))
         try:
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
@@ -141,7 +160,8 @@ def checkout_property(property_id):
                            check_out=check_out,
                            nights=nights,
                            total_price=total_price,
-                           stripe_public_key=Config.STRIPE_PUBLIC_KEY)
+                           stripe_public_key=Config.STRIPE_PUBLIC_KEY,
+                           stripe_enabled=_stripe_enabled())
 
 
 @payments_bp.route('/success')
@@ -257,6 +277,15 @@ def process_payment():
     try:
         if booking_type == 'room':
             room = Room.get(booking_id)
+            if not room:
+                flash('Room not found.', 'danger')
+                return redirect(url_for('user.browse_stays'))
+
+            if payment_method == 'card' and not _stripe_enabled():
+                flash('Card payments are not configured yet. Please choose cash payment or configure Stripe.', 'warning')
+                return redirect(url_for('payments.checkout_room', room_id=booking_id, check_in=check_in,
+                                        check_out=(datetime.strptime(check_in, '%Y-%m-%d').date() + timedelta(days=nights)).isoformat(),
+                                        nights=nights))
 
             if payment_method == 'card':
                 session_data = {
@@ -293,33 +322,41 @@ def process_payment():
                 checkout_session = stripe.checkout.Session.create(**session_data)
                 return redirect(checkout_session.url, code=303)
 
-            else:
-                try:
-                    check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
-                    check_out_date = check_in_date + timedelta(days=nights)
-                    if check_room_conflict(booking_id, check_in_date, check_out_date):
-                        flash('Sorry, this room was just booked for those dates. Please pick another room or dates.', 'danger')
-                        return redirect(url_for('user.hotel_detail', hotel_id=room.hotel_id))
-                except ValueError:
-                    pass
+            try:
+                check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
+                check_out_date = check_in_date + timedelta(days=nights)
+                if check_room_conflict(booking_id, check_in_date, check_out_date):
+                    flash('Sorry, this room was just booked for those dates. Please pick another room or dates.', 'danger')
+                    return redirect(url_for('user.hotel_detail', hotel_id=room.hotel_id))
+            except ValueError:
+                pass
 
-                Reservation.create(
-                    room_id=booking_id,
-                    guest=current_user.username,
-                    user_id=current_user.id,
-                    start_date=start_date,
-                    nights=nights,
-                    total_price=total_price,
-                    payment_status='pending',
-                    payment_id=f'CASH-{datetime.now().strftime("%Y%m%d%H%M%S")}'
-                )
+            Reservation.create(
+                room_id=booking_id,
+                guest=current_user.username,
+                user_id=current_user.id,
+                start_date=start_date,
+                nights=nights,
+                total_price=total_price,
+                payment_status='pending',
+                payment_id=f'CASH-{datetime.now().strftime("%Y%m%d%H%M%S")}'
+            )
 
-                log_activity(f"User '{current_user.username}' booked Room #{room.number} (Cash payment)")
-                flash('Booking confirmed! Please pay €{:.2f} in cash at the property.'.format(total_price), 'success')
-                return redirect(url_for('user.my_reservations'))
+            log_activity(f"User '{current_user.username}' booked Room #{room.number} (Cash payment)")
+            flash('Booking confirmed! Please pay €{:.2f} in cash at the property.'.format(total_price), 'success')
+            return redirect(url_for('user.my_reservations'))
 
         elif booking_type == 'property':
             hotel = Hotel.get(booking_id)
+            if not hotel:
+                flash('Property not found.', 'danger')
+                return redirect(url_for('user.browse_stays'))
+
+            if payment_method == 'card' and not _stripe_enabled():
+                flash('Card payments are not configured yet. Please choose cash payment or configure Stripe.', 'warning')
+                return redirect(url_for('payments.checkout_property', property_id=booking_id, check_in=check_in,
+                                        check_out=(datetime.strptime(check_in, '%Y-%m-%d').date() + timedelta(days=nights)).isoformat(),
+                                        nights=nights))
 
             if payment_method == 'card':
                 session_data = {
@@ -356,33 +393,33 @@ def process_payment():
                 checkout_session = stripe.checkout.Session.create(**session_data)
                 return redirect(checkout_session.url, code=303)
 
-            else:
-                try:
-                    check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
-                    check_out_date = check_in_date + timedelta(days=nights)
-                    if check_property_conflict(booking_id, check_in_date, check_out_date):
-                        flash('Sorry, this property was just booked for those dates. Please pick different dates.', 'danger')
-                        return redirect(url_for('user.hotel_detail', hotel_id=booking_id))
-                except ValueError:
-                    pass
+            try:
+                check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
+                check_out_date = check_in_date + timedelta(days=nights)
+                if check_property_conflict(booking_id, check_in_date, check_out_date):
+                    flash('Sorry, this property was just booked for those dates. Please pick different dates.', 'danger')
+                    return redirect(url_for('user.hotel_detail', hotel_id=booking_id))
+            except ValueError:
+                pass
 
-                PropertyReservation.create(
-                    property_id=booking_id,
-                    guest=current_user.username,
-                    user_id=current_user.id,
-                    start_date=start_date,
-                    nights=nights,
-                    total_price=total_price,
-                    payment_status='pending',
-                    payment_id=f'CASH-{datetime.now().strftime("%Y%m%d%H%M%S")}'
-                )
+            PropertyReservation.create(
+                property_id=booking_id,
+                guest=current_user.username,
+                user_id=current_user.id,
+                start_date=start_date,
+                nights=nights,
+                total_price=total_price,
+                payment_status='pending',
+                payment_id=f'CASH-{datetime.now().strftime("%Y%m%d%H%M%S")}'
+            )
 
-                log_activity(f"User '{current_user.username}' booked '{hotel.name}' (Cash payment)")
-                flash('Booking confirmed! Please pay €{:.2f} in cash at the property.'.format(total_price), 'success')
-                return redirect(url_for('user.my_reservations'))
+            log_activity(f"User '{current_user.username}' booked '{hotel.name}' (Cash payment)")
+            flash('Booking confirmed! Please pay €{:.2f} in cash at the property.'.format(total_price), 'success')
+            return redirect(url_for('user.my_reservations'))
 
-        flash('Invalid booking request.', 'danger')
-        return redirect(url_for('user.browse_stays'))
+        else:
+            flash('Unknown booking type.', 'danger')
+            return redirect(url_for('user.browse_stays'))
 
     except Exception as e:
         flash(f'Error processing booking: {str(e)}', 'danger')

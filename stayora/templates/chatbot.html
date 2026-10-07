@@ -488,11 +488,12 @@
           if (response.properties) {
             html += `<div class="staya-properties">`;
             response.properties.forEach(p => {
-              const url = `/user/hotel/${p.id}`;
+              const url = p.booking_url || `/user/hotel/${p.id}`;
               html += `<a href="${url}" class="staya-property-card">
                 <div class="staya-property-name">${escapeHtml(p.name)}</div>
                 <div class="staya-property-meta">${escapeHtml(p.city || '')} · ${escapeHtml(p.property_type || '')}</div>
                 <div class="staya-property-details">€${p.price_per_night || p.price || 0}/night · ${p.avg_rating ? p.avg_rating + '/5' : 'New'}</div>
+                ${p.booking_url ? `<div class="staya-booking-cta">${escapeHtml(p.booking_label || 'Continue to checkout')} <i class="fas fa-arrow-right"></i></div>` : ''}
               </a>`;
             });
             html += `</div>`;
@@ -510,6 +511,9 @@
             });
             html += `</div>`;
           }
+          if (html) {
+            div.insertAdjacentHTML('beforeend', html);
+          }
           if (response.quick_replies && response.quick_replies.length > 0) {
             showQuickReplies(response.quick_replies);
           } else {
@@ -521,6 +525,21 @@
 
   function clearQuickReplies() {
     quickRepliesEl.innerHTML = '';
+  }
+
+  function showQuickReplies(replies) {
+    clearQuickReplies();
+    replies.forEach(reply => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'staya-quick-reply';
+      button.textContent = reply;
+      button.addEventListener('click', () => {
+        inputEl.value = reply;
+        sendMessage();
+      });
+      quickRepliesEl.appendChild(button);
+    });
   }
 
   function sendMessage() {
