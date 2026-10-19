@@ -72,7 +72,8 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 @app.route('/')
 def index():
-    data = supabase.table('hotels').select('*').order('avg_rating', desc=True).limit(6).execute()
+    data = (supabase.table('hotels').select('*').eq('review_status', 'approved')
+            .order('avg_rating', desc=True).limit(6).execute())
     hotels_data = data.data or []
 
     total_properties = Hotel.count()

@@ -23,7 +23,11 @@ CREATE TABLE IF NOT EXISTS "hotels" (
   "review_count" INTEGER DEFAULT 0,
   "accept_online_payments" SMALLINT DEFAULT 0,
   "stripe_account_id" VARCHAR(255) DEFAULT NULL,
-  "amenities" TEXT DEFAULT NULL
+  "amenities" TEXT DEFAULT NULL,
+  "review_status" TEXT NOT NULL DEFAULT 'pending',
+  "moderation_status" TEXT NOT NULL DEFAULT 'not_checked',
+  "moderation_notes" TEXT DEFAULT NULL,
+  "submitted_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "hotel_images" (

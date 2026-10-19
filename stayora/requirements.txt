@@ -10,3 +10,9 @@ authlib
 psycopg2-binary
 email-validator
 google-genai
+scikit-learn
+pandas
+numpy
+matplotlib
+scipy
+Pillow

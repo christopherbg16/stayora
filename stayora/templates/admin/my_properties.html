@@ -75,6 +75,14 @@
                                 {% for i in range(hotel.stars) %}<i class="fas fa-star"></i>{% endfor %}
                             </div>
                         </div>
+                        <div class="mb-2">
+                            <span class="badge {% if hotel.review_status == 'approved' %}bg-success{% elif hotel.review_status == 'rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                {% if hotel.review_status == 'approved' %}{{ _('Verified by Staya') }}{% elif hotel.review_status == 'rejected' %}{{ _('Rejected by Staya') }}{% else %}{{ _('Action required') }}{% endif %}
+                            </span>
+                        </div>
+                        {% if hotel.review_status != 'approved' and hotel.moderation_notes %}
+                        <p class="small text-muted">{{ hotel.moderation_notes }}</p>
+                        {% endif %}
                         <div style="color:var(--text-muted);font-size:0.82rem;margin-bottom:0.8rem;">
                             <i class="fas fa-map-marker-alt me-1" style="color:var(--primary);"></i>{{ hotel.city }}, {{ hotel.country }}
                         </div>

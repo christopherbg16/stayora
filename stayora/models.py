@@ -103,22 +103,23 @@ class Hotel(BaseModel):
 
     @classmethod
     def count(cls):
-        data = supabase.table('hotels').select('*', count='exact').execute()
+        data = supabase.table('hotels').select('*', count='exact').eq('review_status', 'approved').execute()
         return data.count if data.count is not None else len(data.data or [])
 
     @classmethod
     def count_by_type(cls, property_type):
-        data = supabase.table('hotels').select('*', count='exact').eq('property_type', property_type).execute()
+        data = (supabase.table('hotels').select('*', count='exact')
+            .eq('property_type', property_type).eq('review_status', 'approved').execute())
         return data.count if data.count is not None else len(data.data or [])
 
     @classmethod
     def count_distinct_countries(cls):
-        data = supabase.table('hotels').select('country').execute()
+        data = supabase.table('hotels').select('country').eq('review_status', 'approved').execute()
         return len(set(r['country'] for r in (data.data or []) if r.get('country')))
 
     @classmethod
     def search(cls, destination=None, property_type=None, sort_by='recommended', min_price=None, max_price=None, stars=None, min_rating=None):
-        query = supabase.table('hotels').select('*')
+        query = supabase.table('hotels').select('*').eq('review_status', 'approved')
         if destination:
             query = query.or_(f"city.ilike.%{destination}%,country.ilike.%{destination}%")
         if property_type and property_type != 'all':

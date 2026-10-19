@@ -87,7 +87,8 @@ def dashboard():
     elif all_past:
         last_booking = all_past[0]
 
-    data = supabase.table('hotels').select('*').order('avg_rating', desc=True).limit(4).execute()
+        data = (supabase.table('hotels').select('*').eq('review_status', 'approved')
+            .order('avg_rating', desc=True).limit(4).execute())
     top_properties = [Hotel(r) for r in (data.data or [])]
 
     trending = TrendingDestination.get_active(6)
@@ -184,7 +185,12 @@ def destination_hotels(city):
 @user_bp.route('/hotel/<int:hotel_id>')
 def hotel_detail(hotel_id):
     hotel = Hotel.get(hotel_id)
-    if not hotel:
+    is_owner = (
+        current_user.is_authenticated
+        and current_user.role == 'admin'
+        and current_user.id == getattr(hotel, 'owner_id', None)
+    ) if hotel else False
+    if not hotel or (getattr(hotel, 'review_status', 'approved') != 'approved' and not is_owner):
         flash('Property not found', 'danger')
         return redirect(url_for('user.browse_stays'))
 

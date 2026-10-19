@@ -1,12 +1,15 @@
 # RESEARCH SKELETON – StayOra (дипломен проект)
 
+> **Статус:** изследователски протокол. В хранилището няма проверен емпиричен CSV и не са изпълнявани модели; не представяйте синтетичните демонстрационни резултати като резултати от StayOra.
+
 ## 1. Контекст и обект на изследване
 
 - **Проект/система:** StayOra – уеб платформа за търсене и резервация на настанявания (хотели, апартаменти, вили, курорти) с чатбот (Gemini 2.5 Flash) и интегрирано плащане (Stripe). Стек: Flask, Supabase (PostgreSQL), scikit-learn и др.
 - **Обект:** Прогнозиране на цената за нощувка (EUR) на обект за настаняване в платформата StayOra.
 - **Предмет:** Влияние на инженеринг признак (взаимодействие „звезди × log(брой ревюта)“) върху MAE на Random Forest регресор спрямо базови модели.
 - **Авторски (подобрен) модел:** Random Forest Regressor с 3 признака: `stars`, `review_count`, `engineered_stars_reviews = stars × log1p(review_count)`.
-- **Базов (класически) модел:** Random Forest Regressor с 2 признака `stars`, `review_count`.
+- **Базови модели:** DummyRegressor(strategy="mean"), LinearRegression и Random Forest Regressor с 2 признака `stars`, `review_count`.
+- **Данни:** предстои да се експортират от `hotels`; действителният брой редове, валутата, датата на извличане и правилата за почистване се записват след проверка. Стойността N=1 200 в notebook-а е само размер на синтетична демонстрация.
 - **Тривиален модел:** DummyRegressor(strategy="mean").
 
 ## 2. Научен проблем
@@ -15,7 +18,9 @@
 
 ## 3. Изследователски въпрос (RQ)
 
-**Финален RQ (v4):** Намалява ли средната абсолютна грешка (MAE, EUR) на авторския Random Forest регресор с инженеринг признак `stars × log1p(review_count)` спрямо тривиалния DummyRegressor (средна цена) и класическия Random Forest с 2 признака, при оценка върху изолиран тестов набор (80/20, фиксиран seed) и 5-кратна кръстосана проверка върху набора от 1 200 записи за настанявания в StayOra, при ниво на значимост α = 0.05?
+**Финален RQ (v4):** Намалява ли Random Forest с инженеринг признака `stars × log1p(review_count)` MAE спрямо DummyRegressor, линейна регресия и Random Forest с двата първоначални признака, когато моделите се оценяват върху един и същ изолиран тестов набор от проверени StayOra имоти? MAE се отчита в потвърдената валута на данните; размерът на набора се установява при експорта, а не се приема предварително.
+
+Протокол: фиксиран 80/20 hold-out с seed 42; 5-fold CV се докладва описателно. Основната статистическа проверка е едностранен paired permutation test върху абсолютните грешки на hold-out редовете, с 95% bootstrap интервал на средната разлика и α = 0.05. Трябва предварително да се установи дали редовете са независими имоти; при повторни наблюдения split-ът трябва да е групиран по имот.
 
 ### 4 последователни версии на RQ
 
@@ -30,22 +35,22 @@
 
 | Критерий | Въпрос | Оценка (1–5) | Вашата оценка |
 |---|---|---|---|
-| **F**easible | Има ли данни, компютърни ресурси, умения и време? | 5 | Да – 1 200 записа, scikit-learn, локално изчисление |
+| **F**easible | Има ли данни, компютърни ресурси, умения и време? | 3 | Изисква се експорт и проверка на броя/пълнотата на редовете; scikit-learn работи локално |
 | **I**nteresting | Вълнува ли темата общността/бизнеса? | 4 | Да – ценообразуването в туризма |
 | **N**ovel | Добавя ли нещо ново спрямо съществуващото? | 3 | Частично – engineered признак за локален смесен пазар |
 | **E**thical | Има ли етични проблеми (поверителност, bias)? | 5 | Не – анонимизирани агрегирани данни, без лични данни |
 | **R**elevant | Важна ли е за науката/практика? | 4 | Да – приложимо в revenue management |
 
-**LINER score (F+I+N+E+R): 21/25.**
+**LINER score:** преоценете след реалния експорт; предишният сбор 21/25 приемаше непотвърдени 1 200 записа.
 
 ## 4. Хипотеза
 
-- **H₀ (нулевата):** Авторският Random Forest модел **не** постига статистически значимо по-ниска MAE от тривиалния DummyRegressor (средна цена) – т.е. MAE_author ≥ MAE_dummy − δ при α = 0.05.
-- **H₁ (алтернативната):** Авторският Random Forest модел постига статистически значимо по-ниска MAE от DummyRegressor с абсолютна разлика ≥ 0.5 EUR и мащабно подобрение спрямо линейния базов модел с ≥ 10% намаление на MAE.
+- **H₀ (нулева):** средната попарна разлика `MAE_authored − MAE_dummy` върху hold-out набора е не по-малка от нула.
+- **H₁ (алтернативна):** средната попарна разлика `MAE_authored − MAE_dummy` е по-малка от нула при едностранно α = 0.05.
 
-**„Хипотезата ще е опровергана, ако MAE на авторския модел не е по-ниска от MAE на DummyRegressor с поне 5% относително подобрение или ако двустранният t-тест върху 5 кръстосани грешки даде p ≥ 0.05.“**
+Практически значимото подобрение се задава предварително като най-малко 5% MAE намаление спрямо Dummy. Критерият е изпълнен само ако едностранният paired permutation test има p < 0.05, горната граница на 95% bootstrap интервала за разликата е под 0 и относителното намаление е поне 5%. Петте CV fold-а не се третират като независими наблюдения за t-тест.
 
-**Обосноваване (защото…)**: …защото проучванията върху ценообразуването в платформите за краткосрочен наем показват, че ансамбловите дървовидни модели (Random Forest, XGBoost) надминават линейните и средни базови модели при наличието на нелинейни взаимодействия между рейтинг (звезди) и популярност (брой ревюта) (Kalehbasti, Nikolenko & Rezaei, 2021; Tang, Cheng & Zhang, 2024); защото взаимодействието „звезди × log(ревюта)“ моделира ефекта на popular/high-quality комбинация, който линейната регресия не може да улови (Chapman, Mohammad & Villegas, 2023); и защото metrics-базираният protocol в Data in Brief (Antonio, de Almeida & Nunes, 2019) подкрепя използването на MAE/RMSE като основни метрики при ценови прогнози.
+**Обосноваване:** публикациите за прогнозиране на Airbnb цени (Kalehbasti et al., 2021; Chapman et al., 2023) мотивират сравнението с нелинейни модели, но не валидират автоматично този признак или резултати за StayOra. Взаимодействието е изследователска хипотеза, която трябва да бъде оценена върху реални данни; източникът за hotel booking demand описва друг тип задача и не се използва като доказателство за ценова точност.
 
 ## 5. Базови модели (Baseline) и експеримент (notebook)
 
@@ -53,10 +58,10 @@
 - Файл: `notebooks/baseline_vs_authored.ipynb` (съвместим с Google Colab).
 - Съдържание:
   1. Тривиален модел: `DummyRegressor(strategy="mean")`.
-  2. Класически модел: `LinearRegression` / `RandomForestRegressor` с 2 признака `stars`, `review_count`.
+  2. Базови модели: `LinearRegression` и `RandomForestRegressor` с 2 признака `stars`, `review_count`.
   3. Авторски модел: `RandomForestRegressor` с 3 признака (+ `engineered_stars_reviews`).
 - Изчислявани метрики: **MAE**, **RMSE** (и R² за справка).
-- Протокол: 80/20 train/test split (random_state=42), 5-кратна CV, paired t-тест върху грешките.
+- Протокол: 80/20 train/test split (random_state=42), 5-кратна CV за описателно сравнение, paired permutation test върху hold-out грешките и bootstrap 95% интервал.
 
 ## 6. Сравнителна таблица и ниша (Research Gap)
 
@@ -64,20 +69,22 @@
 
 | Източник | Задача | Данни | Метод | Резултат | Ограничение |
 |---|---|---|---|---|---|
-| Kalehbasti, Nikolenko & Rezaei (2021), arXiv CD-MAKE | Прогнозиране на Airbnb цена | Airbnb (NY/SF) | LR, RF, SVM, NN + sentiment | RF dobrе; sentiment помага | Ориентиран към един град; не обхваща смесени типове имоти |
-| Tang, Cheng & Zhang (2024), MDE | Прогнозиране Airbnb цена | Въздушни обяви | 10 ML алгоритми | RF/GBDT най-добри по RMSE | Фокус Airbnb; без български/локален пазар |
-| Chapman, Mohammad & Villegas (2023), arXiv | Динамика на цените Airbnb | Austin, TX | RF + feature engineering | Висока точност MAE/RMSE | Локален dataset; липса на cross-market валидация |
-| Zhu et al. (2022), arXiv | Elasticity за occupancy prediction | Hotel booking platform | Custom neural elasticity | Подобрява occupancy/RMSE | Сложен; нужни голям обем occupancy данни |
-| Antonio, de Almeida & Nunes (2019), Data in Brief | Набор данни booking demand | Hotels (Booking) | Описателна база | Стандартен dataset за ML | Не съдържа ценови таргет за регресия по имот |
-| Tan, Su et al. (2024), Sustainability | Устойчиво прогнозиране цена | Airbnb | Deep learning multimodal | По-добро от ML baseline | Изисква image/text; скъпо |
-| Wang & 2023 ACM | Airbnb HK цени | Airbnb Hong Kong | ML регресия | XGBoost най-добър | Регионален; без базови линейни сравнения |
-| Altexsoft (blog) | Обзор pricing | — | Различни | — | Неакадемичен; липсва репродуцируемост |
+| Kalehbasti, Nikolenko & Rezaei (2021), arXiv/CD-MAKE | Прогнозиране на Airbnb цена | Airbnb listings and reviews | ML, deep learning, NLP | Източникът разглежда price prediction и review-derived predictors; резултатите трябва да се извлекат от пълния текст преди количествено сравнение | Airbnb контекстът не доказва преносимост към StayOra |
+| Tang, Cheng & Zhang (2024), MDE | Прогнозиране на Airbnb цена | Airbnb listings | ML сравнение | Да се попълни след проверка на пълния текст и метаданните | DOI е посочен, но проверката през издателя не беше достъпна |
+| Chapman, Mohammad & Villegas (2023), arXiv | Прогнозиране на listing prices | Austin short-term rentals | ML и feature engineering | Проектът изследва цени и локални фактори; не се приема като доказателство за избрания StayOra признак | Локален проект, без директна cross-market валидация |
+| Zhu et al. (2022), arXiv | Occupancy prediction и price elasticity | Онлайн хотелска платформа | Модел на търсене/еластичност | Различна целева променлива от цена на нощувка | Не е пряк baseline за тази регресионна задача |
+| Antonio, de Almeida & Nunes (2019), Data in Brief | Hotel booking demand dataset | Хотелски резервации | Dataset article | Полезен за контекст на booking данни, не като price-per-property dataset | Не доказва точност на ценова регресия |
+| Tan et al. (2024), Sustainability | Прогнозиране на rental price | Според посочения запис: multimodal inputs | Deep learning | Резултатът не е включен до проверка на пълния текст | Проверете авторите, входните данни и DOI метаданните |
+| Breiman (2001), Machine Learning | Random Forest метод | Теоретична работа | Random Forest | Основополагащ методологичен източник | Не е специфичен за туризъм или StayOra |
+| Pedregosa et al. (2011), JMLR | Scikit-learn | Софтуерна библиотека | ML implementation | Цитира библиотеката, използвана в експеримента | Софтуерна статия, не доказателство за бизнес хипотезата |
+| Chen & Guestrin (2016), KDD | Gradient boosting | XGBoost | Система за boosting | Контекст за алтернативни дървовидни ансамбли | XGBoost не е модел в текущия експеримент |
+| Nadeau & Bengio (2003), Machine Learning | Извод за generalization error | Методологична работа | Статистическа оценка | Подкрепя внимателното третиране на зависимостта при повторни train/test оценки | Не е ценова прогноза; използва се за методология |
 
-**Нишата е:** липса на адаптиран за смесен портфейл от имоти (хотел/апартамент/вила/курорт) и локални метаданни (звезди, брой ревюта) в платформи като StayOra модел, който надминава тривиалното и линейното прогнозиране с минимум engineered признак.
+**Работна ниша:** да се провери дали един предварително дефиниран interaction feature добавя стойност към ценова прогноза за смесен портфейл StayOra. Не твърдете, че в литературата липсва такъв модел, преди да извършите систематично търсене и да документирате стратегията за търсене.
 
 ## 7. Научна литература (Zotero експорт & CRAAP)
 
-Списък от 10 източника (≥ 5 научни от arXiv / Semantic Scholar / Google Scholar). Всеки с 2 изречения и CRAAP оценка (5–25).
+Работен списък от 10 източника. Библиографските записи се сверяват с издател/DOI/arXiv преди предаване; произволни общи CRAAP числа не се приписват без приложена рубрика.
 
 ### Списък (IEEE/APA стил)
 
@@ -86,39 +93,41 @@
 3. S. Chapman, S. Mohammad, K. Villegas, "Predicting Listing Prices In Dynamic Short Term Rental Markets Using Machine Learning Models," arXiv:2308.06929, 2023.
 4. F. Zhu, W. Xiao, Y. Yu, Z. Wang, Z. Chen, Q. Lu, Z. Liu, M. Wu, S. Ni, "Modeling Price Elasticity for Occupancy Prediction in Hotel Dynamic Pricing," arXiv:2208.03135, 2022.
 5. N. Antonio, A. de Almeida, L. Nunes, "Hotel booking demand datasets," *Data in Brief*, vol. 22, pp. 41–49, 2019. DOI: 10.1016/j.dib.2018.11.126.
-6. Q. Wang et al., "Machine Learning-Based Study on Airbnb Housing Price Prediction," *Proc. ACM*, 2023.
+6. C. Nadeau and Y. Bengio, "Inference for the Generalization Error," *Machine Learning*, vol. 52, no. 3, pp. 239–281, 2003. DOI: 10.1023/A:1024068626366.
 7. H. T. Tan, T. Su, X. Wu, P. Cheng, T. Zheng, "A Sustainable Rental Price Prediction Model Based on Multimodal Input and Deep Learning," *Sustainability*, vol. 16, no. 15, art. 6384, 2024. DOI: 10.3390/su16156384.
 8. Chen, T., & Guestrin, C. (2016). XGBoost: A scalable tree boosting system. *KDD '16*, pp. 785–794. DOI: 10.1145/2939672.2939785.
 9. Pedregosa, F., et al. (2011). Scikit-learn: Machine Learning in Python. *JMLR*, 12, pp. 2825–2830.
 10. Breiman, L. (2001). Random forests. *Machine Learning*, 45(1), pp. 5–32. DOI: 10.1023/A:1010933404324.
 
-### CRAAP бележки и оценки
+### Бележки за достоверност и релевантност
 
-| # | Име на източника (академичен) | 2 изречения | CRAAP (5–25) |
+| # | Източник | Бележка | Статус |
 |---|---|---|---|
-| 1 | Kalehbasti et al. (2021) | Статията изследва прогнозиране на цена в Airbnb с машинно обучение и sentiment анализ. Подходяща като теоретична основа за RF baseline. | 22/25 |
-| 2 | Tang et al. (2024) | Сравнява 10 ML алгоритма за цена в Airbnb. Дава доказателство, че ensemble-модели надминават линейни. | 23/25 |
-| 3 | Chapman et al. (2023) | Проект за динамика на цените в Austin с RF и feature engineering. Полезна за аргумент за engineered признак. | 18/25 |
-| 4 | Zhu et al. (2022) | Моделира price elasticity за occupancy prediction. Показва сложността на динамичното ценообразуване. | 20/25 |
-| 5 | Antonio et al. (2019) | Представя dataset booking demand. Полезна за методология и метрики MAE/RMSE. | 24/25 |
-| 6 | Wang (2023 ACM) | ML-базирано изследване на Airbnb Хонконг. Потвърждава RF/XGBoost. | 17/25 |
-| 7 | Tan et al. (2024) | Deep learning + multimodal за цена. Висока точност, но изисква допълнителни данни. | 19/25 |
-| 8 | Chen & Guestrin (2016) | XGBoost – основополагаща статия за дървовидни ensemble. Методологична референция. | 25/25 |
-| 9 | Pedregosa et al. (2011) | Описание на scikit-learn. Необходима за reproductibility. | 25/25 |
-| 10 | Breiman (2001) | Оригинална Random Forest статия. Теоретична основа за авторския модел. | 25/25 |
+| 1 | Kalehbasti et al. (2021) | ArXiv record confirms title, authors and journal reference; read full paper before summarizing comparative results. | Метаданни сверени с arXiv |
+| 2 | Tang et al. (2024) | DOI supplied in the working citation; publisher metadata/results still require manual verification. | Непотвърден пълен текст |
+| 3 | Chapman et al. (2023) | ArXiv confirms title, authors and Austin short-term rental focus. | Метаданни сверени с arXiv |
+| 4 | Zhu et al. (2022) | ArXiv confirms title and authors; the task is occupancy/elasticity, not direct nightly-price regression. | Метаданни сверени с arXiv |
+| 5 | Antonio et al. (2019) | Crossref confirms title, journal, volume, pages and DOI; the work describes booking-demand data. | Метаданни сверени с Crossref |
+| 6 | Nadeau & Bengio (2003) | Crossref confirms title, authors, journal, pages and DOI; relevant to inference from model evaluation. | Метаданни сверени с Crossref |
+| 7 | Tan et al. (2024) | Verify author list and reported methods/results against the publisher page; automated retrieval was blocked. | Нужна ръчна проверка |
+| 8 | Chen & Guestrin (2016) | Method citation; verify formatting against ACM record before final submission. | Библиографска проверка |
+| 9 | Pedregosa et al. (2011) | Standard scikit-learn citation; use it to document the software, not as evidence for the hypothesis. | Библиографска проверка |
+| 10 | Breiman (2001) | Standard Random Forest citation; use it for the algorithm background. | Библиографска проверка |
+
+За CRAAP оценка приложете една и съща 1–5 рубрика за Currency, Relevance, Authority, Accuracy и Purpose към всяка публикация и обосновете всяка стойност. Оценките остават непопълнени, докато тази проверка не бъде извършена.
 
 ### Zotero експорт (инструкция)
 
 - Създайте колекция `StayOra-Lit` в Zotero.
 - Импортирайте BibTeX (виж `docs/references.bib`) .
 - Експортирайте в CSL JSON: `File → Export Library → CSL JSON` → `docs/zotero_export.json`.
-- Версията на износа се пази в repo.
+- Експортът не е наличен в repo към момента; добавете го след Zotero проверката, не го описвайте като вече съхранен.
 
 ## 8. Декларация за използване на ИИ
 
 ### Декларация за използване на изкуствен интелект
 
-В рамките на дипломния проект е използван AI-инструмент (Google Gemini 2.5 Flash като част от продуктовата функционалност на StayOra и AI-асистенти при разработка). AI е използван за: генериране на шаблони на код, преводи, документация и предognitive анализ, но всички научни твърдения, алгоритмични решения и финалният код са проверени и отговорност носят авторът. Използваните източници са реални и проверени.
+Попълнете тази декларация според реално използваните инструменти, версии, дати и конкретни дейности. Авторът трябва самостоятелно да провери източниците, кода и научните твърдения и носи отговорност за финалния текст; настоящият шаблон не удостоверява, че всички източници вече са проверени.
 
 ### Авторски принос
 

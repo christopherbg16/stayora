@@ -86,7 +86,7 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label">{{ _('Street address') }}</label>
-                                <input type="text" name="address" class="form-control" value="{{ hotel.address or '' }}">
+                                <input type="text" name="address" class="form-control" value="{{ hotel.address or '' }}" required>
                             </div>
                             <div class="col-md-5">
                                 <label class="form-label">{{ _('City') }} *</label>
@@ -166,6 +166,17 @@
                                 {% endfor %}
                                 <input type="text" name="custom_amenities" class="form-control" placeholder="{{ _('e.g. Beach view, Breakfast included, Rooftop terrace') }}" value="{{ custom|join(', ') }}">
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" role="note">
+                        {{ _('Staya automatically checks listing content and matches the property address with Google Places before publishing.') }}
+                        {{ _('These checks do not prove ownership or prove where a photo was taken.') }}
+                        <div class="form-check mt-2">
+                            <input type="checkbox" name="ai_moderation_consent" value="yes" class="form-check-input" id="aiModerationConsent" required>
+                            <label class="form-check-label" for="aiModerationConsent">
+                                {{ _('I agree to send this listing text and photos to Google Gemini, and its name and address to Google Places, for Staya automated checks.') }}
+                            </label>
                         </div>
                     </div>
 

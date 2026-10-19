@@ -5,6 +5,7 @@ from models import User, Room, Reservation, Activity, Hotel, HotelImage, log_act
 from forms import RoomForm, ReservationForm, HotelForm
 from datetime import datetime, timedelta
 from supabase_client import supabase
+from property_moderation import prepare_property_images, review_property_submission
 import base64
 from functools import wraps
 
@@ -87,6 +88,31 @@ def add_property():
         flash('Property name is required!', 'danger')
         return redirect(url_for('admin.add_property'))
 
+    image_uploads = []
+    main_upload = request.files.get('main_image')
+    if main_upload and main_upload.filename:
+        image_uploads.append(main_upload)
+    image_uploads.extend(request.files.getlist('gallery_images'))
+    try:
+        images = prepare_property_images(image_uploads)
+    except ValueError as exc:
+        flash(str(exc), 'danger')
+        return redirect(url_for('admin.add_property'))
+    if not images:
+        flash('Upload at least one property photo for review.', 'danger')
+        return redirect(url_for('admin.add_property'))
+
+    if request.form.get('ai_moderation_consent') == 'yes':
+        moderation = review_property_submission(
+            name, description or '', property_type or '', address or '', city or '', country or '', images
+        )
+    else:
+        moderation = {
+            'review_status': 'action_required',
+            'moderation_status': 'not_requested',
+            'summary': 'Allow Staya to check this listing before it can be published.',
+        }
+
     hotel_data = {
         'name': name,
         'property_type': property_type,
@@ -98,7 +124,11 @@ def add_property():
         'owner_id': current_user.id,
         'total_rooms': int(total_rooms) if total_rooms else 1,
         'max_guests': int(max_guests) if max_guests else 2,
-        'price_per_night': float(price_per_night) if price_per_night and property_type == 'apartment' else None
+        'price_per_night': float(price_per_night) if price_per_night and property_type == 'apartment' else None,
+        'review_status': moderation['review_status'],
+        'moderation_status': moderation['moderation_status'],
+        'moderation_notes': moderation['summary'],
+        'submitted_at': datetime.utcnow().isoformat()
     }
 
     amenities_list = request.form.getlist('amenities')
@@ -109,25 +139,21 @@ def add_property():
                 amenities_list.append(a)
     hotel_data['amenities'] = ','.join(amenities_list) if amenities_list else None
 
-    if 'main_image' in request.files:
-        image = request.files['main_image']
-        if image and image.filename:
-            hotel_data['main_image'] = base64.b64encode(image.read()).decode('utf-8')
+    hotel_data['main_image'] = images[0]['base64']
 
     try:
         hotel = Hotel.create(**hotel_data)
 
-        if 'gallery_images' in request.files:
-            images = request.files.getlist('gallery_images')
-            for img in images:
-                if img and img.filename:
-                    HotelImage.create(
-                        hotel_id=hotel.id,
-                        image_data=base64.b64encode(img.read()).decode('utf-8')
-                    )
+        for image in images[1:]:
+            HotelImage.create(hotel_id=hotel.id, image_data=image['base64'])
 
-        log_activity(f"Admin '{current_user.username}' added property '{name}'")
-        flash(f'Property "{name}" added successfully!', 'success')
+        log_activity(f"Property owner '{current_user.username}' submitted property '{name}' for automated review")
+        if moderation['review_status'] == 'approved':
+            flash('Staya verified the listing checks and published the property.', 'success')
+        elif moderation['review_status'] == 'rejected':
+            flash(f"Staya rejected this submission: {moderation['summary']}", 'danger')
+        else:
+            flash(f"Staya needs changes before publishing: {moderation['summary']}", 'warning')
         return redirect(url_for('admin.my_properties'))
 
     except Exception as e:
@@ -162,16 +188,47 @@ def edit_property(property_id):
                 amenities_list.append(a)
     update_data['amenities'] = ','.join(amenities_list) if amenities_list else None
     update_data['accept_online_payments'] = 1 if request.form.get('accept_online_payments') else 0
-
+    changed_images = []
     if 'main_image' in request.files:
         image = request.files['main_image']
         if image and image.filename:
-            update_data['main_image'] = base64.b64encode(image.read()).decode('utf-8')
+            try:
+                changed_images = prepare_property_images([image])
+            except ValueError as exc:
+                flash(str(exc), 'danger')
+                return redirect(url_for('admin.edit_property', property_id=property_id))
+            update_data['main_image'] = changed_images[0]['base64']
+
+    if request.form.get('ai_moderation_consent') == 'yes':
+        moderation = review_property_submission(
+            update_data.get('name', hotel.name),
+            update_data.get('description', getattr(hotel, 'description', '') or ''),
+            update_data.get('property_type', hotel.property_type),
+            update_data.get('address', getattr(hotel, 'address', '') or ''),
+            update_data.get('city', hotel.city),
+            update_data.get('country', hotel.country),
+            changed_images,
+        )
+    else:
+        moderation = {
+            'review_status': 'action_required',
+            'moderation_status': 'not_requested',
+            'summary': 'Allow Staya to check this listing before it can be published.',
+        }
+    update_data['review_status'] = moderation['review_status']
+    update_data['moderation_status'] = moderation['moderation_status']
+    update_data['moderation_notes'] = moderation['summary']
+    update_data['submitted_at'] = datetime.utcnow().isoformat()
 
     try:
         hotel.update(**update_data)
         log_activity(f"Admin '{current_user.username}' edited property '{hotel.name}'")
-        flash(f'Property "{hotel.name}" updated successfully!', 'success')
+        if moderation['review_status'] == 'approved':
+            flash(f'Property "{hotel.name}" updated and approved by Staya.', 'success')
+        elif moderation['review_status'] == 'rejected':
+            flash(f"Staya rejected this update: {moderation['summary']}", 'danger')
+        else:
+            flash(f"Staya needs changes before publishing: {moderation['summary']}", 'warning')
     except Exception as e:
         flash(f'Error updating property: {str(e)}', 'danger')
 

@@ -43,7 +43,11 @@ CREATE TABLE IF NOT EXISTS hotels (
   price_per_night FLOAT,
   avg_rating NUMERIC(2,1) DEFAULT 0,
   review_count INT DEFAULT 0,
-  amenities TEXT
+  amenities TEXT,
+  review_status TEXT NOT NULL DEFAULT 'pending',
+  moderation_status TEXT NOT NULL DEFAULT 'not_checked',
+  moderation_notes TEXT,
+  submitted_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS rooms (

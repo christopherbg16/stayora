@@ -1,7 +1,8 @@
 import os
+import secrets
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-change-this-in-production-2025'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
 
     # Upload settings
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/uploads')
@@ -18,6 +19,7 @@ class Config:
 
     # Gemini
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or ''
+    GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY') or ''
 
     # Email / reset password settings
     MAIL_SERVER = os.environ.get('SMTP_HOST') or os.environ.get('MAIL_SERVER') or ''

@@ -4,11 +4,18 @@ Imports in FK-safe dependency order.
 """
 import re
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from supabase import create_client
 
-SUPABASE_URL = "https://dyujezlpsehpdwovwstl.supabase.co"
-SUPABASE_KEY = "sb_secret_ECqFyFxbmBXUZKoYzzHnsA_1Hw21gQ1"
-SQL_FILE = "supabase_import.sql"
+load_dotenv(Path(__file__).with_name(".env"))
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError("Set SUPABASE_URL and SUPABASE_KEY in the environment or .env file.")
+
+SQL_FILE = os.path.join(os.path.dirname(__file__), "supabase_import.sql")
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
