@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Server error') }} — Stayora{% endblock %}
+
+{% block content %}
+<main class="container py-5 text-center">
+    <h1>{{ _('Something went wrong') }}</h1>
+    <p>{{ _('We could not complete your request. Please try again later.') }}</p>
+    <a class="btn btn-primary" href="{{ url_for('index') }}">{{ _('Back to home') }}</a>
+</main>
+{% endblock %}

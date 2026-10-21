@@ -24,6 +24,10 @@ def _stripe_enabled():
 stripe.api_key = Config.STRIPE_SECRET_KEY if _stripe_enabled() else ''
 
 
+def _listing_is_approved(hotel):
+    return hotel is not None and getattr(hotel, 'review_status', None) == 'approved'
+
+
 @payments_bp.route('/checkout/room/<int:room_id>', methods=['GET', 'POST'])
 @login_required
 def checkout_room(room_id):
@@ -32,6 +36,9 @@ def checkout_room(room_id):
         flash('Room not found', 'danger')
         return redirect(url_for('user.browse_stays'))
     hotel = room.hotel
+    if not _listing_is_approved(hotel):
+        flash('This property is not currently available for booking.', 'warning')
+        return redirect(url_for('user.browse_stays'))
 
     check_in = request.args.get('check_in')
     check_out = request.args.get('check_out')
@@ -102,6 +109,9 @@ def checkout_property(property_id):
     hotel = Hotel.get(property_id)
     if not hotel:
         flash('Property not found', 'danger')
+        return redirect(url_for('user.browse_stays'))
+    if not _listing_is_approved(hotel):
+        flash('This property is not currently available for booking.', 'warning')
         return redirect(url_for('user.browse_stays'))
 
     check_in = request.args.get('check_in')
@@ -190,6 +200,9 @@ def success():
                 existing = Reservation.find_by_payment_id(session_id)
                 if not existing:
                     room = Room.get(room_id)
+                    if not room or not _listing_is_approved(room.hotel):
+                        flash('Payment was received, but this property is no longer available. Contact support about a refund.', 'danger')
+                        return redirect(url_for('user.dashboard'))
                     Reservation.create(
                         room_id=room_id,
                         guest=current_user.username,
@@ -212,6 +225,9 @@ def success():
                 existing = PropertyReservation.find_by_payment_id(session_id)
                 if not existing:
                     hotel = Hotel.get(property_id)
+                    if not _listing_is_approved(hotel):
+                        flash('Payment was received, but this property is no longer available. Contact support about a refund.', 'danger')
+                        return redirect(url_for('user.dashboard'))
                     PropertyReservation.create(
                         property_id=property_id,
                         guest=current_user.username,
@@ -279,6 +295,9 @@ def process_payment():
             room = Room.get(booking_id)
             if not room:
                 flash('Room not found.', 'danger')
+                return redirect(url_for('user.browse_stays'))
+            if not _listing_is_approved(room.hotel):
+                flash('This property is not currently available for booking.', 'warning')
                 return redirect(url_for('user.browse_stays'))
 
             if payment_method == 'card' and not _stripe_enabled():
@@ -350,6 +369,9 @@ def process_payment():
             hotel = Hotel.get(booking_id)
             if not hotel:
                 flash('Property not found.', 'danger')
+                return redirect(url_for('user.browse_stays'))
+            if not _listing_is_approved(hotel):
+                flash('This property is not currently available for booking.', 'warning')
                 return redirect(url_for('user.browse_stays'))
 
             if payment_method == 'card' and not _stripe_enabled():

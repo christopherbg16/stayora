@@ -18,6 +18,7 @@ if str(APP_DIR) not in sys.path:
 from property_moderation import (
     moderate_property_content,
     prepare_property_images,
+    prepare_stored_property_images,
     review_property_submission,
     verify_property_location,
 )
@@ -42,6 +43,19 @@ class PropertyModerationTest(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             prepare_property_images([upload])
+
+    def test_revalidates_stored_property_images(self):
+        uploaded = prepare_property_images([self.make_png_upload()])
+
+        stored = prepare_stored_property_images([uploaded[0]["base64"]])
+
+        self.assertEqual(len(stored), 1)
+        self.assertEqual(stored[0]["mime_type"], "image/jpeg")
+        self.assertTrue(stored[0]["bytes"].startswith(b"\xff\xd8"))
+
+    def test_rejects_invalid_stored_property_image(self):
+        with self.assertRaises(ValueError):
+            prepare_stored_property_images(["not-base64!"])
 
     def test_without_gemini_key_requires_owner_action(self):
         with patch.dict(os.environ, {"GEMINI_API_KEY": ""}):

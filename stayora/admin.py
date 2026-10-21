@@ -5,7 +5,11 @@ from models import User, Room, Reservation, Activity, Hotel, HotelImage, log_act
 from forms import RoomForm, ReservationForm, HotelForm
 from datetime import datetime, timedelta
 from supabase_client import supabase
-from property_moderation import prepare_property_images, review_property_submission
+from property_moderation import (
+    prepare_property_images,
+    prepare_stored_property_images,
+    review_property_submission,
+)
 import base64
 from functools import wraps
 
@@ -200,6 +204,17 @@ def edit_property(property_id):
             update_data['main_image'] = changed_images[0]['base64']
 
     if request.form.get('ai_moderation_consent') == 'yes':
+        image_data = [hotel.main_image]
+        if changed_images:
+            image_data[0] = changed_images[0]['base64']
+        image_data.extend(
+            getattr(image, 'image_data', None) for image in hotel.images
+        )
+        try:
+            images_for_review = prepare_stored_property_images(image_data)
+        except ValueError as exc:
+            flash(str(exc), 'danger')
+            return redirect(url_for('admin.edit_property', property_id=property_id))
         moderation = review_property_submission(
             update_data.get('name', hotel.name),
             update_data.get('description', getattr(hotel, 'description', '') or ''),
@@ -207,7 +222,7 @@ def edit_property(property_id):
             update_data.get('address', getattr(hotel, 'address', '') or ''),
             update_data.get('city', hotel.city),
             update_data.get('country', hotel.country),
-            changed_images,
+            images_for_review,
         )
     else:
         moderation = {

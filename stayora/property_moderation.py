@@ -48,6 +48,39 @@ def prepare_property_images(files):
     return prepared
 
 
+def prepare_stored_property_images(encoded_images):
+    prepared = []
+    for encoded_image in encoded_images:
+        if not encoded_image:
+            continue
+        try:
+            raw = base64.b64decode(encoded_image, validate=True)
+        except (ValueError, TypeError) as exc:
+            raise ValueError("A stored property image could not be decoded.") from exc
+        if len(raw) > MAX_IMAGE_BYTES:
+            raise ValueError("Each property image must be 8 MB or smaller.")
+        try:
+            with Image.open(io.BytesIO(raw)) as source:
+                if source.format not in ALLOWED_IMAGE_FORMATS:
+                    raise ValueError("A stored property image has an unsupported format.")
+                source.verify()
+            with Image.open(io.BytesIO(raw)) as source:
+                image = ImageOps.exif_transpose(source).convert("RGB")
+                output = io.BytesIO()
+                image.save(output, format="JPEG", quality=90, optimize=True)
+        except (UnidentifiedImageError, OSError) as exc:
+            raise ValueError("A stored property image is not valid.") from exc
+        jpeg_bytes = output.getvalue()
+        prepared.append({
+            "bytes": jpeg_bytes,
+            "base64": base64.b64encode(jpeg_bytes).decode("ascii"),
+            "mime_type": "image/jpeg",
+        })
+        if len(prepared) > MAX_PROPERTY_IMAGES:
+            raise ValueError(f"Upload no more than {MAX_PROPERTY_IMAGES} property images.")
+    return prepared
+
+
 def moderate_property_content(name, description, property_type, address, city, country, images):
     api_key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not api_key:
