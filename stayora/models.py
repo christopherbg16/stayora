@@ -552,37 +552,51 @@ def log_activity(activity_text):
 
 
 def check_room_conflict(room_id, start_date, end_date):
-    data = supabase.table('reservations').select('*').eq('room_id', room_id).execute()
+    earliest_possible_start = (start_date - timedelta(days=365)).isoformat()
+    data = (supabase.table('reservations').select('start_date,nights')
+            .eq('room_id', room_id)
+            .gte('start_date', earliest_possible_start)
+            .lt('start_date', end_date.isoformat())
+            .execute())
     for r in (data.data or []):
         r_start = _parse_date(r.get('start_date'))
         if not r_start:
             continue
-        r_end = r_start + timedelta(days=r.get('nights', 0))
+        r_end = r_start + timedelta(days=int(r.get('nights') or 0))
         if r_start < end_date and r_end > start_date:
             return True
     return False
 
 
 def check_property_conflict(property_id, start_date, end_date):
-    data = supabase.table('property_reservations').select('*').eq('property_id', property_id).execute()
+    earliest_possible_start = (start_date - timedelta(days=365)).isoformat()
+    data = (supabase.table('property_reservations').select('start_date,nights')
+            .eq('property_id', property_id)
+            .gte('start_date', earliest_possible_start)
+            .lt('start_date', end_date.isoformat())
+            .execute())
     for r in (data.data or []):
         r_start = _parse_date(r.get('start_date'))
         if not r_start:
             continue
-        r_end = r_start + timedelta(days=r.get('nights', 0))
+        r_end = r_start + timedelta(days=int(r.get('nights') or 0))
         if r_start < end_date and r_end > start_date:
             return True
     return False
 
 
 def get_conflicting_room_ids(start_date, end_date):
-    data = supabase.table('reservations').select('*').execute()
+    earliest_possible_start = (start_date - timedelta(days=365)).isoformat()
+    data = (supabase.table('reservations').select('room_id,start_date,nights')
+            .gte('start_date', earliest_possible_start)
+            .lt('start_date', end_date.isoformat())
+            .execute())
     conflicting = []
     for r in (data.data or []):
         r_start = _parse_date(r.get('start_date'))
         if not r_start:
             continue
-        r_end = r_start + timedelta(days=r.get('nights', 0))
+        r_end = r_start + timedelta(days=int(r.get('nights') or 0))
         if r_start < end_date and r_end > start_date:
             conflicting.append(r['room_id'])
     return conflicting

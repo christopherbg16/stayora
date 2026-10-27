@@ -298,8 +298,7 @@
                 <input type="hidden" name="booking_type" value="{{ 'room' if room else 'property' }}">
                 <input type="hidden" name="booking_id" value="{{ room.id if room else hotel.id }}">
                 <input type="hidden" name="check_in" value="{{ check_in }}">
-                <input type="hidden" name="nights" value="{{ nights }}">
-                <input type="hidden" name="total_price" value="{{ total_price }}">
+                <input type="hidden" name="check_out" value="{{ check_out }}">
 
                 <div class="payment-methods">
                     <!-- Card Payment -->

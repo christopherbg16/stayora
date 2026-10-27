@@ -50,7 +50,7 @@
     <aside class="admin-sidebar">
         <div class="sidebar-user-card">
             {% if current_user.profile_image %}
-                <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="sidebar-avatar">
+                <img src="{{ current_user.profile_image|image_src }}" class="sidebar-avatar">
             {% else %}
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
@@ -137,7 +137,7 @@
                         <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .2s;">
                             <div style="height:180px;overflow:hidden;background:var(--bg-input);position:relative;">
                                 {% if room.image_data %}
-                                    <img src="data:image/jpeg;base64,{{ room.image_data|b64encode }}" alt="Room {{ room.number }}" style="width:100%;height:100%;object-fit:cover;">
+                                    <img src="{{ room.image_data|image_src }}" alt="Room {{ room.number }}" style="width:100%;height:100%;object-fit:cover;">
                                 {% else %}
                                     <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
                                         <i class="fas fa-image fa-3x" style="color:var(--border);"></i>

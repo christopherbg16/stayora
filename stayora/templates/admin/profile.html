@@ -128,7 +128,7 @@
     <aside class="admin-sidebar">
         <div class="sidebar-user-card">
             {% if current_user.profile_image %}
-                <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="sidebar-avatar" alt="avatar">
+                <img src="{{ current_user.profile_image|image_src }}" class="sidebar-avatar" alt="avatar">
             {% else %}
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
@@ -336,7 +336,7 @@
                         <div class="col-md-4 text-center">
                             <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ _('Preview') }}</div>
                             {% if current_user.profile_image %}
-                                <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="profile-avatar" style="width:80px;height:80px;">
+                                <img src="{{ current_user.profile_image|image_src }}" class="profile-avatar" style="width:80px;height:80px;">
                             {% else %}
                                 <div class="profile-avatar-placeholder" style="width:80px;height:80px;font-size:1.8rem;">👑</div>
                             {% endif %}

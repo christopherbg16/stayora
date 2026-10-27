@@ -10,6 +10,7 @@ from urllib.request import Request, urlopen
 
 from google.genai import Client, types
 from PIL import Image, ImageOps, UnidentifiedImageError
+from storage import download_public_image
 
 
 MAX_PROPERTY_IMAGES = 10
@@ -54,7 +55,10 @@ def prepare_stored_property_images(encoded_images):
         if not encoded_image:
             continue
         try:
-            raw = base64.b64decode(encoded_image, validate=True)
+            if isinstance(encoded_image, str) and encoded_image.startswith('https://'):
+                raw = download_public_image(encoded_image)
+            else:
+                raw = base64.b64decode(encoded_image, validate=True)
         except (ValueError, TypeError) as exc:
             raise ValueError("A stored property image could not be decoded.") from exc
         if len(raw) > MAX_IMAGE_BYTES:

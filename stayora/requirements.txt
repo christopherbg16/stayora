@@ -2,6 +2,7 @@ flask
 flask-login
 flask-babel
 flask-wtf
+Flask-Limiter
 wtforms
 supabase
 python-dotenv

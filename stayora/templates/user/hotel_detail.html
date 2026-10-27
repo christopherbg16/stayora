@@ -41,7 +41,7 @@
             <div class="col-md-8">
                 <div class="position-relative" style="border-radius: 12px; overflow: hidden; background-color: var(--bg-panel);">
                     <img id="mainHotelImage"
-                         src="data:image/jpeg;base64,{{ hotel.main_image|b64encode }}"
+                         src="{{ hotel.main_image|image_src }}"
                          style="width: 100%; height: 450px; object-fit: cover; display: block;"
                          alt="{{ hotel.name }}">
 
@@ -75,7 +75,7 @@
                         <div class="card" style="background-color: var(--bg-panel); border: 2px solid var(--primary); cursor: pointer; overflow: hidden; border-radius: 8px;"
                              onclick="showImage(0)" id="thumb-0">
                             <div style="height: 70px;">
-                                <img src="data:image/jpeg;base64,{{ hotel.main_image|b64encode }}"
+                                <img src="{{ hotel.main_image|image_src }}"
                                      style="width: 100%; height: 100%; object-fit: cover;"
                                      alt="{{ _('Main image') }}">
                             </div>
@@ -86,7 +86,7 @@
                         <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); cursor: pointer; overflow: hidden; border-radius: 8px;"
                              onclick="showImage({{ loop.index }})" id="thumb-{{ loop.index }}">
                             <div style="height: 70px;">
-                                <img src="data:image/jpeg;base64,{{ image.image_data|b64encode }}"
+                                <img src="{{ image.image_data|image_src }}"
                                      style="width: 100%; height: 100%; object-fit: cover;"
                                      alt="{{ hotel.name }} gallery">
                             </div>
@@ -212,7 +212,7 @@
                                         <div class="col-md-3">
                                             <div style="height: 100px; overflow: hidden; border-radius: 8px;">
                                                 {% if item.room and item.room.image_data %}
-                                                    <img src="data:image/jpeg;base64,{{ item.room.image_data|b64encode }}"
+                                                    <img src="{{ item.room.image_data|image_src }}"
                                                          style="width: 100%; height: 100%; object-fit: cover;"
                                                          alt="Room {{ item.room.number }}">
                                                 {% else %}
@@ -362,13 +362,13 @@
 const images = [
     {% if hotel.main_image %}
     {
-        src: 'data:image/jpeg;base64,{{ hotel.main_image|b64encode }}',
+        src: '{{ hotel.main_image|image_src }}',
         alt: '{{ _('Main image') }}'
     },
     {% endif %}
     {% for image in hotel.images %}
     {
-        src: 'data:image/jpeg;base64,{{ image.image_data|b64encode }}',
+        src: '{{ image.image_data|image_src }}',
         alt: '{{ _('Gallery image') }} {{ loop.index }}'
     },
     {% endfor %}

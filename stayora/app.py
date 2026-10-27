@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, jsonify, url_for, redirect, make_response
 from flask_login import LoginManager
 from flask_babel import Babel, _
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from models import User, Hotel, log_activity
 from supabase_client import supabase
 from auth import auth_bp
@@ -16,6 +19,13 @@ import json
 
 app = Flask(__name__)
 app.config.from_object(Config)
+csrf = CSRFProtect(app)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    storage_uri=Config.RATELIMIT_STORAGE_URI,
+    default_limits=[],
+)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -51,6 +61,9 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(payments_bp)
 
+# Stripe authenticates this endpoint with its signed webhook payload.
+csrf.exempt(app.view_functions['payments.webhook'])
+
 
 @app.template_filter('b64encode')
 def b64encode_filter(data):
@@ -65,6 +78,16 @@ def b64encode_filter(data):
     except TypeError:
         # Fallback: convert to string and encode
         return base64.b64encode(str(data).encode('utf-8')).decode('utf-8')
+
+
+@app.template_filter('image_src')
+def image_src_filter(data):
+    if not data:
+        return ''
+    if isinstance(data, str) and data.startswith(('https://', 'http://', 'data:')):
+        return data
+    encoded = b64encode_filter(data)
+    return f'data:image/jpeg;base64,{encoded}' if encoded else ''
 
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -268,21 +291,25 @@ def set_language(lang):
 
 
 @app.route('/api/chat', methods=['POST'])
+@limiter.limit('10 per minute')
 def chat_api():
     from chatbot import process_message
     data = request.get_json(silent=True)
-    if not data or 'message' not in data:
+    if not isinstance(data, dict) or not isinstance(data.get('message'), str):
         return jsonify({'error': 'Message required'}), 400
     message = data['message'].strip()
     if not message:
         return jsonify({'error': 'Message cannot be empty'}), 400
+    if len(message) > 2000:
+        return jsonify({'error': 'Message is too long'}), 413
     session_id = data.get('session_id')
     lang = data.get('lang') or request.cookies.get('site_lang', 'en')
     try:
         response = process_message(message, session_id=session_id, lang=lang)
         return jsonify(response)
-    except Exception as e:
-        return jsonify({'error': str(e), 'text': 'Sorry, something went wrong.'}), 500
+    except Exception:
+        app.logger.exception('Chat request failed')
+        return jsonify({'error': 'Chat is temporarily unavailable', 'text': 'Sorry, something went wrong.'}), 500
 
 
 @app.route('/api/chat/session', methods=['GET'])

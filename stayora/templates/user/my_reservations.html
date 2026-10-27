@@ -12,7 +12,7 @@
                 <div class="text-center p-3 mb-4" style="background-color: var(--bg-input); border-radius: 10px;">
                     <div class="mb-2">
                         {% if current_user.profile_image %}
-                            <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}"
+                            <img src="{{ current_user.profile_image|image_src }}"
                                  class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover; border: 3px solid var(--primary);">
                         {% else %}
                             <div style="font-size: 4rem; color: var(--primary);">👤</div>

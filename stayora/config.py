@@ -1,8 +1,13 @@
 import os
-import secrets
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).with_name('.env'))
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
+    SECRET_KEY = os.environ.get('SECRET_KEY', '').strip()
+    if len(SECRET_KEY) < 32 or SECRET_KEY == 'replace-with-a-random-value':
+        raise RuntimeError('Set a stable SECRET_KEY of at least 32 characters in stayora/.env or the environment.')
 
     # Upload settings
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/uploads')
@@ -16,6 +21,13 @@ class Config:
     # Stripe settings
     STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY') or ''
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY') or ''
+    STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET') or ''
+
+    # Supabase Storage uploads require a server-only service role key.
+    SUPABASE_SERVICE_ROLE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY') or ''
+    SUPABASE_STORAGE_BUCKET = os.environ.get('SUPABASE_STORAGE_BUCKET', 'stayora-images')
+
+    RATELIMIT_STORAGE_URI = os.environ.get('RATELIMIT_STORAGE_URI', 'memory://')
 
     # Gemini
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or ''

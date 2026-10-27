@@ -40,7 +40,7 @@
     <aside class="admin-sidebar">
         <div class="sidebar-user-card">
             {% if current_user.profile_image %}
-                <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="sidebar-avatar">
+                <img src="{{ current_user.profile_image|image_src }}" class="sidebar-avatar">
             {% else %}
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}
@@ -95,7 +95,7 @@
                             <tr>
                                 <td>
                                     {% if room.image_data %}
-                                        <img src="data:image/jpeg;base64,{{ room.image_data|b64encode }}" class="room-thumb" alt="Room {{ room.number }}">
+                                        <img src="{{ room.image_data|image_src }}" class="room-thumb" alt="Room {{ room.number }}">
                                     {% else %}
                                         <div class="room-thumb d-flex align-items-center justify-content-center" style="background:var(--bg-input);">
                                             <i class="fas fa-image" style="color:var(--text-muted);"></i>

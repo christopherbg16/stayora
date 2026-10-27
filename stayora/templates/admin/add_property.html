@@ -23,7 +23,7 @@
     <aside class="admin-sidebar">
         <div class="sidebar-user-card">
             {% if current_user.profile_image %}
-                <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="sidebar-avatar">
+                <img src="{{ current_user.profile_image|image_src }}" class="sidebar-avatar">
             {% else %}
                 <div class="sidebar-avatar-placeholder">👑</div>
             {% endif %}

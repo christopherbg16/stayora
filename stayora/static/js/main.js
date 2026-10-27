@@ -1,4 +1,38 @@
 // Smooth scroll behavior
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+if (csrfToken) {
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = (input, init = {}) => {
+        const requestUrl = new URL(
+            typeof input === 'string' ? input : input.url,
+            window.location.href
+        );
+        const method = (init.method || (input instanceof Request ? input.method : 'GET')).toUpperCase();
+        if (requestUrl.origin === window.location.origin && !['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method)) {
+            const headers = new Headers(input instanceof Request ? input.headers : undefined);
+            new Headers(init.headers || {}).forEach((value, key) => headers.set(key, value));
+            headers.set('X-CSRFToken', csrfToken);
+            init = { ...init, headers };
+        }
+        return nativeFetch(input, init);
+    };
+}
+
+document.addEventListener('submit', event => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || form.method.toUpperCase() !== 'POST' || !csrfToken) {
+        return;
+    }
+    let field = form.querySelector('input[name="csrf_token"]');
+    if (!field) {
+        field = document.createElement('input');
+        field.type = 'hidden';
+        field.name = 'csrf_token';
+        form.appendChild(field);
+    }
+    field.value = csrfToken;
+}, true);
+
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         const href = this.getAttribute('href');

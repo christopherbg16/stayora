@@ -255,7 +255,7 @@
         <div class="profile-card">
             <div class="profile-avatar-container">
                 {% if current_user.profile_image %}
-                    <img src="data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}" class="profile-avatar" alt="{{ _('Profile') }}">
+                    <img src="{{ current_user.profile_image|image_src }}" class="profile-avatar" alt="{{ _('Profile') }}">
                 {% else %}
                     <div class="profile-avatar-placeholder">
                         <i class="fas fa-user"></i>
@@ -459,7 +459,7 @@
                         <div class="col-md-4 text-center">
                             <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ _('Preview') }}</div>
                             <img id="imagePreview"
-                                 src="{% if current_user.profile_image %}data:image/jpeg;base64,{{ current_user.profile_image|b64encode }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%231e2a3a'/%3E%3Ctext x='40' y='55' font-size='40' text-anchor='middle' fill='%2364748b'%3E👤%3C/text%3E%3C/svg%3E{% endif %}"
+                                 src="{% if current_user.profile_image %}{{ current_user.profile_image|image_src }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%231e2a3a'/%3E%3Ctext x='40' y='55' font-size='40' text-anchor='middle' fill='%2364748b'%3E👤%3C/text%3E%3C/svg%3E{% endif %}"
                                  class="upload-preview">
                         </div>
                     </div>

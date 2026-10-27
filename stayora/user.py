@@ -7,7 +7,8 @@ from models import User, Room, Reservation, PropertyReservation, Hotel, HotelIma
 from forms import ProfileForm, SearchRoomsForm, HotelSearchForm
 from datetime import datetime, timedelta
 from supabase_client import supabase
-import base64
+from property_moderation import prepare_property_images
+from storage import upload_image
 from functools import wraps
 import math
 
@@ -333,7 +334,10 @@ def profile():
             update_data['address'] = form.address.data or None
             changes_made = True
         if form.profile_image.data:
-            update_data['profile_image'] = base64.b64encode(form.profile_image.data.read()).decode('utf-8')
+            image = prepare_property_images([form.profile_image.data])[0]
+            update_data['profile_image'] = upload_image(
+                image['bytes'], image['mime_type'], 'profiles'
+            )
             changes_made = True
 
         if changes_made:

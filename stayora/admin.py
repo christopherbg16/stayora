@@ -10,8 +10,8 @@ from property_moderation import (
     prepare_stored_property_images,
     review_property_submission,
 )
-import base64
 from functools import wraps
+from storage import upload_image
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -143,13 +143,16 @@ def add_property():
                 amenities_list.append(a)
     hotel_data['amenities'] = ','.join(amenities_list) if amenities_list else None
 
-    hotel_data['main_image'] = images[0]['base64']
-
     try:
+        stored_images = [
+            upload_image(image['bytes'], image['mime_type'], 'properties')
+            for image in images
+        ]
+        hotel_data['main_image'] = stored_images[0]
         hotel = Hotel.create(**hotel_data)
 
-        for image in images[1:]:
-            HotelImage.create(hotel_id=hotel.id, image_data=image['base64'])
+        for image_url in stored_images[1:]:
+            HotelImage.create(hotel_id=hotel.id, image_data=image_url)
 
         log_activity(f"Property owner '{current_user.username}' submitted property '{name}' for automated review")
         if moderation['review_status'] == 'approved':
@@ -236,6 +239,10 @@ def edit_property(property_id):
     update_data['submitted_at'] = datetime.utcnow().isoformat()
 
     try:
+        if changed_images:
+            update_data['main_image'] = upload_image(
+                changed_images[0]['bytes'], changed_images[0]['mime_type'], 'properties'
+            )
         hotel.update(**update_data)
         log_activity(f"Admin '{current_user.username}' edited property '{hotel.name}'")
         if moderation['review_status'] == 'approved':
@@ -311,7 +318,8 @@ def add_room():
         if 'room_image' in request.files:
             img = request.files['room_image']
             if img and img.filename:
-                room_data['image_data'] = base64.b64encode(img.read()).decode('utf-8')
+                image = prepare_property_images([img])[0]
+                room_data['image_data'] = upload_image(image['bytes'], image['mime_type'], 'rooms')
         Room.create(**room_data)
         log_activity(f"Admin '{current_user.username}' added Room #{number} to {hotel.name}")
         flash(f'Room #{number} added successfully!', 'success')
@@ -387,7 +395,8 @@ def add_property_room(property_id):
         if 'room_image' in request.files:
             img = request.files['room_image']
             if img and img.filename:
-                room_data['image_data'] = base64.b64encode(img.read()).decode('utf-8')
+                image = prepare_property_images([img])[0]
+                room_data['image_data'] = upload_image(image['bytes'], image['mime_type'], 'rooms')
         Room.create(**room_data)
         log_activity(f"Admin '{current_user.username}' added Room #{number} to {hotel.name}")
         flash(f'Room #{number} added successfully!', 'success')
@@ -461,7 +470,8 @@ def profile():
             update_data['address'] = form.address.data or None
             changes_made = True
         if form.profile_image.data:
-            update_data['profile_image'] = base64.b64encode(form.profile_image.data.read()).decode('utf-8')
+            image = prepare_property_images([form.profile_image.data])[0]
+            update_data['profile_image'] = upload_image(image['bytes'], image['mime_type'], 'profiles')
             changes_made = True
 
         payment_fields = ['stripe_account_id', 'bank_name', 'bank_iban', 'bank_holder']
